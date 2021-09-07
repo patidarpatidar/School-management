@@ -8,7 +8,7 @@ admin.site.register(Course,CourseAdmin)
 
 admin.site.register(Subject)
 class UserProfileAdmin(admin.ModelAdmin):
-	list_display = ['user','role']
+	list_display = ['user','role','gender','phone','street','city','state','pin_code']
 	list_filter=['user']
 	search_fields = ('role',)
 admin.site.register(UserProfile,UserProfileAdmin)

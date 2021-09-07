@@ -14,8 +14,8 @@ from django.contrib.auth.hashers import check_password
 
 class UserProfileForm(forms.Form):
 	GENDER = (
-			('male','Male'),
-			('female','Female'),
+			('MALE','male'),
+			('FEMALE','female'),
 		)
 	ROLE_CHOICE = (
 			('STUDENT','student'),
@@ -47,7 +47,7 @@ class UserProfileForm(forms.Form):
 
 class StudentCourseRegistrationForm(forms.Form):
 	course = forms.ModelChoiceField(queryset=Course.objects.all())
-	subject = forms. ModelMultipleChoiceField(queryset=Subject.objects.all(),widget=forms.CheckboxSelectMultiple())
+	subject = forms. ModelMultipleChoiceField(queryset=Subject.objects.all())
 
 
 class TeacherSubjectRegistrationForm(forms.Form):
@@ -160,8 +160,8 @@ class ResultForm(forms.Form):
 
 class UserUpdateForm(forms.Form):
 	GENDER = (
-			('male','Male'),
-			('female','Female'),
+			('MALE','male'),
+			('FEMALE','female'),
 		)
 	ROLE_CHOICE = (
 			('STUDENT','student'),

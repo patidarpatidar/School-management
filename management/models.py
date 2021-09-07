@@ -24,8 +24,8 @@ class Subject(models.Model):
 
 class UserProfile(models.Model):
 	GENDER = (
-			('male','Male'),
-			('female','Female'),
+			('MALE','male'),
+			('FEMALE','female'),
 		)
 	ROLE_CHOICE = (
 			('STUDENT','student'),

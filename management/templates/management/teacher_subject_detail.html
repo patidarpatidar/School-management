@@ -12,13 +12,15 @@
 			</div>
 		<div class="col-md-8">
 				<div class="card bg-info">
-					<div class="card-body" style="color: white;margin-left: 20%;">
-						<h5>Subject Information</h5><hr>	
+					<div class="card-body " style="color: white;">
+						<div class="main">
+						<h5 class="text-center">Subject Information</h5><hr>	
 						<h5>Course : {{subject_detail.subject.course}}</h5>						
 						<h5>Subject : {{subject_detail.subject}}</h5>
-						<h5>Description : {{subject_detail.subject.description}}</h5>
+						<h5>Description : {{subject_detail.subject.description}}</h5><br>
 						<a href="/management/update-subject-registration"><button class="btn btn-warning">Update</button></a>
 						<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal">Delete</button>
+					</div>
 					</div>
 				</div>
 				<div class="modal" id="myModal">

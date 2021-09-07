@@ -10,9 +10,9 @@ urlpatterns = [
     path('logout/',logout_view,name='logout'),
     
     path('user-profile-create',user_profile_create,name='user-profile-create'),
-    path('user-profile/',user_profile_view,name='user-profile'),
+    path('user-profile',user_profile_view,name='user-profile'),
     path('user-update',update_user_detail,name='user-update'),
-    path('delete-user/',user_delete,name='delete-user'),
+    path('delete-user',user_delete,name='delete-user'),
 
     
     path('course-registration-detail',student_course_registration_view,name='course-registration-detail'),
