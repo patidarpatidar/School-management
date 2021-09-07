@@ -1,0 +1,73 @@
+{% extends "management/base.html" %}
+
+
+{% block title %} Course Details {% endblock %}
+
+
+{% block content %}
+
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-4">
+				{% include 'management/sidebar.html'%}
+			</div>
+			
+		<div class="col-md-8">
+
+			<div class="card bg-info">
+					<div class="card-body" style="color: white;">
+						<div class="row g-0">
+							<div class="col-md-6 g-1">
+								<h5 class="text-center">Course Information</h5><hr>
+								<h5>Course: {{course_detail.course}}</h5>
+								<h5>Description: {{course_detail.course.description}}</h5>
+								<h5>Duration : {{course_detail.course.duration}}</h5>
+								<h5>Total Fees: {{course_detail.course.fees}}</h5> <br>
+							</div>
+							
+							<div class="col-md-6 g-1">
+								<h5 class="text-center">Subject Information</h5><hr>
+								{% for subject in course_detail.subject.all %}
+								<h5><li><b>{{subject}}</b></li></h5>
+								{% endfor %}
+							</div>
+						</div>
+						<div class="text-center">
+							<a href="/management/update-course-registration"><button class="btn btn-warning">Update</button></a>
+			
+							<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal">Delete</button>
+								
+						</div>
+							
+					</div>
+					<div class="modal" id="myModal">
+						<div class="modal-dialog">
+					  		<div class="modal-content">
+					  	
+					    		<div class="modal-header">
+					        		<h4 class="modal-title">Are you sure you delete your course registration?</h4>
+					        		<button type="button" class="close" data-dismiss="modal">&times;</button>
+					      		</div>
+					      		<div class="modal-footer">
+        							<a href="/management/delete-course-registration"><button type="button" class="btn btn-success" value="True">Confirm</button></a>
+        							<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      							</div>
+
+							</div>
+   
+  						</div>
+					</div>
+					
+				
+						
+					
+			</div>
+		</div>
+			
+		
+	
+	</div>		
+	
+
+
+{% endblock %}

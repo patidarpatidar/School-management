@@ -1,0 +1,35 @@
+<style type="text/css">
+.sidebar a{
+  color: black;
+  background: lightblue;
+  t
+}
+.sidebar a:hover{
+  color:blue;
+  background: white;
+}
+.sidebar a:active{
+  color: yellow;
+  background: blue;
+}
+</style>
+
+<div class=" sidebar">
+	<a href="/management/user-profile" class="list-group-item list-group-item-action active">Name: {{request.user.first_name|capfirst}} {{request.user.last_name|capfirst}}</a>
+
+					{% if request.user.userprofile.role == "STUDENT" %}
+  						<a href="/management/course-registration-detail" class="list-group-item list-group-item-action">Course Details</a>
+  						<a href="/management/attendance-view" class="list-group-item list-group-item-action">View Attendance</a>
+              
+  						<a href="/management/view-result" class="list-group-item list-group-item-action">View Results</a>
+  					{% else %}
+  						<a href="/management/teacher-subject" class="list-group-item list-group-item-action">Subject Detail</a>
+  						<a href="/management/take-attendance" class="list-group-item list-group-item-action">Take Attendance </a>
+  						<a href="/management/attendance-record" class="list-group-item list-group-item-action">Attendance Record </a>
+  						<a href="/management/add-result" class="list-group-item list-group-item-action">Add Results</a>
+  				{% endif %}
+          <a href="/management/leave-information" class="list-group-item list-group-item-action">Leave Information</a> 	
+  				
+					<a href="/management/feedback-information" class="list-group-item list-group-item-action">Feedback Information</a>	
+</div>
+<br>

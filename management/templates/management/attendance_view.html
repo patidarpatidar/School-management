@@ -1,0 +1,70 @@
+{% extends "management/base.html" %}
+
+
+{% block title %} attendance view {% endblock %}
+
+{% block content %}
+
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-4">
+				{% include 'management/sidebar.html'%}
+			</div>
+			
+			<div class="col-md-8">
+				<div class="card bg-info">
+					<div class="card-body" style="color: white;">
+						<div class="row">
+							<div class="col-md-4 text-center" >
+								<h5>Name : {{request.user.first_name}} {{request.user.last_name}}</h5>
+								<h5>Course : {{request.user.studentcourseregistration.course}}</h5><br>
+								<div class="small-box" style="color: black; border: 2px solid black; background: white; border-radius: 30px;">
+									<h5>Total Persent : {{persent}}</h5><hr>
+									<h5>Total Absent : {{absent}}</h5>
+									
+								</div>
+								
+								
+							</div>
+							<div class="col-md-8">
+								<h5>More Information:</h5><hr>
+			
+								<table class="table">
+			
+									<thead>
+										<tr>
+											<th scope="col">#</th>
+											<th scope="col">Date</th>
+											<th scope="col">Subject</th>
+											<th scope="col">Status</th>
+					
+										</tr>
+									</thead> 
+									<tbody>
+										{% for attendance in attendance %}
+										<tr>
+											<th scope="row">{{attendance.id}}</th>
+											<td>{{attendance.date}}</td>
+											<td>{{attendance.subject}}</td>
+											<td>{{attendance.status}}</td>
+										</tr>
+											{% endfor %}
+									</tbody>
+								</table>
+								
+								
+							</div>
+							
+						</div>
+					</div>	
+				</div>	
+			</div>
+		</div>
+		
+			
+	
+	</div>		
+		
+
+
+{% endblock %}

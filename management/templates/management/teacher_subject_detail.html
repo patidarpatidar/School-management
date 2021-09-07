@@ -1,0 +1,48 @@
+{% extends "management/base.html" %}
+
+
+{% block title %} Subject Details {% endblock %}
+
+{% block content %}
+
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-4">
+				{% include 'management/sidebar.html'%}
+			</div>
+		<div class="col-md-8">
+				<div class="card bg-info">
+					<div class="card-body" style="color: white;margin-left: 20%;">
+						<h5>Subject Information</h5><hr>	
+						<h5>Course : {{subject_detail.subject.course}}</h5>						
+						<h5>Subject : {{subject_detail.subject}}</h5>
+						<h5>Description : {{subject_detail.subject.description}}</h5>
+						<a href="/management/update-subject-registration"><button class="btn btn-warning">Update</button></a>
+						<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal">Delete</button>
+					</div>
+				</div>
+				<div class="modal" id="myModal">
+						<div class="modal-dialog">
+					  		<div class="modal-content">
+					  	
+					    		<div class="modal-header">
+					        		<h4 class="modal-title">Are you sure you delete your subject registration?</h4>
+					        		<button type="button" class="close" data-dismiss="modal">&times;</button>
+					      		</div>
+					      		<div class="modal-footer">
+        							<a href="/management/delete-subject-registration"><button type="button" class="btn btn-success" value="True">Confirm</button></a>
+        							<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      							</div>
+
+							</div>
+   
+  						</div>
+					</div>
+			</div>	
+		</div>	
+	
+	</div>		
+		
+
+
+{% endblock %}

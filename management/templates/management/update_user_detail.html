@@ -1,0 +1,42 @@
+{% extends "management/base.html" %}
+
+{% block title %} profile update {% endblock %}
+{%load crispy_forms_tags %}
+{% block content %}
+
+	<div class="container-fluid" style="">
+		<div class="row">
+			<div class="col-md-4">
+				{% include 'management/sidebar.html'%}
+			</div>
+			<div class="col-md-8">
+				<div class="card bg-info">
+					<div class="card-body" style="color: white">
+						<form action="" class="" method="post"  enctype="multipart/form-data">
+								<h1 style="text-align: center">Update Detail</h1><hr>
+								{% csrf_token %}
+								{{form|crispy}}
+
+								{% if user.userprofile.image %}
+  									<img src="{{user.userprofile.image.url}}" alt="image here" height="50px;" width="50px;"><br>
+  								{% endif %}
+
+
+
+								{% for error in field.errors %}
+									<p style="color: red">{{error}}</p>
+								{% endfor %}
+
+								<div class="form-group text-center">
+									<input type="submit" name="Update" class="btn btn-primary text-center" value="update" >
+								</div>
+							</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+
+	</div>
+
+{% endblock %}

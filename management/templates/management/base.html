@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+{% load static %}
+ 
+	<head>
+  	<!-- Required meta tags -->
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width	initial-scale=1">
+		<link href="/your-path-to-fontawesome/css/fontawesome.css" rel="stylesheet">
+  		<!-- Bootstrap CSS -->
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  		<!-- link style.css -->
+		<link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+		<script type="text/javascript" src="{% static 'js/script.js'%}"></script>
+
+		<title>{% block title %} {% endblock %}</title>
+	</head>
+	<style type="text/css">
+		.errorlist{
+			color: red;
+		}
+		.navbar {
+  			
+  			top: 0;
+  			width: 100%;
+  			background-color: black;
+  			color: white;
+  			text-align: center;
+		}
+	</style>
+
+	<body>
+
+		<nav class="navbar navbar-expand-md " >
+			<div class="container-fluid">
+				<a class="navbar-brand" href="/management" style="color:blue"><b>Student Management System</b></a>
+				
+				<button  class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"><h1>=</h1></span>
+				</button>
+				<div class="collapse navbar-collapse" id="navbarSupportedContent">
+					<ul class="navbar-nav mr-20 mb-2 mb-lg-0">
+						<li class="nav-item">
+						<a class="nav-link active" aria-current="page" href="/management">Home</a>
+						</li>
+						{% if user.is_authenticated %}
+							<li class="nav-item"><a class="nav-link" href="/management/user-profile">Profile</a></li>
+						{% endif %}
+					</ul>
+					<ul class="navbar-nav ml-auto mb-2 mb-lg-0">
+						{% if user.is_authenticated %}
+						<li><img src="{{user.userprofile.image.url}}" class="img-fluid rounded-circle mx-auto d-block" alt="..." style="height: 40px; width: 40px;"></li>		
+						<li class="nav-item"><a href="/management/user-profile" class="nav-link"> Welcome : {{user.first_name}}</a></li>
+
+					
+						
+						
+						<li class="nav-item"><a class="nav-link" href="/management/logout">Logout</a></li>
+						{% else %}
+						<li><a class="nav-link" href="/management/signup">SignUp</a></li>
+						<li><a class="nav-link" href="/management/login">Login</a></li>
+						{%endif%}
+						
+					</ul>
+						
+						
+						
+					
+					
+				</div>
+			</div>
+		</nav>
+		<br>
+
+		{% block content %} 
+		{% endblock %}
+<br><br><br>
+<!-- Footer -->
+<style>
+footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: black;
+  color: white;
+  text-align: center;
+}
+</style>
+
+<footer class=" text-center text-white">
+  
+  <!-- Copyright -->
+  <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+    © 2021 Copyright:
+    <a class="text-white" href="https://mdbootstrap.com/">Student management</a>
+  </div>
+  <!-- Copyright -->
+</footer>
+<!-- Footer -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
+   
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<!-- Popper JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+	{% if messages %}			
+	{% for message in messages %}
+		swal("{{message}}")
+	{% endfor %}
+	{% endif %}
+</script>
+	</body>
+</html>

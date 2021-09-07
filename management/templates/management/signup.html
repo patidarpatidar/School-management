@@ -1,0 +1,39 @@
+{% extends "management/base.html" %}
+
+{% block title %} Signup Form {% endblock %}
+{%load crispy_forms_tags %}
+{% block content %}
+
+	<div class="container">
+		<div class="row">	
+			<div class="col-md-8" style="margin: 10px;">
+				<div class="card bg-dark">
+					<div class="card-body" style="color: white;">
+						<form action="" method="POST" novalidate class="" style="width: 600px;">
+							<h1 style="text-align: center">Sign Up</h1><hr>
+							{% csrf_token %}
+							{% for non_field_error in form.non_field.errors %}
+								<p class="help is-danger">{{non_field_error}}</p>
+							{% endfor %}
+				
+							<div>
+							{{form|crispy}}
+							{% for error in field.errors %}
+								<p class="help">{{error}}</p>
+							{% endfor %}
+							</div>
+				
+							<div class="form-group text-center">
+								<input type="submit" name="submit" class="btn btn-primary" value="Sign up" >
+							</div>
+				
+
+						</form>
+			
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+{% endblock %}

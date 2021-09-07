@@ -1,0 +1,33 @@
+{% extends "management/base.html" %}
+
+{% block title %} update feedback {% endblock %}
+{%load crispy_forms_tags %}
+{% block content %}
+
+	<div class="container-fluid" style="">
+		<div class="row">
+			<div class="col-md-4">
+				{% include 'management/sidebar.html'%}
+			</div>
+			<div class="col-md-8">
+				<div class="card bg-info">
+					<div class="card-body" style="color: white">
+						<form action="" method="POST" enctype="multipart/form-data" class="">
+							<h1 style="text-align: center">Update feedback</h1><hr>
+							{% csrf_token %} 
+							{{form|crispy}}
+							<div class="text-center">
+								<input type="submit" name="Update" class="btn btn-warning text-center" value="Update" >
+							</div>
+				
+						
+  						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+
+	</div>
+
+{% endblock %}

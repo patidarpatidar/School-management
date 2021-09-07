@@ -1,0 +1,48 @@
+{% extends "management/base.html" %}
+
+{% block title %} Login Form {% endblock %}
+{%load crispy_forms_tags %}
+{% block content %}
+
+	<div class="container" style="">
+		
+		
+			<br><br>
+			<div class="row">
+				
+				<div class="col-md-8" style="margin: 10px;">
+					<div class="card bg-dark">
+						<div class="card-body" style="color: white;">
+							<form action="" method="post" class="" style="width: 400px;">
+								<h1 style="text-align: center">Login</h1><hr>
+								{% csrf_token %}
+								{% for field in form %}
+								<div class="field">
+									<label for="{{field.id_for_label}}" class="label">{{field.html_name}}:</label>
+									{{field}}
+									{% for error in field.errors %}
+										<p style="color: red">{{error}}</p>
+									{% endfor %}
+								</div>
+								{% endfor %}
+
+								<div class="form-group text-center">
+									<input type="submit" name="Login" class="btn btn-primary text-center" value="login" >
+								</div>
+							</form>
+					
+						</div>
+					</div>
+				</div>
+				
+			</div>
+			
+			
+	
+		
+		
+	
+		
+	</div>
+
+{% endblock %}

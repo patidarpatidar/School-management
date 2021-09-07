@@ -1,0 +1,38 @@
+{% extends "management/base.html" %}
+
+{% block title %} take attendance{% endblock %}
+{%load crispy_forms_tags %}
+{% block content %}
+
+	<div class="container-fluid" style="">
+		<div class="row">
+			<div class="col-md-4">
+				{% include 'management/sidebar.html'%}
+			</div>
+			
+			<div class="col-md-8">
+				<div class="card bg-info">
+					<div class="card-body" style="color: white;">
+						
+								<form action="" method="post" class="main">
+									<h5 style="text-align: center">Update Attendance</h5><hr>
+									{% csrf_token %}
+							
+									{{form|crispy}}
+									{% for error in field.errors %}
+										<p style="color: red">{{error}}</p>
+									{% endfor %}
+									<div class="form-group text-center">
+										<input type="submit" name="Update" class="btn btn-primary text-center" value="Update" >
+									</div>
+								</form>
+							
+						
+						
+					</div>
+				</div>
+			</div>
+		</div>	
+	</div>
+
+{% endblock %}

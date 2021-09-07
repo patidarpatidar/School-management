@@ -1,0 +1,91 @@
+{% extends "management/base.html" %}
+
+
+{% block title %} user apply leave {% endblock %}
+
+{%load crispy_forms_tags %}
+{% block content %}
+	<div class="container">
+		<div class="row">
+			<div class="col-md-4">
+				{% include 'management/sidebar.html'%}
+			</div>
+			<div class="col-md-8">
+				<div class="card bg-info">
+					<div class="card-body" style="color: white;">
+						<div class="row">	
+							<div class="col-sm-4 mt-4">
+								<h5>Teacher : {{request.user.first_name}} {{request.user.last_name}}</h5><hr>
+				
+								<form action="" method="POST" enctype="multipart/form-data">
+									<h5 align="center">Add Result</h5>
+									
+									{% csrf_token %}
+									{{ form|crispy}}
+									<div class="form-group">
+            	    					<button type="submit" class="btn btn-primary ">Add</button>
+            	   					 </div>
+								</form>
+							</div>
+
+							<div class="col-sm-8 mt-4">
+								<h5 align="center">Results Information</h5><hr>
+								<h5>Subject : {{request.user.teachersubjectregistration.subject}}</h5>
+		            			<table class="table">
+		               				<thead>
+		               	 				<tr>
+		               						<th scope="col">#</th>
+		               						<th scope="col">Student</th>
+		               						<th scope="col">Marks</th>
+		               						<th>Action</th>
+		               	  				</tr>
+		               	 			</thead>	
+		               				{% if results %}
+		               				
+		               				<tbody>
+		               					{% for result in results %}
+		               	 				<tr>
+		               	 					<th scope="row">{{result.id}}</th>
+		               	 					<td scope="row">{{result.student}}</td>
+		               	 					<td>{{result.marks}}</td>
+		               	 					<td>
+		               	 						<a href="/management/update-result/{{result.id}}"><button type="submit" class="btn btn-warning ">Update</button></a>
+                               					<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal">Delete</button>
+                               				</td>
+		               	 				</tr>
+		               	 				<div class="modal" id="myModal">
+											<div class="modal-dialog">
+					  							<div class="modal-content">
+					  	
+					    							<div class="modal-header">
+					        							<h4 class="modal-title" style="color:black;">Are you sure you delete this student result? 
+					        							student : {{result.student}}</h4>
+					        							<button type="button" class="close" data-dismiss="modal">&times;</button>
+					      							</div>
+					      							<div class="modal-footer">
+        												<a href="/management/delete-result/{{result.id}}"><button type="button" class="btn btn-success" value="True">Confirm</button></a>
+        												<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      												</div>
+
+												</div>
+   
+  											</div>
+										</div>
+		               	 				{% endfor %}
+		               				</tbody>
+		               				
+		               				{% endif %}
+		          				</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		
+		
+	</div>
+
+
+{% endblock %}

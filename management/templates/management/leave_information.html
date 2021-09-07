@@ -1,0 +1,110 @@
+{% extends "management/base.html" %}
+
+
+{% block title %} user apply leave {% endblock %}
+
+{%load crispy_forms_tags %}
+{% block content %}
+
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-4">
+				{% include 'management/sidebar.html'%}
+			</div>
+			
+			<div class="col-md-8">
+
+				<div class="card bg-info">
+					<div class="card-body" style="color: white;">
+						<div class="row">
+							<div class="col-md-4">
+								<h5 class="text-center">Apply Leave </h5><hr>
+								<form class="row g-2 mt-3" class="main" action="" method="post" enctype="multipart/form-data">
+								{% csrf_token %} 
+								{{form|crispy}}
+								<div class="form-group text-center">
+									<button type="submit" class="btn btn-success ">Send</button>
+								</div>
+								</form>
+								
+							</div>
+							<div class="col-md-8">
+								<table class="table">
+									<h5 class="text-center">Leave Information</h5>
+									<thead>
+										<tr>
+											
+											<th scope="col">Leave Date</th>
+											<th scope="col">Leave Message</th>
+											<th scope="col">Leave Status</th>
+											<th>Action</th>
+										</tr>
+									</thead> 
+									<tbody>
+									{% for leave in leave_detail %}
+										<tr>
+											
+											<td><b>{{leave.leave_date}}</b></td>
+											<td>{{leave.leave_message}}</td>
+											{% ifequal leave.leave_status 0 %}
+											<td><b style="color: red;">Pending</button></td>
+											{% else %}
+											{% ifequal leave.leave_status 1 %}
+											<td><b style="color: blue;">Confirm</button></td>
+											{% else %}
+											<td><b style="color: yellow;">Rejected</button></td>
+
+											{% endifequal %}
+											{% endifequal%}
+											<td>
+											<div class="row">
+												<div class="col-md-6">
+													<a href="/management/update-leave/{{leave.id}}"><button class="btn btn-warning">Update</button></a>
+							
+												</div>
+
+												<div class="col-md-6">
+													
+													<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal">Delete</button>
+							
+												</div>
+											</div>
+											</td>
+										</tr>
+										<div class="modal" id="myModal">
+											<div class="modal-dialog">
+					  							<div class="modal-content">
+					  	
+					    							<div class="modal-header">
+					        							<h4 class="modal-title" style="color:black;">Are you sure you delete this leave? Date: {{leave.leave_date}}</h4>
+					        							<button type="button" class="close" data-dismiss="modal">&times;</button>
+					      							</div>
+					      							<div class="modal-footer">
+        												<a href="/management/delete-leave/{{leave.id}}"><button type="button" class="btn btn-success" value="True">Confirm</button></a>
+        												<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      												</div>
+
+												</div>
+   
+  											</div>
+										</div>
+									{% endfor %}
+									</tbody>
+								</table>
+								
+							</div>
+
+							
+						</div>
+						
+							
+					</div>
+
+					
+				</div>
+			</div>
+		</div>
+		
+	</div>
+
+{% endblock %}

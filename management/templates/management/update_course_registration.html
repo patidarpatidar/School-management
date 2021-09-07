@@ -1,0 +1,40 @@
+{% extends "management/base.html" %}
+
+{% block title %}update course registration{% endblock %}
+{%load crispy_forms_tags %}
+{% block content %}
+
+	<div class="container-fluid" style="">
+		
+		<div class="row">
+			<div class="col-md-4">
+				{% include 'management/sidebar.html'%}
+			</div>
+			
+			<div class="col-md-8">
+				<div class="card bg-info">
+					<div class="card-body" style="color: white;margin-left:5%;">
+						<form action="" method="post" class="" style="width: 400px;">
+							<h1 style="text-align: center">Update Course Detail</h1><hr>
+							{% csrf_token %}
+							{{form|crispy}}
+							<div class="form-group text-center">
+								<input type="submit" name="submit" class="btn btn-success text-center" value="Update" >
+							</div>
+						</form>
+					</div>	
+					
+				</div>
+			</div>
+		</div>
+			
+		
+	
+	
+		
+		
+	
+		
+	</div>
+
+{% endblock %}

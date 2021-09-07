@@ -1,0 +1,26 @@
+{% extends "management/base.html" %}
+
+
+{% block title %} profile create {% endblock %}
+
+{%load crispy_forms_tags %}
+{% block content %}
+
+	<div class="container">
+		<div>
+			<form class="row g-2 mt-3 main" action="" method="post" enctype="multipart/form-data" style="width: 600px;">
+				<h1 class="text-center">User Profile</h1><br>
+				{% csrf_token %} 
+				{{form|crispy}}
+				<div class="form-group text-center">
+					<button type="submit" class="btn btn-primary ">
+				Submit
+					</button>
+				</div>
+			</form>
+		</div>
+
+	
+	</div>
+
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "management/base.html" %}
+
+
+{% block title %} Attendance Record {% endblock %}
+
+
+{% block content %}
+
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-4">
+				{% include 'management/sidebar.html'%}
+			</div>
+			
+			<div class="col-md-8">
+				<div class="card bg-info">
+					<div class="card-body" style="color: white;">
+						<table class="table">
+							<h5 class="text-center">Student Attendance Record</h5>
+							<h5>Teacher Name:{{request.user.first_name}}</h5>
+							<h5>Subject: {{request.user.teachersubjectregistration.subject}}</h5>
+
+							<thead>
+								<tr>
+									<th scope="col">#</th>
+									<th scope="col">Student</th>
+									<th scope="col">Date</th>
+									<th scope="col">Course</th>
+					
+
+									<th scope="col">Status</th>
+									<th>Action</th>
+
+								</tr>
+							</thead> 
+							<tbody>
+								{% for attendance in attendance %}
+								<tr>
+									<th scope="row">{{attendance.id}}</th>
+									<td><b>{{attendance.student}}</b></td>
+									<td>{{attendance.date}}</td>
+									<td>{{attendance.course}}</td>
+					
+									<td>{{attendance.status}}</td>
+									<td>
+										<a href="/management/update-attendance/{{attendance.id}}"><button class="btn btn-warning">Update</button></a>
+										<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal">Delete</button></a>
+									</td>
+								</tr>
+								<div class="modal" id="myModal">
+									<div class="modal-dialog">
+					  					<div class="modal-content">
+					  	
+					    					<div class="modal-header">
+					        					<h4 class="modal-title" style="color:black;">Are you sure you delete this attendance? <b>Student: {{attendance.student}}</b></h4>
+					        					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					      					</div>
+					      					<div class="modal-footer">
+        										<a href="/management/delete-attendance/{{attendance.id}}"><button type="button" class="btn btn-success" value="True">Confirm</button></a>
+        										<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      										</div>
+
+										</div>
+   
+  									</div>
+								</div>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>		
+		
+
+
+{% endblock %}
