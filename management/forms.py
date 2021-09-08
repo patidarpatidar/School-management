@@ -1,11 +1,12 @@
 from django.forms import ModelForm
 from django.conf import settings
 from django import forms
-from .models import UserProfile , Course ,Subject,StudentCourseRegistration,TeacherSubjectRegistration
+from .models import UserProfile , Course ,Attendance,Subject,StudentCourseRegistration,TeacherSubjectRegistration
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+import datetime
 from PIL import Image
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.forms import ImageField
@@ -24,14 +25,14 @@ class UserProfileForm(forms.Form):
 			
 		)
 
-	role = forms.ChoiceField(choices=ROLE_CHOICE)
-	gender = forms.ChoiceField(choices=GENDER)
-	phone = forms.CharField(max_length=20)
-	street = forms.CharField(max_length=200)
-	city = forms.CharField(max_length=200)
-	state = forms.CharField(max_length=200)
-	pincode = forms.IntegerField()
-	image = forms.ImageField()
+	role = forms.ChoiceField(choices=ROLE_CHOICE ,widget=forms.Select(attrs={'class':'form-control'}))
+	gender = forms.ChoiceField(choices=GENDER, widget=forms.Select(attrs={'class':'form-control'}))
+	phone = forms.CharField(max_length=20 ,widget=forms.TextInput(attrs={'class':'form-control'}))
+	street = forms.CharField(max_length=200 , widget=forms.TextInput(attrs={'class':'form-control'}))
+	city = forms.CharField(max_length=200 , widget=forms.TextInput(attrs={'class':'form-control'}))
+	state = forms.CharField(max_length=200 , widget=forms.TextInput(attrs={'class':'form-control'}))
+	pincode = forms.IntegerField(widget=forms.TextInput(attrs={'class':'form-control'}))
+	image = forms.ImageField(widget=forms.FileInput(attrs={'class':'form-control'}))
 
 	def clean_phone(self):
 		phone = self.cleaned_data.get('phone')
@@ -46,12 +47,12 @@ class UserProfileForm(forms.Form):
 		return pincode
 
 class StudentCourseRegistrationForm(forms.Form):
-	course = forms.ModelChoiceField(queryset=Course.objects.all())
-	subject = forms. ModelMultipleChoiceField(queryset=Subject.objects.all())
+	course = forms.ModelChoiceField(queryset=Course.objects.all(),empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
+	subject = forms. ModelMultipleChoiceField(queryset=Subject.objects.all(),widget=forms.CheckboxSelectMultiple(attrs={'style':'width:30px'}))
 
 
 class TeacherSubjectRegistrationForm(forms.Form):
-	subject = forms.ModelChoiceField(queryset=Subject.objects.all())
+	subject = forms.ModelChoiceField(queryset=Subject.objects.all(),widget=forms.Select(attrs={'style': 'width:250px'}))
 
 	def clean_subject(self):
 		subject = self.cleaned_data.get('subject')
@@ -63,12 +64,12 @@ class TeacherSubjectRegistrationForm(forms.Form):
 from django.forms import TextInput , EmailInput	
 
 class SignUpForm(forms.Form):
-	first_name = forms.CharField(max_length=20)
-	last_name = forms.CharField(max_length=200)
-	username = forms.CharField(max_length=200)
-	email = forms.EmailField(required=True)
-	password = forms.CharField(widget = forms.PasswordInput())
-	confirm_password=forms.CharField(widget=forms.PasswordInput())
+	first_name = forms.CharField(max_length=20 , widget=forms.TextInput(attrs={'class':'form-control'}))
+	last_name = forms.CharField(max_length=200 , widget=forms.TextInput(attrs={'class':'form-control'}))
+	username = forms.CharField(max_length=200 , widget=forms.TextInput(attrs={'class':'form-control'}))
+	email = forms.EmailField(required=True , widget=forms.TextInput(attrs={'class':'form-control'}))
+	password = forms.CharField(widget = forms.PasswordInput(attrs={'class':'form-control'}))
+	confirm_password=forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control'}))
 
 	
 
@@ -107,9 +108,8 @@ class SignUpForm(forms.Form):
 	
 	
 class LoginForm(forms.Form):
-	
-	username = forms.CharField(widget=forms.TextInput(attrs={'size':'30'}),max_length=200)
-	password = forms.CharField(widget=forms.PasswordInput(attrs={'size':'30'}))
+	username = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control'}),max_length=200)
+	password = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control'}))
 
 
 	def clean_username(self):
@@ -128,8 +128,10 @@ class LoginForm(forms.Form):
 				return password	
 			raise ValidationError("Your password is wrong!")
 			
-		
+
+
 class AttendanceForm(forms.Form):
+
 	STATUS_CHOICE = (
 			('persent','Persent'),
 			('absent','Absent'),
@@ -138,7 +140,15 @@ class AttendanceForm(forms.Form):
 	student = forms.ModelChoiceField(queryset=StudentCourseRegistration.objects.all())
 	status = forms.ChoiceField(choices=STATUS_CHOICE)
 
-
+	'''
+	def clean_student(self):
+		print(guest)
+		student = self.cleaned_data.get('student')
+		if Attendance.objects.filter(student=student,date=datetime.date.today()).exists():
+			raise ValidationError("this student attendace already taken!")
+		return student		
+	'''
+	
 class LeaveForm(forms.Form):
 	leave_date = forms.DateField(input_formats=settings.DATE_INPUT_FORMATS)
 	leave_message = forms.CharField(widget=forms.Textarea(attrs={'rows':4,'cols':20}))

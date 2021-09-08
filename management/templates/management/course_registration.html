@@ -1,6 +1,7 @@
 {% extends "management/base.html" %}
 
-{% block title %} Login Form {% endblock %}
+{% block title %} course registeration {% endblock %}
+{% load static %}
 {%load crispy_forms_tags %}
 {% block content %}
 
@@ -13,15 +14,26 @@
 			
 		<div class="col-md-8">
 			<div class="card bg-info">
-					<div class="card-body" style="color: white;margin-left: 5%;">
-						<form action="" method="post" class="" style="width: 400px;">
-						<h1 style="text-align: center">Course Registration</h1><hr>
-						{% csrf_token %}
-						{{form|crispy}}
-						<div class="form-group text-center">
-							<input type="submit" name="submit" class="btn btn-primary text-center" value="Register" >
+					<div class="card-body" style="color: white;">
+						<div class="row">
+							<div class="col-md-6">
+								<form action="" method="post" class="" style="width: 400px;">
+									<h5 style="text-align: center">Course Registration</h5><hr>
+									{% csrf_token %}
+									{{form.as_p}}
+									<div class="form-group text-center">
+										<input type="submit" name="submit" class="btn btn-primary text-center" value="Register" >
+									</div>
+								</form>
+								
+							</div>
+							<div class="col-md-6 text-center">
+								<img src="{% static 'images/register.jpg' %}" alt="register" width="350" height="300" style="margin-top: 35px;">
+								
+							</div>
+							
 						</div>
-						</form>
+						
 					</div>	
 					
 			</div>

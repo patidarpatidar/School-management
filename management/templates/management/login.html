@@ -1,36 +1,50 @@
 {% extends "management/base.html" %}
-
+{% load static %}
 {% block title %} Login Form {% endblock %}
 {%load crispy_forms_tags %}
 {% block content %}
 
-	<div class="container" style="">
+	<div class="container-fluid" style="">
 		
 		
 			<br><br>
-			<div class="row">
-				
-				<div class="col-md-8" style="margin: 10px;">
+				<div class="" style="margin: 10px;">
 					<div class="card bg-dark">
 						<div class="card-body" style="color: white;">
-							<form action="" method="post" class="" style="width: 400px;">
-								<h1 style="text-align: center">Login</h1><hr>
+							<div class="row">
+								<div class="col-md-6 text-center">
+									<br>
+									<h5>you new user ? first for create an account click on create account . </h5><hr>
+									<img src="{% static 'images/login.jpg' %}" alt="register" width="300" height="180" style="margin-top: -30px;"><br><br>
+									<a href="/management/signup"><button class="btn btn-info" style="border-radius: 25px;">create an account </button></a>
+									
+								</div>
+
+								<div class="col-md-6">
+									<br>
+									<form action="" method="post" class="" style="width: 400px;">
+								<h5 style="text-align: center">Login</h5><hr>
 								{% csrf_token %}
 								{% for field in form %}
 								<div class="field">
-									<label for="{{field.id_for_label}}" class="label">{{field.html_name}}:</label>
+									<label for="{{field.id_for_label}}" class="label">
+									{{field.html_name}}:</label>
 									{{field}}
 									{% for error in field.errors %}
 										<p style="color: red">{{error}}</p>
 									{% endfor %}
 								</div>
 								{% endfor %}
+								<br>
 
 								<div class="form-group text-center">
 									<input type="submit" name="Login" class="btn btn-primary text-center" value="login" >
 								</div>
 							</form>
 					
+									
+								</div>
+							
 						</div>
 					</div>
 				</div>

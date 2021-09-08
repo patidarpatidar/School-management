@@ -15,6 +15,7 @@ from django.urls import reverse_lazy
 
 #-----------------------------User permission function (common)-----------------------------------
 #------------------------------------------------------------------------------------->
+
 def index_view(request):
 	course = Course.objects.all()
 	context = {
@@ -26,16 +27,16 @@ def user_profile_create(request):
 	if request.method == 'POST':
 		form = UserProfileForm(request.POST,request.FILES)
 		if form.is_valid():
-			clean_data = form.clean_data
+			clean_data = form.cleaned_data
 			role = clean_data['role']
 			gender = clean_data['gender']
-			phone = clean_data['phone']
+			pshone = clean_data['phone']
 			street = clean_data['street']
 			city = clean_data['city']
 			state = clean_data['state']
 			pincode = clean_data['pincode']
 			image = clean_data['image']
-			profile = UserProfile.objects.create(role=role,
+			profile = UserProfile(role=role,
 									gender=gender,
 									user=request.user,
 									phone=phone,
@@ -44,9 +45,8 @@ def user_profile_create(request):
 									state=state,
 									pin_code=pincode,
 									image=image,
-	
-								)
-			
+					)
+			profile.save()
 			messages.success(request,"Your profile is complete!")
 			return HttpResponseRedirect(reverse('management:user-profile'))
 	else:
@@ -57,7 +57,6 @@ def user_profile_create(request):
 def user_profile_view(request):
 	user_obj = request.user
 	if User.objects.filter(pk=user_obj.id,userprofile=None):
-		messages.info(request,"first for fill your profile!")
 		return HttpResponseRedirect(reverse('management:user-profile-create'))	
 	else:
 		context = {
@@ -68,7 +67,29 @@ def user_profile_view(request):
 
 def update_user_detail(request):
 	user = request.user
-	user_data = {
+	if request.method=="POST":
+		form = UserUpdateForm(request.POST,request.FILES)
+		if form.is_valid():
+			clean_data = form.cleaned_data
+			user.first_name=clean_data['first_name']
+			user.last_name = clean_data['last_name']
+			user.email = clean_data['email']
+			user.username = clean_data['username']
+			user.userprofile.role = clean_data['role']
+			user.userprofile.gender = clean_data['gender']
+			user.userprofile.phone = clean_data['phone']
+			user.userprofile.street = clean_data['street']				
+			user.userprofile.city = clean_data['city']
+			user.userprofile.state = clean_data['state']
+			user.userprofile.pin_code = clean_data['pincode']
+			user.userprofile.image=clean_data['image']
+			user.save()
+			user.userprofile.save()
+			messages.success(request,"profile update successfully")
+			return HttpResponseRedirect(reverse('management:user-profile'))
+	
+	else:
+		user_data = {
 		'first_name':user.first_name,
 		'last_name':user.last_name,
 		'username':user.username,
@@ -82,31 +103,6 @@ def update_user_detail(request):
 		'pincode':user.userprofile.pin_code,
 		'image':user.userprofile.image.url,
 		}
-	if request.method=="POST":
-		form = UserUpdateForm(request.POST,request.FILES , initial=user_data)
-		if form.has_changed():
-			if form.is_valid():
-				clean_data = form.cleaned_data
-				user.first_name=clean_data['first_name']
-				user.last_name = clean_data['last_name']
-				user.email = clean_data['email']
-				user.username = clean_data['username']
-				user.userprofile.role = clean_data['role']
-				user.userprofile.gender = clean_data['gender']
-				user.userprofile.phone = clean_data['phone']
-				user.userprofile.street = clean_data['street']
-				user.userprofile.city = clean_data['city']
-				user.userprofile.state = clean_data['state']
-				user.userprofile.pin_code = clean_data['pincode']
-				user.userprofile.image=clean_data['image']
-				user.save()
-				user.userprofile.save()
-				messages.success(request,"profile update successfully")
-				return HttpResponseRedirect(reverse('management:user-profile'))
-		else:
-			messages.info(request,"you does not change for any information!")
-			return redirect('/management/user-profile')
-	else:
 		form = UserUpdateForm(initial=user_data)
 	return render(request,'management/update_user_detail.html',{'form':form})
 
@@ -122,8 +118,8 @@ def apply_leave_view(request):
 		form = LeaveForm(request.POST)
 		if form.is_valid():
 			clean_data = form.cleaned_data
-			date = form.clean_data['leave_date']
-			message = form.clean_data['leave_message']
+			date = clean_data['leave_date']
+			message = clean_data['leave_message']
 			Leave.objects.create(user=request.user,role=request.user.userprofile.role,leave_date=date,leave_message=message,leave_status=0)
 			messages.success(request,"your leave information send successfully . wait for confirm your leave!")
 			return HttpResponseRedirect(reverse('management:leave-information'))
@@ -138,25 +134,21 @@ def apply_leave_view(request):
 
 def update_leave(request,id):
 	leave = Leave.objects.get(pk=id)
-	leave_data = {
+	if request.method=="POST":
+		form = LeaveForm(request.POST)
+		if form.is_valid():
+			clean_data = form.cleaned_data
+			leave.leave_date =clean_data['leave_date']
+			leave.leave_message =clean_data['leave_message']
+			leave.save()
+			messages.success(request,"leave information update successfully!")
+			return redirect('/management/leave-information')
+	else:
+		leave_data = {
 		'leave_date':leave.leave_date,
 		'leave_message':leave.leave_message,
 		}
-	if request.method=="POST":
-		form = LeaveForm(request.POST , initial=leave_data)
-		if form.has_changed():
-			if form.is_valid():
-				clean_data = form.cleaned_data
-				leave.leave_date =clean_data['leave_date']
-				leave.leave_message =clean_data['leave_message']
-				leave.save()
-				messages.success(request,"leave information update successfully!")
-				return redirect('/management/leave-information')
-		else:
-			messages.info(request,"you does not update for any information!")
-			return redirect('/management/leave-information')
-	else:
-		form = LeaveForm(leave_data , initial=leave_data)
+		form = LeaveForm(initial=leave_data)
 	return render(request,'management/update_leave.html',{'form':form})
 
 
@@ -187,22 +179,18 @@ def feedback_send_view(request):
 
 def update_feedback(request,id):
 	feedback = get_object_or_404(Feedback,pk=id)
-	feedback_data = {
-		'feedback_message':feedback.feedback_message
-		}
+	
 	if request.method=="POST":
-		form = FeedbackForm(request.POST , initial=feedback_data)
-		if form.has_changed():
-			if form.is_valid():
-				feedback.feedback_message=form.cleaned_data.get('feedback_message')
-				feedback.save()
-				messages.success(request,"feedback messages update successfully!")
-				return redirect('/management/feedback-information')
-		else:
-			messages.success(request,"you does not update any information!")
+		form = FeedbackForm(request.POST)
+		if form.is_valid():
+			feedback.feedback_message=form.cleaned_data['feedback_message']
+			feedback.save()
+			messages.success(request,"feedback messages update successfully!")
 			return redirect('/management/feedback-information')
 	else:
-		
+		feedback_data = {
+		'feedback_message':feedback.feedback_message
+		}
 		form = FeedbackForm(initial=feedback_data)
 	return render(request,'management/update_feedback.html',{'form':form})
 
@@ -220,7 +208,6 @@ def delete_feedback(request,id):
 def student_course_registration_view(request):
 	student_obj = request.user
 	if User.objects.filter(pk=student_obj.id,studentcourseregistration=None):
-		messages.info(request,"You have not registration any course so first for need course registration!")
 		if request.method=='POST':
 			form = StudentCourseRegistrationForm(request.POST)
 			if form.is_valid():
@@ -243,24 +230,20 @@ def student_course_registration_view(request):
 
 def update_student_course_registration(request):
 	student = request.user.studentcourseregistration
-	course_data = {
+	if request.method=="POST":
+		form = StudentCourseRegistrationForm(request.POST)
+		if form.is_valid():
+			student.course=form.cleaned_data['course']
+			student.subject.set(form.cleaned_data['subject'])
+			student.save()
+			messages.success(request,"registration detail update successfully")
+			return HttpResponseRedirect(reverse('management:course-registration-detail'))
+	else:
+		course_data = {
 		'course':student.course,
 		'subject':student.subject,
 
 		}
-	if request.method=="POST":
-		form = StudentCourseRegistrationForm(request.POST , initial=course_data)
-		if form.has_changed():
-			if form.is_valid():
-				student.course=form.cleaned_data['course']
-				student.subject.set(form.cleaned_data['subject'])
-				student.save()
-				messages.success(request,"registration detail update successfully")
-				return HttpResponseRedirect(reverse('management:course-registration-detail'))
-		else:
-			messages.info(request,"you does not change for any information!")
-			return HttpResponseRedirect(reverse('management:course-registration-detail'))
-	else:
 		form = StudentCourseRegistrationForm(initial=course_data)
 	return render(request,'management/update_course_registration.html',{'form':form})
 
@@ -273,6 +256,7 @@ def delete_student_course_registration(request):
 def attendance_view(request):
 	student_obj = request.user
 	attendance = Attendance.objects.filter(student__user__id=student_obj.id)
+	
 	if len(attendance)!=0:
 		persent = 0
 		absent = 0
@@ -292,7 +276,10 @@ def attendance_view(request):
 		messages.info(request,"You have not attend any class so you have not  any attendance record!")
 		return redirect('/management/user-profile')
 
-
+def result_view(request):
+	student = request.user.studentcourseregistration
+	result = Result.objects.filter(student=student)
+	return render(request,'management/view_result.html',{'results':result})
 
 #-----------------------------Teacher permission function-----------------------------------
 #------------------------------------------------------------------------------------->
@@ -320,21 +307,18 @@ def teacher_subject_registration_view(request):
 
 def update_subject_registration(request):
 	teacher = request.user.teachersubjectregistration
-	subject_data = {
-			'subject':teacher.subject,
-		}
+	
 	if request.method=="POST":
-		form = TeacherSubjectRegistrationForm(request.POST , initial=subject_data)
-		if form.has_changed():
-			if form.is_valid():
-				teacher.subject = form.cleaned_data['subject']
-				teacher.save()
-				messages.success(request,"udate your subject registration!")
-				return HttpResponseRedirect(reverse('management:teacher-subject'))
-		else:
-			messages.success(request,"you does not changes any information!")
+		form = TeacherSubjectRegistrationForm(request.POST)
+		if form.is_valid():
+			teacher.subject = form.cleaned_data['subject']
+			teacher.save()
+			messages.success(request,"udate your subject registration!")
 			return HttpResponseRedirect(reverse('management:teacher-subject'))
 	else:
+		subject_data = {
+			'subject':teacher.subject,
+		}
 		form = TeacherSubjectRegistrationForm(initial = subject_data)
 	return render(request,'management/update_subject_registration.html',{'form':form})
 
@@ -355,47 +339,54 @@ def take_attendance(request):
 			Attendance.objects.create(teacher=teacher_obj,date=date,student=student,course=student.course,subject=teacher_obj.teachersubjectregistration.subject, status=status)
 			messages.success(request,"attendance add successfully!")
 			return HttpResponseRedirect(reverse('management:take-attendance'))
+			
 	else:
-		today = datetime.date.today()
-		attendance = Attendance.objects.filter(teacher_id=teacher_obj.id,date=today)
-		form = AttendanceForm()
-		context = {
+		if User.objects.filter(pk=teacher_obj.id ,teachersubjectregistration=None):
+			messages.info(request,"you does not register any subject so you does not accsess this page!")
+			return redirect('/management/user-profile')
+		else:
+			today = datetime.date.today()
+			attendance = Attendance.objects.filter(teacher_id=teacher_obj.id,date=today)
+			form = AttendanceForm()
+			path = request.META['HTTP_REFERER']
+			context = {
 			'today':today,
 			'attendance':attendance,
 			'form':form,
-		}
-	return render(request,'management/take_attendance.html',context)
+			}
+			return render(request,'management/take_attendance.html',context)
 
 def attendance_record(request):
 	teacher_obj = request.user
-	attendance = Attendance.objects.filter(teacher_id=teacher_obj.id,subject=teacher_obj.teachersubjectregistration.subject)
-	if len(attendance) !=0:
-		return render(request,'management/attendance_record.html',{'attendance':attendance})
+	if User.objects.filter(pk=teacher_obj.id ,teachersubjectregistration=None):
+			messages.info(request,"you does not register any subject so you does not accsess this page!")
+			return redirect('/management/user-profile')
 	else:
-		messages.info(request,"you have no any attendance record!")
-		return redirect('management:take-attendance')
+		attendance = Attendance.objects.filter(teacher_id=teacher_obj.id,subject=teacher_obj.teachersubjectregistration.subject)
+		if len(attendance) !=0:
+			return render(request,'management/attendance_record.html',{'attendance':attendance})
+		else:
+			messages.info(request,"you have no any attendance record!")
+			return redirect('management:take-attendance')
 
 def update_attendance(request,id):
 	attendance = Attendance.objects.get(pk=id)
-	attendance_data = {
+	
+	if request.method=="POST":
+		form = AttendanceForm(request.POST)
+		if form.is_valid():
+			attendance.date = form.cleaned_data['date']
+			attendance.student = form.cleaned_data['student']
+			attendance.status = form.cleaned_data['status']
+			attendance.save()
+			messages.success(request,"attendance update successfully!")
+			return HttpResponseRedirect(reverse('management:attendance-record'))
+	else:
+		attendance_data = {
 			'date':attendance.date,
 			'student':attendance.student,
 			'status':attendance.status,
 		}
-	if request.method=="POST":
-		form = AttendanceForm(request.POST , initial = attendance_data)
-		if form.has_changed():	
-			if form.is_valid():
-				attendance.date = form.cleaned_data['date']
-				attendance.student = form.cleaned_data['student']
-				attendance.status = form.cleaned_data['status']
-				attendance.save()
-				messages.success(request,"attendance update successfully!")
-				return HttpResponseRedirect(reverse('management:attendance-record'))
-		else:
-			messages.success(request,"you does not changes for any information!")
-			return HttpResponseRedirect(reverse('management:attendance-record'))
-	else:
 		form = AttendanceForm(initial=attendance_data )
 		return render(request,'management/attendance_update.html',{'form':form})
 
@@ -406,6 +397,7 @@ def delete_attendance(request,id):
 	return redirect('/management/attendance-record')
 
 def result_add(request):
+	teacher_obj = request.user
 	if request.method=='POST':
 		form = ResultForm(request.POST)
 		if form.is_valid():
@@ -416,34 +408,33 @@ def result_add(request):
 			messages.success(request,"result add successfully!")
 			return HttpResponseRedirect(reverse('management:add-result'))
 	else:
-		form = ResultForm()
-		results = Result.objects.filter(teacher=request.user)
-		context = {
-			'form':form,
-			'results':results,
-		}
-	return render(request,'management/add_result.html',context)
+		if User.objects.filter(pk=teacher_obj.id ,teachersubjectregistration=None):
+			messages.info(request,"you does not register any subject so you does not accsess this page!")
+			return redirect('/management/user-profile')
+		else:
+			form = ResultForm()
+			results = Result.objects.filter(teacher=request.user)
+			context = {
+				'form':form,
+				'results':results,
+			}
+			return render(request,'management/add_result.html',context)
 
 def update_result(request,id):
 	result = Result.objects.get(pk=id)
-	result_data = {
+	if request.method=="POST":
+		form = ResultForm(request.POST , initial=result_data)
+		if form.is_valid():
+			result.student = form.cleaned_data['student']
+			result.marks = form.cleaned_data['marks']
+			result.save()
+			messages.success(request,"result update successfully!")
+			return HttpResponseRedirect(reverse('management:add-result'))
+	else:
+		result_data = {
 			'student':result.student,
 			'marks' : result.marks,
 		}
-	if request.method=="POST":
-		form = ResultForm(request.POST , initial=result_data)
-		if form.has_changed():
-			if form.is_valid():
-				result.student = form.cleaned_data['student']
-				result.marks = form.cleaned_data['marks']
-				result.save()
-				messages.success(request,"result update successfully!")
-				return HttpResponseRedirect(reverse('management:add-result'))
-		
-		else:
-			messages.success(request,"you does not changes for any information!")
-			return HttpResponseRedirect(reverse('management:add-result'))
-	else:
 		form = ResultForm(initial=result_data)
 		return render(request,'management/update_result.html',{'form':form})
 
@@ -453,9 +444,7 @@ def delete_result(request,id):
 	messages.success(request,"deleted successfully1")
 	return redirect('/management/add-result')
 
-def result_view(request):
-	result = Result.objects.filter(student=request.user)
-	return render(request,'management/view_result.html',{'results':result})
+
 
 #------------------------------signup Login logout function----------------------------------
 #---------------------------------------------------------------------------------------->
@@ -463,7 +452,7 @@ def signup_view(request):
 	if request.method=='POST':
 		form = SignUpForm(request.POST)
 		if form.is_valid():
-			clean_data=form.clean_data
+			clean_data=form.cleaned_data
 			first_name=clean_data['first_name']
 			last_name = clean_data['last_name']
 			username = clean_data['username']

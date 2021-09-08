@@ -1,50 +1,62 @@
 {% extends "management/base.html" %}
-
-
-{% block title %} Course Details {% endblock %}
-
-
+{% load static %}
+{% block title %} Login Form {% endblock %}
+{%load crispy_forms_tags %}
 {% block content %}
 
-	<div class="container-fluid">
+	<div class="container-fluid" style="">
 		<div class="row">
 			<div class="col-md-4">
 				{% include 'management/sidebar.html'%}
 			</div>
-			
-		<div class="col-md-8">
-			<div class="card bg-info">
-				<div class="card-body" style="color: white;margin-left: 10%;">
-					<form action="" method="post" class="" style="width: 400px;">
-						<h1 style="text-align: center">Subject Registration</h1><hr>
-						{% csrf_token %}
-						{% for field in form %}
-						<div class="field">
-							<label for="{{field.id_for_label}}" class="label">{{field.html_name}}:</label>
-							{{field}}
-							{% for error in field.errors %}
-							<p style="color: red">{{error}}</p>
-							{% endfor %}
-						</div>
-						{% endfor %}
+			<div class="col-md-8">
+				<div class="">
+					<div class="card bg-info">
+						<div class="card-body" style="color: white;">
+							<div class="row">
+								
+								<div class="col-md-6">
+									<br>
+									<form action="" method="post" class="">
+									<h5 style="text-align: center">Subject Registeration</h5><hr>
+									{% csrf_token %}
+									{% for field in form %}
+									<div class="field">
+										<label for="{{field.id_for_label}}" class="label">
+										{{field.html_name}}:</label>
+										{{field}}
+										{% for error in field.errors %}
+											<p style="color: red">{{error}}</p>
+										{% endfor %}
+									</div>
+									{% endfor %}
+								<br>
 
-						<div class="form-group text-center">
-							<input type="submit" name="Register" class="btn btn-primary text-center" value="Register" >
+									<div class="form-group text-center">
+										<input type="submit" name="submit" class="btn btn-primary text-center" value="submit" >
+									</div>
+									</form>	
+								</div>
+								<div class="col-md-6 text-center" style="margin-top: 40px;">
+									<br>
+									<h5><b>You new teacher ?</b> first for select your subject you teach.</h5>
+									
+									
+								</div>
+							</div>
 						</div>
-			</form>
-						
 					</div>
-					
+				</div>
 				
-						
-					
 			</div>
 		</div>
 			
+			
+	
+		
 		
 	
-	</div>		
-	
-
+		
+	</div>
 
 {% endblock %}

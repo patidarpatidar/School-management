@@ -1,39 +1,65 @@
 {% extends "management/base.html" %}
 
-{% block title %} Signup Form {% endblock %}
+{% block title %} Login Form {% endblock %}
 {%load crispy_forms_tags %}
 {% block content %}
 
-	<div class="container">
-		<div class="row">	
-			<div class="col-md-8" style="margin: 10px;">
-				<div class="card bg-dark">
-					<div class="card-body" style="color: white;">
-						<form action="" method="POST" novalidate class="" style="width: 600px;">
-							<h1 style="text-align: center">Sign Up</h1><hr>
-							{% csrf_token %}
-							{% for non_field_error in form.non_field.errors %}
-								<p class="help is-danger">{{non_field_error}}</p>
-							{% endfor %}
-				
-							<div>
-							{{form|crispy}}
-							{% for error in field.errors %}
-								<p class="help">{{error}}</p>
-							{% endfor %}
-							</div>
-				
-							<div class="form-group text-center">
-								<input type="submit" name="submit" class="btn btn-primary" value="Sign up" >
-							</div>
-				
+	<div class="container-fluid" style="">
+		
+		
+			<br><br>
+				<div class="" style="margin: 10px;">
+					<div class="card bg-dark">
+						<div class="card-body" style="color: white;">
+							<div class="row">
+								<div class="col-md-6 text-center">
+									<br>
+									<h5>you new user ? first for create an account . </h5><hr>
+									<ul>
+									<li><h5>Enter a valid email address.</h5></li>
+									<li><h5>Enter a valid user name and password !</h5></li>
+									<li><h5>after create account you use username and password for login.</h5></li>
+									</ul>
+									
+								</div>
 
-						</form>
-			
+								<div class="col-md-6">
+									<br>
+									<form action="" method="post" class="" style="width: 400px;">
+								<h5 style="text-align: center">Signup</h5><hr>
+								{% csrf_token %}
+								{% for field in form %}
+								<div class="field">
+									<label for="{{field.id_for_label}}" class="label">
+									{{field.html_name}}:</label>
+									{{field}}
+									{% for error in field.errors %}
+										<p style="color: red">{{error}}</p>
+									{% endfor %}
+								</div>
+								{% endfor %}
+								<br>
+
+								<div class="form-group text-center">
+									<input type="submit" name="Signup" class="btn btn-primary text-center" value="Signup" >
+								</div>
+							</form>
+					
+									
+								</div>
+							
+						</div>
 					</div>
 				</div>
+				
 			</div>
-		</div>
+			
+			
+	
+		
+		
+	
+		
 	</div>
 
 {% endblock %}

@@ -53,7 +53,6 @@ class StudentCourseRegistration(models.Model):
 
 	def __str__(self):
 		return self.user.username
-
 		
 class TeacherSubjectRegistration(models.Model):
 	user = models.OneToOneField(User,on_delete=models.CASCADE)
@@ -75,7 +74,7 @@ class Attendance(models.Model):
 	status = models.CharField(max_length=10,choices=STATUS_CHOICE)
 
 	def __str__(self):
-		return self.teacher
+		return self.teacher.username
 
 class Leave(models.Model):
 	user = models.ForeignKey(User,on_delete=models.CASCADE)
