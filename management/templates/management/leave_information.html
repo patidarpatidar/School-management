@@ -29,11 +29,12 @@
 								
 							</div>
 							<div class="col-md-8">
+								<h5 class="text-center">Leave Information</h5><hr>
+								{% if leave_detail %}
 								<table class="table">
-									<h5 class="text-center">Leave Information</h5>
+									
 									<thead>
 										<tr>
-											
 											<th scope="col">Leave Date</th>
 											<th scope="col">Leave Message</th>
 											<th scope="col">Leave Status</th>
@@ -49,12 +50,9 @@
 											{% ifequal leave.leave_status 0 %}
 											<td><b style="color: red;">Pending</button></td>
 											{% else %}
-											{% ifequal leave.leave_status 1 %}
+											
 											<td><b style="color: blue;">Confirm</button></td>
-											{% else %}
-											<td><b style="color: yellow;">Rejected</button></td>
-
-											{% endifequal %}
+											
 											{% endifequal%}
 											<td>
 											<div class="row">
@@ -91,6 +89,17 @@
 									{% endfor %}
 									</tbody>
 								</table>
+								{% else %}
+								<div class="text-center">
+									<h5><b>You have not  any current  leave information!</b></h5><br>
+									<h5>Leave Rules:</h5><hr>
+									<h5>Your attendance is below 75% you can not take leave.</h5>
+									<h5>You can take a one leave in month. </h5>
+									<h5>If you want an emergency leave, you will have to tell the Hod before 2 days.</h5>
+									
+								</div>
+								
+								{% endif %}
 								
 							</div>
 

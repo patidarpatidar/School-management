@@ -27,6 +27,8 @@ urlpatterns = [
     path('take-attendance',take_attendance,name='take-attendance'),
     path('attendance-record',attendance_record,name='attendance-record'),
     path('attendance-view',attendance_view,name='attendance-view'),
+    path('update-attendance-record/<int:id>',update_attendance_record,name='update-attendance-record'),
+    path('delete-attendance-record/<int:id>',delete_attendance_record,name='delete-attendance-record'),
     path('update-attendance/<int:id>',update_attendance,name='update-attendance'),
     path('delete-attendance/<int:id>',delete_attendance,name='delete-attendance'),
 

@@ -30,7 +30,7 @@ def user_profile_create(request):
 			clean_data = form.cleaned_data
 			role = clean_data['role']
 			gender = clean_data['gender']
-			pshone = clean_data['phone']
+			phone = clean_data['phone']
 			street = clean_data['street']
 			city = clean_data['city']
 			state = clean_data['state']
@@ -87,7 +87,7 @@ def update_user_detail(request):
 			user.userprofile.save()
 			messages.success(request,"profile update successfully")
 			return HttpResponseRedirect(reverse('management:user-profile'))
-	
+
 	else:
 		user_data = {
 		'first_name':user.first_name,
@@ -120,7 +120,7 @@ def apply_leave_view(request):
 			clean_data = form.cleaned_data
 			date = clean_data['leave_date']
 			message = clean_data['leave_message']
-			Leave.objects.create(user=request.user,role=request.user.userprofile.role,leave_date=date,leave_message=message,leave_status=0)
+			Leave.objects.create(user=request.user,role=request.user.userprofile.role,leave_date=date,leave_message=message)
 			messages.success(request,"your leave information send successfully . wait for confirm your leave!")
 			return HttpResponseRedirect(reverse('management:leave-information'))
 	else:
@@ -241,8 +241,7 @@ def update_student_course_registration(request):
 	else:
 		course_data = {
 		'course':student.course,
-		'subject':student.subject,
-
+		'subject':student.subject.all,
 		}
 		form = StudentCourseRegistrationForm(initial=course_data)
 	return render(request,'management/update_course_registration.html',{'form':form})
@@ -256,7 +255,6 @@ def delete_student_course_registration(request):
 def attendance_view(request):
 	student_obj = request.user
 	attendance = Attendance.objects.filter(student__user__id=student_obj.id)
-	
 	if len(attendance)!=0:
 		persent = 0
 		absent = 0
@@ -270,7 +268,6 @@ def attendance_view(request):
 			'persent':persent,
 			'absent':absent,
 		}
-	
 		return render(request,'management/attendance_view.html',context)
 	else:
 		messages.info(request,"You have not attend any class so you have not  any attendance record!")
@@ -287,13 +284,11 @@ def result_view(request):
 def teacher_subject_registration_view(request):
 	teacher_obj = request.user
 	if User.objects.filter(pk=teacher_obj.id,teachersubjectregistration=None):
-		messages.info(request,"You have not register for any subjects so need for register!")
 		if request.method=='POST':
 			form = TeacherSubjectRegistrationForm(request.POST)
 			if form.is_valid():
 				subject = form.cleaned_data['subject']
 				teachersubject = TeacherSubjectRegistration.objects.create(subject=subject,user=teacher_obj)
-				
 				messages.success(request,"Your have successfully register!")
 				return HttpResponseRedirect(reverse('management:teacher-subject'))
 		else: 
@@ -331,7 +326,7 @@ def delete_subject_registration(request):
 def take_attendance(request):
 	teacher_obj = request.user
 	if request.method=='POST':
-		form = AttendanceForm(request.POST)
+		form = AttendanceForm(teacher_obj.teachersubjectregistration,request.POST)
 		if form.is_valid():
 			student = form.cleaned_data['student']
 			date = form.cleaned_data['date']
@@ -339,22 +334,17 @@ def take_attendance(request):
 			Attendance.objects.create(teacher=teacher_obj,date=date,student=student,course=student.course,subject=teacher_obj.teachersubjectregistration.subject, status=status)
 			messages.success(request,"attendance add successfully!")
 			return HttpResponseRedirect(reverse('management:take-attendance'))
-			
+	
 	else:
-		if User.objects.filter(pk=teacher_obj.id ,teachersubjectregistration=None):
-			messages.info(request,"you does not register any subject so you does not accsess this page!")
-			return redirect('/management/user-profile')
-		else:
-			today = datetime.date.today()
-			attendance = Attendance.objects.filter(teacher_id=teacher_obj.id,date=today)
-			form = AttendanceForm()
-			path = request.META['HTTP_REFERER']
-			context = {
+		today = datetime.date.today()
+		attendance = Attendance.objects.filter(teacher=teacher_obj,date=today)
+		form = AttendanceForm(teacher_obj.teachersubjectregistration)
+		context = {
 			'today':today,
 			'attendance':attendance,
 			'form':form,
 			}
-			return render(request,'management/take_attendance.html',context)
+		return render(request,'management/take_attendance.html',context)
 
 def attendance_record(request):
 	teacher_obj = request.user
@@ -369,11 +359,12 @@ def attendance_record(request):
 			messages.info(request,"you have no any attendance record!")
 			return redirect('management:take-attendance')
 
-def update_attendance(request,id):
+
+def update_attendance_record(request,id):
 	attendance = Attendance.objects.get(pk=id)
 	
 	if request.method=="POST":
-		form = AttendanceForm(request.POST)
+		form = AttendanceForm(request.user.teachersubjectregistration,request.POST)
 		if form.is_valid():
 			attendance.date = form.cleaned_data['date']
 			attendance.student = form.cleaned_data['student']
@@ -387,7 +378,7 @@ def update_attendance(request,id):
 			'student':attendance.student,
 			'status':attendance.status,
 		}
-		form = AttendanceForm(initial=attendance_data )
+		form = AttendanceForm(request.user.teachersubjectregistration,initial=attendance_data )
 		return render(request,'management/attendance_update.html',{'form':form})
 
 def delete_attendance(request,id):
@@ -396,10 +387,37 @@ def delete_attendance(request,id):
 	messages.success(request,"attendance delete successfully")
 	return redirect('/management/attendance-record')
 
+def update_attendance(request,id):
+	attendance = Attendance.objects.get(pk=id)
+
+	if request.method=="POST":
+		form = AttendanceForm(request.user.teachersubjectregistration,request.POST)
+		if form.is_valid():
+			attendance.date = form.cleaned_data['date']
+			attendance.student = form.cleaned_data['student']
+			attendance.status = form.cleaned_data['status']
+			attendance.save()
+			messages.success(request,"attendance update successfully!")
+			return HttpResponseRedirect(reverse('management:take-attendance'))
+	else:
+		attendance_data = {
+			'date':attendance.date,
+			'student':attendance.student,
+			'status':attendance.status,
+		}
+		form = AttendanceForm(request.user.teachersubjectregistration,initial=attendance_data )
+		return render(request,'management/attendance_update.html',{'form':form})
+
+def delete_attendance_record(request,id):
+	attendance = get_object_or_404(Attendance,pk=id)
+	attendance.delete()
+	messages.success(request,"attendance delete successfully")
+	return redirect('/management/take-attendance')
+
 def result_add(request):
 	teacher_obj = request.user
 	if request.method=='POST':
-		form = ResultForm(request.POST)
+		form = ResultForm(teacher_obj.teachersubjectregistration,request.POST)
 		if form.is_valid():
 			student = form.cleaned_data['student']
 			marks = form.cleaned_data['marks']
@@ -407,23 +425,20 @@ def result_add(request):
 			Result.objects.create(teacher=request.user,student=student,marks=marks,subject=subject)
 			messages.success(request,"result add successfully!")
 			return HttpResponseRedirect(reverse('management:add-result'))
+	
 	else:
-		if User.objects.filter(pk=teacher_obj.id ,teachersubjectregistration=None):
-			messages.info(request,"you does not register any subject so you does not accsess this page!")
-			return redirect('/management/user-profile')
-		else:
-			form = ResultForm()
-			results = Result.objects.filter(teacher=request.user)
-			context = {
-				'form':form,
-				'results':results,
-			}
-			return render(request,'management/add_result.html',context)
+		form = ResultForm(teacher_obj.teachersubjectregistration)
+		results = Result.objects.filter(teacher=request.user)
+		context = {
+			'form':form,
+			'results':results,
+		}
+		return render(request,'management/add_result.html',context)
 
 def update_result(request,id):
 	result = Result.objects.get(pk=id)
 	if request.method=="POST":
-		form = ResultForm(request.POST , initial=result_data)
+		form = ResultForm(request.user.teachersubjectregistration,request.POST)
 		if form.is_valid():
 			result.student = form.cleaned_data['student']
 			result.marks = form.cleaned_data['marks']
@@ -435,7 +450,7 @@ def update_result(request,id):
 			'student':result.student,
 			'marks' : result.marks,
 		}
-		form = ResultForm(initial=result_data)
+		form = ResultForm(request.user.teachersubjectregistration,initial=result_data)
 		return render(request,'management/update_result.html',{'form':form})
 
 def delete_result(request,id):

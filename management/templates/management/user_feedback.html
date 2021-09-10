@@ -4,6 +4,7 @@
 {% block title %} user apply leave {% endblock %}
 
 {%load crispy_forms_tags %}
+{% load static %}
 {% block content %}
 
 	<div class="container-fluid">
@@ -29,8 +30,10 @@
 								
 							</div>
 							<div class="col-md-8">
+								<h5 class="text-center">Feedback Information</h5><hr>
+								{% if feedback_list %}
 								<table class="table">
-									<h5 class="text-center">Feedback Information</h5><hr>
+									
 									<h5>Name : {{request.user.first_name}} {{request.user.last_name}}</h5>
 									<thead>
 										<tr>
@@ -86,6 +89,14 @@
 								
                         			{% endif %}
 								</table>
+								{% else %}
+								<div class="text-center">
+									<h5><b>You did not send any feedback so you have no any feedback information!</b></h5><br>
+									<img src="{% static 'images/feedback.jpg' %}" alt="register" width="350" height="200"><br><br>
+								{% endif %}
+									
+								</div>
+								
 								
 							</div>
 

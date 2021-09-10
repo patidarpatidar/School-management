@@ -2,6 +2,7 @@
 
 {% block title %} take attendance{% endblock %}
 {%load crispy_forms_tags %}
+{% load static %}
 {% block content %}
 
 	<div class="container-fluid" style="">
@@ -19,7 +20,7 @@
 									<h5 style="text-align: center">Take Attendance</h5><hr>
 									{% csrf_token %}
 							
-									{{form|crispy}}
+									{{form.as_p}}
 									{% for error in field.errors %}
 										<p style="color: red">{{error}}</p>
 									{% endfor %}
@@ -29,6 +30,7 @@
 								</form>
 							</div>
 							<div class="col-md-8">
+								{% if attendance %}
 								<table class="table">
 									<thead>
 										<h5>Attendance Information:</h5>
@@ -76,7 +78,13 @@
 
 									
 								</table>
+								{% else %}
+								<div class="text-center">
+									<img src="{% static 'images/attendance.jpg'%}" style="height: 300px; width: 500px;">
+									
+								</div>
 								
+								{% endif %}
 							</div>
 						</div>
 						

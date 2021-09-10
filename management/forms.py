@@ -48,11 +48,11 @@ class UserProfileForm(forms.Form):
 
 class StudentCourseRegistrationForm(forms.Form):
 	course = forms.ModelChoiceField(queryset=Course.objects.all(),empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
-	subject = forms. ModelMultipleChoiceField(queryset=Subject.objects.all(),widget=forms.CheckboxSelectMultiple(attrs={'style':'width:30px'}))
+	subject = forms. ModelMultipleChoiceField(queryset=Subject.objects.all(),widget=forms.CheckboxSelectMultiple(attrs={'style':'width:15px'}))
 
 
 class TeacherSubjectRegistrationForm(forms.Form):
-	subject = forms.ModelChoiceField(queryset=Subject.objects.all(),widget=forms.Select(attrs={'style': 'width:250px'}))
+	subject = forms.ModelChoiceField(queryset=Subject.objects.all(),empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
 
 	def clean_subject(self):
 		subject = self.cleaned_data.get('subject')
@@ -131,20 +131,30 @@ class LoginForm(forms.Form):
 
 
 class AttendanceForm(forms.Form):
-
+	
+	def __init__(self ,teacher, *args,**kwargs):
+		self.teacher = kwargs.pop('teacher',None)
+		super(AttendanceForm,self).__init__(*args,**kwargs)
+		print(teacher.subject)
+		self.fields['student'].queryset=StudentCourseRegistration.objects.filter(subject=teacher.subject)
+		
+	
 	STATUS_CHOICE = (
 			('persent','Persent'),
 			('absent','Absent'),
 		)
-	date = forms.DateField(initial=timezone.now())
-	student = forms.ModelChoiceField(queryset=StudentCourseRegistration.objects.all())
-	status = forms.ChoiceField(choices=STATUS_CHOICE)
+	date = forms.DateField(initial=timezone.now() , widget=forms.DateInput(attrs={'style':'width:250px;'
+        }))
+	student = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
+	status = forms.ChoiceField(choices=STATUS_CHOICE,widget=forms.Select(attrs={'style': 'width:250px'}))
 
+	
 	'''
 	def clean_student(self):
-		print(guest)
+		
+		teacher = self.teacher
 		student = self.cleaned_data.get('student')
-		if Attendance.objects.filter(student=student,date=datetime.date.today()).exists():
+		if Attendance.objects.filter(student=student,date=datetime.date.today(),subject=teacher.subject).exists():
 			raise ValidationError("this student attendace already taken!")
 		return student		
 	'''
@@ -163,8 +173,13 @@ class FeedbackForm(forms.Form):
 		 }
 
 class ResultForm(forms.Form):
-	student = forms.ModelChoiceField(queryset=StudentCourseRegistration.objects.all())
-	marks = forms.FloatField()
+	def __init__(self ,teacher, *args,**kwargs):
+		self.teacher = kwargs.pop('teacher',None)
+		super(ResultForm,self).__init__(*args,**kwargs)
+		print(teacher.subject)
+		self.fields['student'].queryset=StudentCourseRegistration.objects.filter(subject=teacher.subject)
+	student = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
+	marks = forms.FloatField(widget=forms.TextInput(attrs={'style':'width:250px;'}))
 
 
 

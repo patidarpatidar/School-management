@@ -2,6 +2,7 @@
 
 {% block title %} take attendance{% endblock %}
 {%load crispy_forms_tags %}
+{% load static %}
 {% block content %}
 
 	<div class="container-fluid" style="">
@@ -13,12 +14,13 @@
 			<div class="col-md-8">
 				<div class="card bg-info">
 					<div class="card-body" style="color: white;">
-						
-								<form action="" method="post" class="main">
+						<div class="row">
+							<div class="col-md-4">
+								<form action="" method="post" class="">
 									<h5 style="text-align: center">Update Attendance</h5><hr>
 									{% csrf_token %}
 							
-									{{form|crispy}}
+									{{form.as_p}}
 									{% for error in field.errors %}
 										<p style="color: red">{{error}}</p>
 									{% endfor %}
@@ -26,6 +28,17 @@
 										<input type="submit" name="Update" class="btn btn-primary text-center" value="Update" >
 									</div>
 								</form>
+								
+							</div>
+							<div class="col-md-8">
+								<div class="text-center">
+									<h5>Online Attendance Management System</h5><hr>
+									<img src="{% static 'images/upattendance.jpg'%}" style="height: 270px; width: 420px;">
+									
+								</div>
+							</div>
+						</div>
+								
 							
 						
 						

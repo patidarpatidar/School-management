@@ -2,12 +2,11 @@
 
 {% block title %} Login Form {% endblock %}
 {%load crispy_forms_tags %}
+{% load static%}
 {% block content %}
 
-	<div class="container-fluid" style="">
+	<div class="container" style="">
 		
-		
-			<br><br>
 				<div class="" style="margin: 10px;">
 					<div class="card bg-dark">
 						<div class="card-body" style="color: white;">
@@ -19,7 +18,8 @@
 									<li><h5>Enter a valid email address.</h5></li>
 									<li><h5>Enter a valid user name and password !</h5></li>
 									<li><h5>after create account you use username and password for login.</h5></li>
-									</ul>
+									</ul><br>
+									<img src="{% static 'images/signup.jpg' %}" width="500px;" height="280px;">
 									
 								</div>
 

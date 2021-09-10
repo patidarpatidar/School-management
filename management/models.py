@@ -81,7 +81,7 @@ class Leave(models.Model):
 	role = models.CharField(max_length=10)
 	leave_date = models.DateField()
 	leave_message = models.CharField(max_length=200)
-	leave_status = models.IntegerField(default=0)
+	leave_status = models.BooleanField(default=False)
 
 class Feedback(models.Model):
 	user = models.ForeignKey(User,on_delete=models.CASCADE)

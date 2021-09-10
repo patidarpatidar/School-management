@@ -4,6 +4,7 @@
 {% block title %} user apply leave {% endblock %}
 
 {%load crispy_forms_tags %}
+{% load static %}
 {% block content %}
 	<div class="container-fluid">
 		<div class="row">
@@ -14,23 +15,24 @@
 				<div class="card bg-info">
 					<div class="card-body" style="color: white;">
 						<div class="row">	
-							<div class="col-sm-4 mt-4">
-								<h5>Teacher : {{request.user.first_name}} {{request.user.last_name}}</h5><hr>
-				
+							<div class="col-md-4 mt-4">
+								<h5>Name : {{request.user.first_name}} {{request.user.last_name}}</h5>
+								<h5>Subject : {{request.user.teachersubjectregistration.subject}}</h5><hr>
 								<form action="" method="POST" enctype="multipart/form-data">
 									<h5 align="center">Add Result</h5>
 									
 									{% csrf_token %}
-									{{ form|crispy}}
-									<div class="form-group">
+									{{ form.as_p}}
+									<div class="form-group text-center">
             	    					<button type="submit" class="btn btn-primary ">Add</button>
             	   					 </div>
 								</form>
 							</div>
 
-							<div class="col-sm-8 mt-4">
+							<div class="col-md-8  mt-4">
+								{% if results %}
 								<h5 align="center">Results Information</h5><hr>
-								<h5>Subject : {{request.user.teachersubjectregistration.subject}}</h5>
+								
 		            			<table class="table">
 		               				<thead>
 		               	 				<tr>
@@ -40,7 +42,7 @@
 		               						<th>Action</th>
 		               	  				</tr>
 		               	 			</thead>	
-		               				{% if results %}
+		               				
 		               				
 		               				<tbody>
 		               					{% for result in results %}
@@ -74,8 +76,15 @@
 		               	 				{% endfor %}
 		               				</tbody>
 		               				
-		               				{% endif %}
+		               				
 		          				</table>
+		          				{% else %}
+		          					<div>
+		          						<img src="{% static 'images/result.jpg' %}" width="500px;" height="300px;">
+		          					</div>
+		          				
+		          				{% endif %}
+
 							</div>
 						</div>
 					</div>
