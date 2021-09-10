@@ -44,6 +44,7 @@ urlpatterns = [
     path('view-result',result_view,name='view-result'),
     path('update-result/<int:id>',update_result,name='update-result'),
     path('delete-result/<int:id>',delete_result,name='delete-result'),
+    path('change-password',change_password,name='change-password'),
 
 
 

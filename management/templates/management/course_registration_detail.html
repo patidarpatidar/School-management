@@ -22,14 +22,41 @@
 								<h5>Course: {{course_detail.course}}</h5>
 								<h5>Description: {{course_detail.course.description}}</h5>
 								<h5>Duration : {{course_detail.course.duration}}</h5>
-								<h5>Total Fees: {{course_detail.course.fees}}</h5> <br>
+								<h5>Total Fees: {{course_detail.course.fees}}</h5>
+								<h5>All Subject :</h5>
+								{% for subject in course_detail.subject.all%}
+								<h5>{{subject}}</h5>
+								{% endfor %}
 							</div>
 							
 							<div class="col-md-6 g-1">
-								<h5 class="text-center">Subject Information</h5><hr>
-								{% for subject in course_detail.subject.all %}
-								<h5><li><b>{{subject}}</b></li></h5>
-								{% endfor %}
+								<h5 class="text-center">Related Subject Teacher </h5><hr>
+								{% if teacher %}
+								<table class="table">
+									<thead>
+										<tr>
+											<th scope="col">Subject</th>
+											<th scope="col">Teacher</th>
+										</tr>
+										
+									</thead>
+									{% for subject in course_detail.subject.all %}
+									{% for teacher in teacher %}
+									{% ifequal subject teacher.subject %}
+									<tbody>
+										<tr>
+											<td><b>{{subject}}</b></td>
+											<td><b>{{teacher}}</b></td>
+										</tr>
+									</tbody>
+									{% endifequal %}	
+									{% endfor %}
+									{% endfor %}
+									
+								</table>
+								{% else %}
+								<h5>No any Information </h5>
+								{% endif %}
 							</div>
 						</div>
 						<div class="text-center">

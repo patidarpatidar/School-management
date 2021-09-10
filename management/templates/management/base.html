@@ -28,10 +28,18 @@
   			background-color: black;
   			color: white;
   			text-align: center;
-		}
+  		}
+  		.dropdown-menu {
+  			background: black;
+  			border: 1px solid white;
+  		}
+  		.dropdown-menu a{
+  			color: blue;
+  		}
+		
 	</style>
 
-	<body>
+	<body style="background:lightgreen;">
 
 		<nav class="navbar navbar-expand-md " >
 			<div class="container-fluid">
@@ -51,13 +59,19 @@
 					</ul>
 					<ul class="navbar-nav ml-auto mb-2 mb-lg-0">
 						{% if user.is_authenticated %}
-						<li><img src="{{user.userprofile.image.url}}" class="img-fluid rounded-circle mx-auto d-block" alt="..." style="height: 40px; width: 40px;"></li>		
-						<li class="nav-item"><a href="/management/user-profile" class="nav-link"> Welcome : {{user.first_name}}</a></li>
-
-					
-						
-						
-						<li class="nav-item"><a class="nav-link" href="/management/logout">Logout</a></li>
+							<li class="nav-link"><img  src="{{user.userprofile.image.url}}" class="img-fluid rounded-circle mx-auto d-block" alt="..." style="height: 40px; width: 40px"></li>	
+							<div class="dropdown">
+  							<button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
+  							Welcome : {{user.first_name}}
+   							 
+  							</button>
+  							<div class="dropdown-menu" style="">
+    							<a class="dropdown-item" href="/management/user-profile">Profile</a>
+    							<a class="dropdown-item" href="/management/user-update">Update Profile</a>
+    							<a class="dropdown-item" href="/management/change-password">Change Password</a>
+    							<a class="dropdown-item" href="/management/logout">Logout</a>
+  							</div>
+						</div>
 						{% else %}
 						<li><a class="nav-link" href="/management/signup">SignUp</a></li>
 						<li><a class="nav-link" href="/management/login">Login</a></li>

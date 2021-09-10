@@ -16,18 +16,17 @@
 				<div class="card bg-info">
 					<div class="card-body" style="color: white;">
 						<table class="table">
-							<h5 class="text-center">Student Attendance Record</h5><hr>
-							<h5>Teacher Name:{{request.user.first_name}}</h5>
-							<h5>Subject: {{request.user.teachersubjectregistration.subject}}</h5>
+							<h5 class="text-center">Student Attendance Record</h5>
+							<h5 class="text-center"><b style="color:black;background: lightblue">course : {{request.user.teachersubjectregistration.course}} , Subject : {{request.user.teachersubjectregistration.subject}}</b></h5><hr>
+							<h5>Teacher Name : {{request.user.first_name}}{{request.user.last_name}}</h5>
+							
 
 							<thead>
 								<tr>
 									<th scope="col">#</th>
 									<th scope="col">Student</th>
 									<th scope="col">Date</th>
-									<th scope="col">Course</th>
-					
-
+									
 									<th scope="col">Status</th>
 									<th>Action</th>
 
@@ -39,8 +38,6 @@
 									<th scope="row">{{attendance.id}}</th>
 									<td><b>{{attendance.student}}</b></td>
 									<td>{{attendance.date}}</td>
-									<td>{{attendance.course}}</td>
-					
 									<td>{{attendance.status}}</td>
 									<td>
 										<a href="/management/update-attendance-record/{{attendance.id}}"><button class="btn btn-warning">Update</button></a>

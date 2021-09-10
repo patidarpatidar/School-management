@@ -1,6 +1,6 @@
 from django.shortcuts import render,get_object_or_404 , HttpResponse , redirect , HttpResponseRedirect
 from .models import Course , UserProfile,StudentCourseRegistration, TeacherSubjectRegistration , Attendance , Leave , Feedback , Result
-from .forms import  SignUpForm , LoginForm ,UserUpdateForm ,UserProfileForm ,StudentCourseRegistrationForm ,ResultForm, TeacherSubjectRegistrationForm , AttendanceForm , LeaveForm , FeedbackForm
+from .forms import  SignUpForm , LoginForm ,ChangePasswordform,UserUpdateForm ,UserProfileForm ,StudentCourseRegistrationForm ,ResultForm, TeacherSubjectRegistrationForm , AttendanceForm , LeaveForm , FeedbackForm
 from django.contrib.auth import login,logout, authenticate
 # Create your views here.
 from django.views.generic.edit import UpdateView , DeleteView
@@ -19,7 +19,8 @@ from django.urls import reverse_lazy
 def index_view(request):
 	course = Course.objects.all()
 	context = {
-		'course_list' : course
+		'course_list' : course,
+		'total':course.count()
 	} 
 	return render(request,'management/index.html',context)
 
@@ -112,6 +113,10 @@ def user_delete(request):
 	user.delete()
 	messages.success(request,"successfully deleted!")
 	return redirect('/management')
+
+def change_password(request):
+	form = ChangePasswordform()
+	return render(request,'management/change_password.html',{'form':form})
 
 def apply_leave_view(request):
 	if request.method=='POST':
@@ -223,9 +228,10 @@ def student_course_registration_view(request):
 		return render(request,"management/course_registration.html",{'form':form})
 	else:
 		context = {
-			'course_detail' : student_obj.studentcourseregistration
+			'course_detail' : student_obj.studentcourseregistration,
+			'teacher' : TeacherSubjectRegistration.objects.filter(course=student_obj.studentcourseregistration.course,subject__in=student_obj.studentcourseregistration.subject.all())
 		}
-
+		print(context['teacher'])
 		return render(request,'management/course_registration_detail.html',context)
 
 def update_student_course_registration(request):
@@ -288,14 +294,18 @@ def teacher_subject_registration_view(request):
 			form = TeacherSubjectRegistrationForm(request.POST)
 			if form.is_valid():
 				subject = form.cleaned_data['subject']
-				teachersubject = TeacherSubjectRegistration.objects.create(subject=subject,user=teacher_obj)
+				course = form.cleaned_data['course']
+				teachersubject = TeacherSubjectRegistration.objects.create(subject=subject,course=course,user=teacher_obj)
 				messages.success(request,"Your have successfully register!")
 				return HttpResponseRedirect(reverse('management:teacher-subject'))
 		else: 
 			form = TeacherSubjectRegistrationForm()
 		return render(request,'management/teacher_subject.html',{'form':form})
 	else:
+		total_student = StudentCourseRegistration.objects.filter(course=teacher_obj.teachersubjectregistration.course,subject=teacher_obj.teachersubjectregistration.subject).count()
+		print(total_student)
 		context = {
+			'total_student':total_student,
 			'subject_detail':teacher_obj.teachersubjectregistration
 		}
 		return render(request,'management/teacher_subject_detail.html',context)
@@ -307,11 +317,13 @@ def update_subject_registration(request):
 		form = TeacherSubjectRegistrationForm(request.POST)
 		if form.is_valid():
 			teacher.subject = form.cleaned_data['subject']
+			teacher.course = form.cleaned_data['course']
 			teacher.save()
 			messages.success(request,"udate your subject registration!")
 			return HttpResponseRedirect(reverse('management:teacher-subject'))
 	else:
 		subject_data = {
+			'course':teacher.course,
 			'subject':teacher.subject,
 		}
 		form = TeacherSubjectRegistrationForm(initial = subject_data)

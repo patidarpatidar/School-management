@@ -1,7 +1,7 @@
 from django.forms import ModelForm
 from django.conf import settings
 from django import forms
-from .models import UserProfile , Course ,Attendance,Subject,StudentCourseRegistration,TeacherSubjectRegistration
+from .models import UserProfile ,Leave ,  Course ,Attendance,Subject,StudentCourseRegistration,TeacherSubjectRegistration
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -52,12 +52,14 @@ class StudentCourseRegistrationForm(forms.Form):
 
 
 class TeacherSubjectRegistrationForm(forms.Form):
+	course = forms.ModelChoiceField(queryset=Course.objects.all(),empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
 	subject = forms.ModelChoiceField(queryset=Subject.objects.all(),empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
 
 	def clean_subject(self):
+		course = self.cleaned_data.get('course')
 		subject = self.cleaned_data.get('subject')
-		if TeacherSubjectRegistration.objects.filter(subject = subject).exists():
-			raise ValidationError("you can not take this subject subject is already taken!")
+		if TeacherSubjectRegistration.objects.filter(subject = subject,course=course).exists():
+			raise ValidationError("inside this course subject teacher is already you can not register!")
 		return subject
 
 
@@ -135,10 +137,8 @@ class AttendanceForm(forms.Form):
 	def __init__(self ,teacher, *args,**kwargs):
 		self.teacher = kwargs.pop('teacher',None)
 		super(AttendanceForm,self).__init__(*args,**kwargs)
-		print(teacher.subject)
-		self.fields['student'].queryset=StudentCourseRegistration.objects.filter(subject=teacher.subject)
+		self.fields['student'].queryset=StudentCourseRegistration.objects.filter(subject=teacher.subject,course=teacher.course)
 		
-	
 	STATUS_CHOICE = (
 			('persent','Persent'),
 			('absent','Absent'),
@@ -148,13 +148,11 @@ class AttendanceForm(forms.Form):
 	student = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
 	status = forms.ChoiceField(choices=STATUS_CHOICE,widget=forms.Select(attrs={'style': 'width:250px'}))
 
-	
+
 	'''
 	def clean_student(self):
-		
-		teacher = self.teacher
 		student = self.cleaned_data.get('student')
-		if Attendance.objects.filter(student=student,date=datetime.date.today(),subject=teacher.subject).exists():
+		if Attendance.objects.filter(student=student,date=datetime.date.today()).exists():
 			raise ValidationError("this student attendace already taken!")
 		return student		
 	'''
@@ -162,6 +160,7 @@ class AttendanceForm(forms.Form):
 class LeaveForm(forms.Form):
 	leave_date = forms.DateField(input_formats=settings.DATE_INPUT_FORMATS)
 	leave_message = forms.CharField(widget=forms.Textarea(attrs={'rows':4,'cols':20}))
+	
 	
 class FeedbackForm(forms.Form):
 	feedback_message = forms.CharField(widget=forms.Textarea(attrs={'rows':4,'cols':20}))
@@ -177,7 +176,7 @@ class ResultForm(forms.Form):
 		self.teacher = kwargs.pop('teacher',None)
 		super(ResultForm,self).__init__(*args,**kwargs)
 		print(teacher.subject)
-		self.fields['student'].queryset=StudentCourseRegistration.objects.filter(subject=teacher.subject)
+		self.fields['student'].queryset=StudentCourseRegistration.objects.filter(subject=teacher.subject,course=teacher.course)
 	student = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
 	marks = forms.FloatField(widget=forms.TextInput(attrs={'style':'width:250px;'}))
 
@@ -206,3 +205,9 @@ class UserUpdateForm(forms.Form):
 	state = forms.CharField(max_length=200)
 	pincode = forms.IntegerField()
 	image = forms.ImageField()
+
+class ChangePasswordform(forms.Form):
+	old_password = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control'}))
+	new_password = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control'}))
+	confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control'}))
+	

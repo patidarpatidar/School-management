@@ -56,7 +56,8 @@ class StudentCourseRegistration(models.Model):
 		
 class TeacherSubjectRegistration(models.Model):
 	user = models.OneToOneField(User,on_delete=models.CASCADE)
-	subject = models.OneToOneField(Subject,on_delete=models.CASCADE)
+	course = models.ForeignKey(Course,on_delete=models.CASCADE)
+	subject = models.ForeignKey(Subject,on_delete=models.CASCADE)
 	
 	def __str__(self):
 		return self.user.username

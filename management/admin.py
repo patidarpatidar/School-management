@@ -19,7 +19,7 @@ class CourseRegistrationAdmin(admin.ModelAdmin):
 admin.site.register(StudentCourseRegistration,CourseRegistrationAdmin)
 
 class SubjectRegistrationAdmin(admin.ModelAdmin):
-	list_display = ['user','subject']
+	list_display = ['user','course','subject']
 	list_filter = ['subject']
 admin.site.register(TeacherSubjectRegistration,SubjectRegistrationAdmin)
 
