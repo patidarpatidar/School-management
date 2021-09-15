@@ -19,8 +19,8 @@ class CourseRegistrationAdmin(admin.ModelAdmin):
 admin.site.register(StudentCourseRegistration,CourseRegistrationAdmin)
 
 class SubjectRegistrationAdmin(admin.ModelAdmin):
-	list_display = ['user','course','subject']
-	list_filter = ['subject']
+	list_display = ['user','course']
+	list_filter = ['course']
 admin.site.register(TeacherSubjectRegistration,SubjectRegistrationAdmin)
 
 class AttendanceAdmin(admin.ModelAdmin):

@@ -13,14 +13,12 @@
 			</div>
 			
 			<div class="col-md-8">
-				<div class="card bg-info">
+				<div class="card bg-dark">
 					<div class="card-body" style="color: white;">
-						<table class="table">
+						<table class="table" style="color: white;font-weight: bold">
 							<h5 class="text-center">Student Attendance Record</h5>
-							<h5 class="text-center"><b style="color:black;background: lightblue">course : {{request.user.teachersubjectregistration.course}} , Subject : {{request.user.teachersubjectregistration.subject}}</b></h5><hr>
+							<h5 class="text-center"><b style="color:orange;">course : {{request.user.teachersubjectregistration.course}} , Subject : {{request.user.teachersubjectregistration.subject}}</b></h5><hr>
 							<h5>Teacher Name : {{request.user.first_name}}{{request.user.last_name}}</h5>
-							
-
 							<thead>
 								<tr>
 									<th scope="col">#</th>
@@ -33,10 +31,10 @@
 								</tr>
 							</thead> 
 							<tbody>
-								{% for attendance in attendance %}
+								{% for attendance in page_obj %}
 								<tr>
 									<th scope="row">{{attendance.id}}</th>
-									<td><b>{{attendance.student}}</b></td>
+									<td>{{attendance.student}}</td>
 									<td>{{attendance.date}}</td>
 									<td>{{attendance.status}}</td>
 									<td>
@@ -61,9 +59,27 @@
    
   									</div>
 								</div>
+
 								{% endfor %}
 							</tbody>
 						</table>
+						<div class="pagination">
+    						<span class="step-links" style="font-weight: bold;">
+       						{% if page_obj.has_previous %}
+            					<a href="?page=1">&laquo; first </a>
+            					<a href="?page={{ page_obj.previous_page_number }}"> previous </a>
+        					{% endif %}
+
+        					<span class="current">
+            				Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        					</span>
+
+        					{% if page_obj.has_next %}
+            					<a href="?page={{ page_obj.next_page_number }}"> next </a>
+            					<a href="?page={{ page_obj.paginator.num_pages }}"> last &raquo;</a>
+        					{% endif %}
+    						</span>
+						</div>
 					</div>
 				</div>
 			</div>

@@ -6,14 +6,12 @@
 {% block content %}
 
 	<div class="container-fluid" style="">
-		
 		<div class="row">
 			<div class="col-md-4">
 				{% include 'management/sidebar.html'%}
 			</div>
-			
-		<div class="col-md-8">
-			<div class="card bg-info">
+			<div class="col-md-8">
+				<div class="card bg-dark">
 					<div class="card-body" style="color: white;">
 						<div class="row">
 							<div class="col-md-6">
@@ -25,27 +23,15 @@
 										<input type="submit" name="submit" class="btn btn-primary text-center" value="Register" >
 									</div>
 								</form>
-								
 							</div>
 							<div class="col-md-6 text-center">
 								<img src="{% static 'images/register.jpg' %}" alt="register" width="350" height="300" style="margin-top: 35px;">
-								
 							</div>
-							
 						</div>
 						
-					</div>	
-					
+					</div>			
+				</div>
 			</div>
 		</div>
-			
-		
-	
-	
-		
-		
-	
-		
 	</div>
-
 {% endblock %}

@@ -12,27 +12,27 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.forms import ImageField
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password 
+from django.forms.widgets import NumberInput
 
 class UserProfileForm(forms.Form):
 	GENDER = (
-			('MALE','male'),
-			('FEMALE','female'),
+			('male','male'),
+			('female','female'),
 		)
 	ROLE_CHOICE = (
-			('STUDENT','student'),
-			('TEACHER','teacher'),
-			('ADMIN','admin'),
+			('student','student'),
+			('teacher','teacher'),
+			
 			
 		)
-
-	role = forms.ChoiceField(choices=ROLE_CHOICE ,widget=forms.Select(attrs={'class':'form-control'}))
-	gender = forms.ChoiceField(choices=GENDER, widget=forms.Select(attrs={'class':'form-control'}))
+	role = forms.ChoiceField(choices=ROLE_CHOICE ,widget=forms.Select(attrs={'class':'form-control','style':'width:250px;'}))
+	gender = forms.ChoiceField(choices=GENDER, widget=forms.Select(attrs={'class':'form-control','style':'width:250px;'}))
 	phone = forms.CharField(max_length=20 ,widget=forms.TextInput(attrs={'class':'form-control'}))
 	street = forms.CharField(max_length=200 , widget=forms.TextInput(attrs={'class':'form-control'}))
 	city = forms.CharField(max_length=200 , widget=forms.TextInput(attrs={'class':'form-control'}))
 	state = forms.CharField(max_length=200 , widget=forms.TextInput(attrs={'class':'form-control'}))
 	pincode = forms.IntegerField(widget=forms.TextInput(attrs={'class':'form-control'}))
-	image = forms.ImageField(widget=forms.FileInput(attrs={'class':'form-control'}))
+	image = forms.ImageField(required=False,widget=forms.FileInput(attrs={'class':'form-control'}))
 
 	def clean_phone(self):
 		phone = self.cleaned_data.get('phone')
@@ -46,22 +46,10 @@ class UserProfileForm(forms.Form):
 			raise ValidationError("pin code must be 6 digits!")
 		return pincode
 
-class StudentCourseRegistrationForm(forms.Form):
+class CourseRegistrationForm(forms.Form):
 	course = forms.ModelChoiceField(queryset=Course.objects.all(),empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
-	subject = forms. ModelMultipleChoiceField(queryset=Subject.objects.all(),widget=forms.CheckboxSelectMultiple(attrs={'style':'width:15px'}))
-
-
-class TeacherSubjectRegistrationForm(forms.Form):
-	course = forms.ModelChoiceField(queryset=Course.objects.all(),empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
-	subject = forms.ModelChoiceField(queryset=Subject.objects.all(),empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
-
-	def clean_subject(self):
-		course = self.cleaned_data.get('course')
-		subject = self.cleaned_data.get('subject')
-		if TeacherSubjectRegistration.objects.filter(subject = subject,course=course).exists():
-			raise ValidationError("inside this course subject teacher is already you can not register!")
-		return subject
-
+	subjects = forms. ModelMultipleChoiceField(queryset=Subject.objects.all(),widget=forms.CheckboxSelectMultiple(attrs={'style':'width:15px'}))
+	
 
 from django.forms import TextInput , EmailInput	
 
@@ -131,24 +119,20 @@ class LoginForm(forms.Form):
 			raise ValidationError("Your password is wrong!")
 			
 
-
 class AttendanceForm(forms.Form):
-	
 	def __init__(self ,teacher, *args,**kwargs):
 		self.teacher = kwargs.pop('teacher',None)
 		super(AttendanceForm,self).__init__(*args,**kwargs)
 		self.fields['student'].queryset=StudentCourseRegistration.objects.filter(subject=teacher.subject,course=teacher.course)
-		
+
 	STATUS_CHOICE = (
-			('persent','Persent'),
-			('absent','Absent'),
+			('persent','persent'),
+			('absent','absent'),
 		)
-	date = forms.DateField(initial=timezone.now() , widget=forms.DateInput(attrs={'style':'width:250px;'
-        }))
+	date = forms.DateField(widget=NumberInput(attrs={'type': 'date'}))
 	student = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
 	status = forms.ChoiceField(choices=STATUS_CHOICE,widget=forms.Select(attrs={'style': 'width:250px'}))
-
-
+	
 	'''
 	def clean_student(self):
 		student = self.cleaned_data.get('student')
@@ -158,17 +142,16 @@ class AttendanceForm(forms.Form):
 	'''
 	
 class LeaveForm(forms.Form):
-	leave_date = forms.DateField(input_formats=settings.DATE_INPUT_FORMATS)
-	leave_message = forms.CharField(widget=forms.Textarea(attrs={'rows':4,'cols':20}))
+	leave_date = forms.DateField(widget=NumberInput(attrs={'type': 'date'}))
+	leave_message = forms.CharField(widget=forms.Textarea(attrs={'rows':5,'cols':25}))
 	
 	
 class FeedbackForm(forms.Form):
-	feedback_message = forms.CharField(widget=forms.Textarea(attrs={'rows':4,'cols':20}))
+	feedback_message = forms.CharField(widget=forms.Textarea(attrs={'rows':6,'cols':35}))
 
 	widgets = {
 		 
-		 'feedback_message' : forms.TextInput(attrs={'class':'form-control'}),
-		 
+		 'feedback_message' : forms.TextInput(attrs={'class':'form-control'}), 
 		 }
 
 class ResultForm(forms.Form):
@@ -177,37 +160,27 @@ class ResultForm(forms.Form):
 		super(ResultForm,self).__init__(*args,**kwargs)
 		print(teacher.subject)
 		self.fields['student'].queryset=StudentCourseRegistration.objects.filter(subject=teacher.subject,course=teacher.course)
+	
 	student = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
 	marks = forms.FloatField(widget=forms.TextInput(attrs={'style':'width:250px;'}))
 
 
-
-class UserUpdateForm(forms.Form):
-	GENDER = (
-			('MALE','male'),
-			('FEMALE','female'),
-		)
-	ROLE_CHOICE = (
-			('STUDENT','student'),
-			('TEACHER','teacher'),
-			('ADMIN','admin'),
-			
-		)
+class UserUpdateForm(UserProfileForm,forms.Form):
 	first_name = forms.CharField(max_length=200)
 	last_name = forms.CharField(max_length=200)
 	username = forms.CharField(max_length=200)
 	email = forms.EmailField(required=True)
-	role = forms.ChoiceField(choices=ROLE_CHOICE)
-	gender = forms.ChoiceField(choices=GENDER)
-	phone = forms.CharField(max_length=20)
-	street = forms.CharField(max_length=200)
-	city = forms.CharField(max_length=200)
-	state = forms.CharField(max_length=200)
-	pincode = forms.IntegerField()
-	image = forms.ImageField()
 
 class ChangePasswordform(forms.Form):
 	old_password = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control'}))
 	new_password = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control'}))
-	confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control'}))
+	confirm_new_password = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control'}))
 	
+	def clean_confirm_new_password(self):
+		new_password = self.cleaned_data.get('new_password')
+		confirm_new_password = self.cleaned_data.get('confirm_new_password')
+		
+		if(new_password!=confirm_new_password):
+			raise ValidationError("new password and confirm_new_password does not match")
+		return confirm_new_password
+		

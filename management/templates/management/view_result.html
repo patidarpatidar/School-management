@@ -12,7 +12,7 @@
 			</div>
 			
 			<div class="col-md-8">
-				<div class="card bg-info">
+				<div class="card bg-dark">
 					<div class="card-body" style="color: white;">
 						<div class="row">
 							<div class="col-md-4 text-center" >
@@ -22,47 +22,35 @@
 							<div class="col-md-8">
 								<h5>Result Information:</h5><hr>
 								{% if results %}
-								<table class="table">
-			
+								<table class="table" style="color: white;font-weight: bold">
 									<thead>
 										<tr>
-											
 											<th scope="col">Subject</th>
 											<th scope="col">Marks</th>
 											<th scope="col">Date</th>
 											<th scope="col">Teacher</th>
-					
 										</tr>
 									</thead> 
 									<tbody>
-										
 										{% for result in results %}
 										<tr>
-											
 											<td>{{result.subject}}</td>
 											<td>{{result.marks}}</td>
 											<td>{{result.created_at}}</td>
 											<td>{{result.teacher}}</td>
 										</tr>
 											{% endfor %}
-										
 									</tbody>
 								</table>
 								{% else %}
 								<h5><b>Result does not declare !</b></h5>
 								{% endif %}	
-								
-								
 							</div>
-							
 						</div>
 					</div>	
 				</div>	
 			</div>
 		</div>
-		
-			
-	
 	</div>		
 		
 

@@ -12,14 +12,16 @@ urlpatterns = [
     path('user-profile-create',user_profile_create,name='user-profile-create'),
     path('user-profile',user_profile_view,name='user-profile'),
     path('user-update',update_user_detail,name='user-update'),
-    path('delete-user',user_delete,name='delete-user'),
+    path('delete-user',user_profile_delete,name='delete-user'),
 
     
-    path('course-registration-detail',student_course_registration_view,name='course-registration-detail'),
+    path('course-registration',student_course_registration,name='course-registration'),
+    path('course-detail',student_course_detail,name='course-detail'),
     path('update-course-registration',update_student_course_registration,name='update-course-registration'),
     path('delete-course-registration/',delete_student_course_registration,name='delete-course-registration'),
 
-    path('teacher-subject',teacher_subject_registration_view,name='teacher-subject'),
+    path('teacher-subject-registration',teacher_subject_registration,name='teacher-subject-registration'),
+    path('teacher-subject-detail',teacher_subject_detail,name='teacher-subject-detail'),
     path('update-subject-registration',update_subject_registration,name='update-subject-registration'),
     path('delete-subject-registration',delete_subject_registration,name='delete-subject-registration'),
 

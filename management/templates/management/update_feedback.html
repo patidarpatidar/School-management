@@ -10,18 +10,21 @@
 				{% include 'management/sidebar.html'%}
 			</div>
 			<div class="col-md-8">
-				<div class="card bg-info">
+				<div class="card bg-dark">
 					<div class="card-body" style="color: white">
-						<form action="" method="POST" enctype="multipart/form-data" class="">
-							<h1 style="text-align: center">Update feedback</h1><hr>
-							{% csrf_token %} 
-							{{form|crispy}}
-							<div class="text-center">
-								<input type="submit" name="Update" class="btn btn-warning text-center" value="Update" >
+						<div class="row">
+							<div class="col-md-6">
+								<form action="" method="POST" enctype="multipart/form-data" class="">
+									<h5 style="text-align: center">Update feedback</h5><hr>
+									{% csrf_token %} 
+									{{form|crispy}}
+									<div class="text-center">
+										<input type="submit" name="Update" class="btn btn-warning text-center" value="Update" >
+									</div>
+  							</form>
 							</div>
-				
+						</div>
 						
-  						</form>
 					</div>
 				</div>
 			</div>

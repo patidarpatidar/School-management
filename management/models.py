@@ -24,48 +24,49 @@ class Subject(models.Model):
 
 class UserProfile(models.Model):
 	GENDER = (
-			('MALE','male'),
-			('FEMALE','female'),
+			('male','male'),
+			('female','female'),
 		)
 	ROLE_CHOICE = (
-			('STUDENT','student'),
-			('TEACHER','teacher'),
-			('ADMIN','admin')
-			
+			('student','student'),
+			('teacher','teacher'),	
 		)
-	role = models.CharField(max_length=10, choices=ROLE_CHOICE)
-	user = models.OneToOneField(User,on_delete=models.CASCADE)
-	gender = models.CharField(max_length=10,choices=GENDER)
-	phone = models.CharField(max_length=20)
-	street = models.CharField(max_length=200)
-	city = models.CharField(max_length=200)
-	state = models.CharField(max_length=200)
-	pin_code = models.IntegerField()
-	image = models.ImageField(upload_to='uploads/student_images')
+	role = models.CharField(max_length=10, choices=ROLE_CHOICE,null=True)
+	user = models.OneToOneField(User,on_delete=models.CASCADE,null=True)
+	gender = models.CharField(max_length=10,choices=GENDER,null=True)
+	phone = models.CharField(max_length=20,null=True)
+	street = models.CharField(max_length=200,null=True)
+	city = models.CharField(max_length=200,null=True)
+	state = models.CharField(max_length=200,null=True)
+	pin_code = models.IntegerField(null=True)
+	image = models.ImageField(upload_to='uploads/student_images',null=True)
 
 	def __str__(self):
 		return self.user.username
 
-class StudentCourseRegistration(models.Model):
-	user = models.OneToOneField(User,on_delete=models.CASCADE)
+class CourseRegistration(models.Model):
 	course = models.ForeignKey(Course,on_delete=models.CASCADE)
-	subject = models.ManyToManyField(Subject)
+	subjects = models.ManyToManyField(Subject)
+
+class StudentCourseRegistration(CourseRegistration,models.Model):
+	user = models.OneToOneField(User,on_delete=models.CASCADE)
 
 	def __str__(self):
 		return self.user.username
-		
-class TeacherSubjectRegistration(models.Model):
-	user = models.OneToOneField(User,on_delete=models.CASCADE)
-	course = models.ForeignKey(Course,on_delete=models.CASCADE)
-	subject = models.ForeignKey(Subject,on_delete=models.CASCADE)
 	
+	
+class TeacherSubjectRegistration(CourseRegistration,models.Model):
+	students = models.ManyToManyField(StudentCourseRegistration,null=True)
+	user = models.OneToOneField(User,on_delete=models.CASCADE)
+
 	def __str__(self):
 		return self.user.username
+
 
 class Attendance(models.Model):
 	STATUS_CHOICE = (
-			('persent','Persent'),
-			('absent','Absent'),
+			('persent','persent'),
+			('absent','absent'),
 		)
 	teacher = models.ForeignKey(User,on_delete=models.CASCADE)
 	course = models.ForeignKey(Course,on_delete=models.CASCADE)

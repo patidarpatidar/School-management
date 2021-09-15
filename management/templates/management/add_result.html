@@ -1,7 +1,7 @@
 {% extends "management/base.html" %}
 
 
-{% block title %} user apply leave {% endblock %}
+{% block title %} add result {% endblock %}
 
 {%load crispy_forms_tags %}
 {% load static %}
@@ -12,7 +12,7 @@
 				{% include 'management/sidebar.html'%}
 			</div>
 			<div class="col-md-8">
-				<div class="card bg-info">
+				<div class="card bg-dark">
 					<div class="card-body" style="color: white;">
 						<div class="row">	
 							<div class="col-md-4 mt-4">
@@ -22,7 +22,17 @@
 									<h5 align="center">Add Result</h5>
 									
 									{% csrf_token %}
-									{{ form.as_p}}
+									{% for field in form %}
+									<div class="field">
+										<label for="{{field.id_for_label}}" class="label">
+										<b>{{field.html_name}} :</b></label>
+										{{field}}
+										{% for error in field.errors %}
+											<p style="color: red">{{error}}</p>
+										{% endfor %}
+									</div>
+									{% endfor %}
+									<br>
 									<div class="form-group text-center">
             	    					<button type="submit" class="btn btn-primary ">Add</button>
             	   					 </div>
@@ -30,10 +40,9 @@
 							</div>
 
 							<div class="col-md-8  mt-4">
-								{% if results %}
+								{% if page_obj %}
 								<h5 align="center">Results Information</h5><hr>
-								
-		            			<table class="table">
+		            			<table class="table" style="color: white;font-weight: bold">
 		               				<thead>
 		               	 				<tr>
 		               						<th scope="col">#</th>
@@ -45,7 +54,7 @@
 		               				
 		               				
 		               				<tbody>
-		               					{% for result in results %}
+		               					{% for result in page_obj %}
 		               	 				<tr>
 		               	 					<th scope="row">{{result.id}}</th>
 		               	 					<td scope="row">{{result.student}}</td>
@@ -78,6 +87,23 @@
 		               				
 		               				
 		          				</table>
+		          				<div class="pagination">
+    								<span class="step-links" style="font-weight: bold;">
+       								{% if page_obj.has_previous %}
+            							<a href="?page=1">&laquo; first </a>
+            							<a href="?page={{ page_obj.previous_page_number }}"> previous </a>
+        							{% endif %}
+
+        							<span class="current">
+            						Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        							</span>
+
+        							{% if page_obj.has_next %}
+            							<a href="?page={{ page_obj.next_page_number }}"> next </a>
+            							<a href="?page={{ page_obj.paginator.num_pages }}"> last &raquo;</a>
+        							{% endif %}
+    								</span>
+								</div>
 		          				{% else %}
 		          					<div>
 		          						<img src="{% static 'images/result.jpg' %}" width="500px;" height="300px;">

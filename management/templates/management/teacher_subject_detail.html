@@ -10,16 +10,21 @@
 			<div class="col-md-4">
 				{% include 'management/sidebar.html'%}
 			</div>
-
 			<div class="col-md-8">
-				<div class="card bg-info">
+				<div class="card bg-dark">
 					<div class="card-body " style="color: white;">
 						<div class="main">
 						<h5 class="text-center">Subject Information</h5><hr>	
 						<h5>Course : {{subject_detail.course}}</h5>	
-						<h5>Course Description : {{subject_detail.course.description}}</h5>						
-						<h5>Subject : {{subject_detail.subject}}</h5>
-						<h5>Description : {{subject_detail.subject.description}}</h5><br>
+						<h5>Course Description : {{subject_detail.course.description}}</h5>
+
+						<h5>All Subject :</h5>
+							{% for subject in subject_detail.subjects.all%}
+								<ul>
+									<li><h5>{{subject}}</h5></li>
+								</ul>	
+							{% endfor %}
+					
 						<h5 style="color:black;background: white;width: 200px;"><b>Total Student : {{total_student}}</b></h5>
 						<a href="/management/update-subject-registration"><button class="btn btn-warning">Update</button></a>
 						<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal">Delete</button>

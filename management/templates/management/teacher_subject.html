@@ -1,6 +1,6 @@
 {% extends "management/base.html" %}
 {% load static %}
-{% block title %} Login Form {% endblock %}
+{% block title %} teacher subject registration {% endblock %}
 {%load crispy_forms_tags %}
 {% block content %}
 
@@ -14,27 +14,16 @@
 					<div class="card bg-info">
 						<div class="card-body" style="color: white;">
 							<div class="row">
-								
 								<div class="col-md-6">
 									<br>
 									<form action="" method="post" class="">
-									<h5 style="text-align: center">Subject Registeration</h5><hr>
-									{% csrf_token %}
-									{% for field in form %}
-									<div class="field">
-										<label for="{{field.id_for_label}}" class="label">
-										{{field.html_name}}:</label>
-										{{field}}
-										{% for error in field.errors %}
-											<p style="color: red">{{error}}</p>
-										{% endfor %}
-									</div>
-									{% endfor %}
-								<br>
+										<h5 style="text-align: center">Subject Registeration</h5><hr>
+										{% csrf_token %}
+										{{form.as_p}}
 
-									<div class="form-group text-center">
-										<input type="submit" name="submit" class="btn btn-primary text-center" value="submit" >
-									</div>
+										<div class="form-group text-center">
+											<input type="submit" name="submit" class="btn btn-primary text-center" value="Submit" >
+										</div>
 									</form>	
 								</div>
 								<div class="col-md-6 text-center" style="margin-top: 40px;">
@@ -50,13 +39,6 @@
 				
 			</div>
 		</div>
-			
-			
-	
-		
-		
-	
-		
 	</div>
 
 {% endblock %}

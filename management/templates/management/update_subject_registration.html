@@ -12,17 +12,16 @@
 			</div>
 			
 			<div class="col-md-8">
-				<div class="card bg-info">
-					<div class="card-body" style="color: white;margin-left:5%;">
-						<form action="" method="post" class="main" style="width: 600px;">
+				<div class="card bg-dark">
+					<div class="card-body" style="color: white;">
 						<h4 style="text-align: center">Update Subject Registration</h4><hr>
-						{% csrf_token %}
-
-						
-						<div class="form-group text-center">
-							{{form.as_p}}
-							<input type="submit" name="submit" class="btn btn-warning text-center" value="Update" >
-						</div>
+						<form action="" method="post" class="" style="width: 600px;font-weight: bold">
+							{% csrf_token %}
+							{{form.as_p}}	
+							<div class="form-group">
+							
+								<input type="submit" name="submit" class="btn btn-warning" value="Update" >
+							</div>
 						</form>
 					</div>	
 					

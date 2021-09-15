@@ -6,11 +6,9 @@
   	<!-- Required meta tags -->
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width	initial-scale=1">
-		<link href="/your-path-to-fontawesome/css/fontawesome.css" rel="stylesheet">
-  		<!-- Bootstrap CSS -->
-		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
-		<!-- Latest compiled and minified CSS -->
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+		
+  	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+  	<link rel="stylesheet" type="text/css" href="{% static 'css/all.min.css' %}">
   		<!-- link style.css -->
 		<link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
 		<script type="text/javascript" src="{% static 'js/script.js'%}"></script>
@@ -22,75 +20,66 @@
 			color: red;
 		}
 		.navbar {
-  			
-  			top: 0;
-  			width: 100%;
-  			background-color: black;
-  			color: white;
-  			text-align: center;
-  		}
-  		.dropdown-menu {
-  			background: black;
-  			border: 1px solid white;
-  		}
-  		.dropdown-menu a{
-  			color: blue;
-  		}
-		
+  		top: 0;
+  		width: 100%;
+  		background-color: black;
+  		color: white;
+  		text-align: center;
+  		font-family: sans-serif;
+  	}	
+  	.dropdown-menu a{
+  		color: white;
+  	}
 	</style>
 
-	<body style="background:lightgreen;">
-
-		<nav class="navbar navbar-expand-md " >
-			<div class="container-fluid">
-				<a class="navbar-brand" href="/management" style="color:blue"><b>Student Management System</b></a>
+	<body style="background-color: lightgray">
+		<nav class="navbar navbar-expand-lg navbar-dark bg-dark " style="position: fixed;z-index: 1;top: 0;right: 0">
+  			<a style="font-family: sans-serif;" class="navbar-brand" href="/management/"><b style="color: orange">Student</b> Management</a>
+  			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    			<span class="navbar-toggler-icon"></span>
+  			</button>
 				
-				<button  class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-					<span class="navbar-toggler-icon"><h1>=</h1></span>
-				</button>
 				<div class="collapse navbar-collapse" id="navbarSupportedContent">
-					<ul class="navbar-nav mr-20 mb-2 mb-lg-0">
+					<ul class="navbar-nav mr-auto">
 						<li class="nav-item">
-						<a class="nav-link active" aria-current="page" href="/management">Home</a>
+						<a class="nav-link active" aria-current="page" href="/management/"><i class="fas fa-home"></i> Home</a>
 						</li>
 						{% if user.is_authenticated %}
-							<li class="nav-item"><a class="nav-link" href="/management/user-profile">Profile</a></li>
+							<li class="nav-item"><a class="nav-link" href="/management/user-profile"><i class="fas fa-users"></i> Profile</a></li>
 						{% endif %}
 					</ul>
 					<ul class="navbar-nav ml-auto mb-2 mb-lg-0">
 						{% if user.is_authenticated %}
-							<li class="nav-link"><img  src="{{user.userprofile.image.url}}" class="img-fluid rounded-circle mx-auto d-block" alt="..." style="height: 40px; width: 40px"></li>	
+							<br>
+							<li class="nav-link">
+								{% if request.user.userprofile.image %}
+									<img  src="{{user.userprofile.image.url}}" class="img-fluid rounded-circle mx-auto d-block" alt="..." style="height: 40px; width: 40px"></li>	
+								{% endif %}
 							<div class="dropdown">
-  							<button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">
+  							<button type="button" class="btn btn-info dropdown-toggle bg-dark" style="margin-top: 8px;" data-toggle="dropdown">
   							Welcome : {{user.first_name}}
    							 
   							</button>
-  							<div class="dropdown-menu" style="">
-    							<a class="dropdown-item" href="/management/user-profile">Profile</a>
-    							<a class="dropdown-item" href="/management/user-update">Update Profile</a>
-    							<a class="dropdown-item" href="/management/change-password">Change Password</a>
-    							<a class="dropdown-item" href="/management/logout">Logout</a>
+  							<div class="dropdown-menu bg-dark">	
+    							<a class="dropdown-item" href="/management/change-password"><i class="far fa-edit"></i> Change Password</a>
+    							<a class="dropdown-item" href="/management/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
   							</div>
-						</div>
+							</div>
 						{% else %}
-						<li><a class="nav-link" href="/management/signup">SignUp</a></li>
-						<li><a class="nav-link" href="/management/login">Login</a></li>
+						<li><a class="nav-link" href="/management/signup"><i class="fas fa-user-plus"></i> SignUp</a></li>
+						<li><a class="nav-link" href="/management/login"><i class="fas fa-sign-in-alt"></i> Login</a></li>
 						{%endif%}
-						
 					</ul>
-						
-						
-						
-					
-					
 				</div>
-			</div>
 		</nav>
-		<br>
+		<div class="contact">
+			
+		</div>
+		<br><br><br><br>
 
 		{% block content %} 
 		{% endblock %}
-<br><br><br>
+<br><br>
 <!-- Footer -->
 <style>
 footer {
@@ -98,33 +87,31 @@ footer {
   left: 0;
   bottom: 0;
   width: 100%;
-  background-color: black;
+  
   color: white;
   text-align: center;
 }
 </style>
 
-<footer class=" text-center text-white">
+<footer class=" text-center text-white bg-dark">
   
   <!-- Copyright -->
-  <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+  <div class="text-center p-3">
     © 2021 Copyright:
     <a class="text-white" href="https://mdbootstrap.com/">Student management</a>
   </div>
   <!-- Copyright -->
 </footer>
 <!-- Footer -->
+<script type="text/javascript" src="{% static 'js/jquery.js'%}"></script>
+<script type="text/javascript" src="{% static 'js/popper.js'%}"></script>
+<script type="text/javascript" src="{% static 'js/bootstrap.min.js'%}"></script>
+<script type="text/javascript" src="{% static 'js/all.min.js'%}"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
-   
-<!-- jQuery library -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <!-- Popper JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
 
-<!-- Latest compiled JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script type="text/javascript">
 	{% if messages %}			
 	{% for message in messages %}
@@ -132,5 +119,6 @@ footer {
 	{% endfor %}
 	{% endif %}
 </script>
+
 	</body>
 </html>

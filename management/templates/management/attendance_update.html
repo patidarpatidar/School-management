@@ -12,12 +12,12 @@
 			</div>
 			
 			<div class="col-md-8">
-				<div class="card bg-info">
+				<div class="card bg-dark">
 					<div class="card-body" style="color: white;">
 						<div class="row">
 							<div class="col-md-4">
-								<form action="" method="post" class="">
-									<h5 style="text-align: center">Update Attendance</h5><hr>
+								<form action="" method="post" class="" style="font-weight: bold">
+									<h5 style="text-align: center;">Update Attendance</h5><hr>
 									{% csrf_token %}
 							
 									{{form.as_p}}
