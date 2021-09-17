@@ -1,5 +1,5 @@
 from django.shortcuts import render,get_object_or_404 , HttpResponse , redirect , HttpResponseRedirect
-from .models import Course , UserProfile,StudentCourseRegistration, TeacherSubjectRegistration , Attendance , Leave , Feedback , Result
+from .models import Course , UserProfile,TeacherStudent,Student, Teacher , Attendance , Leave , Feedback , Result
 from .forms import  SignUpForm , LoginForm ,ChangePasswordform,UserUpdateForm ,UserProfileForm ,CourseRegistrationForm ,ResultForm , AttendanceForm , LeaveForm , FeedbackForm
 from django.contrib.auth import login,logout, authenticate
 # Create your views here.
@@ -13,6 +13,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse_lazy
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
 
 #-----------------------------User permission function (common)-----------------------------------
 #------------------------------------------------------------------------------------->
@@ -35,17 +36,17 @@ def user_profile_create(request):
 		form = UserProfileForm(request.POST,request.FILES)
 		
 		if form.is_valid():
-			UserProfile.objects.create(user=user)
 			clean_data = form.cleaned_data
-			user.userprofile.role = clean_data['role']
-			user.userprofile.gender = clean_data['gender']
-			user.userprofile.phone = clean_data['phone']
-			user.userprofile.street = clean_data['street']
-			user.userprofile.city = clean_data['city']
-			user.userprofile.state = clean_data['state']
-			user.userprofile.pin_code = clean_data['pincode']
-			user.userprofile.image = clean_data['image']
-			user.userprofile.save()
+			role = clean_data['role']
+			gender = clean_data['gender']
+			phone = clean_data['phone']
+			street = clean_data['street']
+			city = clean_data['city']
+			state = clean_data['state']
+			pin_code = clean_data['pincode']
+			image = clean_data['image']
+			user_profile = UserProfile(user=user,role=role,gender=gender,phone=phone,street=street,city=city,state=state,pin_code=pin_code,image=image)
+			user_profile.save()
 			messages.success(request,"Your profile is complete!")
 			return HttpResponseRedirect(reverse('management:user-profile'))
 	else:
@@ -70,7 +71,7 @@ def update_user_detail(request):
 		if form.is_valid():
 			clean_data = form.cleaned_data
 			if len(request.FILES)!=0:
-				user.userprofile.image=clean_data['image']
+				image=clean_data['image']
 			user.first_name=clean_data['first_name']
 			user.last_name = clean_data['last_name']
 			user.email = clean_data['email']
@@ -125,12 +126,15 @@ def student_course_registration(request):
 		if form.is_valid():
 			course = form.cleaned_data['course']
 			subjects = form.cleaned_data['subjects']
-			teachers = TeacherSubjectRegistration.objects.filter(course=course,subjects__in=subjects)
-			student = StudentCourseRegistration.objects.create(user=request.user,course=course)
+			teachers = Teacher.objects.filter(course=course,subjects__in=subjects)
+			student = Student.objects.create(user=request.user,course=course)
 			student.subjects.set(subjects)
+
 			for teacher in teachers:
-				if student not in teacher.students.all():
-					teacher.students.add(student)
+				if not TeacherStudent.objects.filter(student=student,teacher=teacher):
+					TeacherStudent.objects.create(teacher=teacher,student=student)
+
+			
 			messages.success(request,"Your course registration is successfully!")
 			return HttpResponseRedirect(reverse('management:course-detail'))
 	else:
@@ -140,30 +144,30 @@ def student_course_registration(request):
 
 @login_required(login_url='/management/login/')
 def student_course_detail(request):
-	student = request.user.studentcourseregistration
-	teachers = TeacherSubjectRegistration.objects.filter(students=student)
+	student = request.user.student
+	teacherstudent = TeacherStudent.objects.filter(student=student)
 	context = {
 		'course_detail':student,
-		'teachers':teachers, 
+		'teacherstudent':teacherstudent, 
 	}
 	return render(request,'management/course_registration_detail.html',context)
 
-
 @login_required(login_url='/management/login/')
 def update_student_course_registration(request):
-	student = request.user.studentcourseregistration
+	student = request.user.student
 	if request.method=="POST":
 		form = CourseRegistrationForm(request.POST)
 		if form.is_valid():
 			course = form.cleaned_data['course']
 			subjects = form.cleaned_data['subjects']
-			teachers = TeacherSubjectRegistration.objects.filter(course=course,subjects__in=subjects)
+			teachers = Teacher.objects.filter(course=course,subjects__in=subjects)
 			student.course= course
 			student.subjects.set(subjects)
+			TeacherStudent.objects.filter(student=student).delete()
 			for teacher in teachers:
-				if student not in teacher.students.all():
-					teacher.students.add(student)
-				
+				if not TeacherStudent.objects.filter(student=student,teacher=teacher):
+					TeacherStudent.objects.create(teacher=teacher,student=student)
+
 			student.save()
 			messages.success(request,"registration detail update successfully")
 			return HttpResponseRedirect(reverse('management:course-detail'))
@@ -178,7 +182,7 @@ def update_student_course_registration(request):
 
 @login_required(login_url='/management/login/')
 def delete_student_course_registration(request):
-	course = request.user.studentcourseregistration
+	course = request.user.student
 	course.delete()
 	messages.success(request,"successfully deleted!")
 	return redirect('/management/user-profile')
@@ -211,7 +215,7 @@ def attendance_view(request):
 
 @login_required(login_url='/management/login/')
 def result_view(request):
-	student = request.user.studentcourseregistration
+	student = request.user.student
 	result = Result.objects.filter(student=student)
 	return render(request,'management/view_result.html',{'results':result})
 
@@ -225,12 +229,13 @@ def teacher_subject_registration(request):
 		if form.is_valid():
 			course = form.cleaned_data['course']
 			subjects = form.cleaned_data['subjects']
-			students = StudentCourseRegistration.objects.filter(course=course,subjects__in=subjects)		
-			teacher_obj = TeacherSubjectRegistration.objects.create(course=course,user=request.user)
+			students = Student.objects.filter(course=course,subjects__in=subjects)		
+			teacher_obj = Teacher.objects.create(course=course,user=request.user)
 			teacher_obj.subjects.set(subjects)
+
 			for student in students:
-				if student not in teacher_obj.students.all():
-					teacher_obj.students.add(student)	
+				if not TeacherStudent.objects.filter(student=student,teacher=teacher_obj):
+					TeacherStudent.objects.create(teacher=teacher_obj,student=student)
 			messages.success(request,"Your have successfully register!")
 			return HttpResponseRedirect(reverse('management:teacher-subject-detail'))
 	else: 
@@ -239,7 +244,7 @@ def teacher_subject_registration(request):
 
 @login_required(login_url='/management/login/')
 def teacher_subject_detail(request):
-	teacher = request.user.teachersubjectregistration
+	teacher = request.user.teacher
 	total_student = teacher.students.count()	
 	context = {
 		'total_student':total_student,
@@ -249,20 +254,20 @@ def teacher_subject_detail(request):
 
 @login_required(login_url='/management/login/')
 def update_subject_registration(request):
-	teacher = request.user.teachersubjectregistration
+	teacher = request.user.teacher
 	
 	if request.method=="POST":
 		form = CourseRegistrationForm(request.POST)
 		if form.is_valid():
 			subjects = form.cleaned_data['subjects']
 			course = form.cleaned_data['course']
-			students = StudentCourseRegistration.objects.filter(course=course,subjects__in=subjects)
-			for student in students:
-				if student not in teacher.students.all():
-					teacher.students.add(student)
+			students = Student.objects.filter(course=course,subjects__in=subjects)
+			TeacherStudent.objects.filter(teacher=teacher).delete()
 			teacher.course = course
 			teacher.subjects.set(subjects)
-			
+			for student in students:
+				if not TeacherStudent.objects.filter(student=student,teacher=teacher):
+					TeacherStudent.objects.create(teacher=teacher,student=student)
 			
 			teacher.save()
 			messages.success(request,"udate your subject registration!")
@@ -277,14 +282,14 @@ def update_subject_registration(request):
 
 @login_required(login_url='/management/login/')
 def delete_subject_registration(request):
-	teacher = request.user.teachersubjectregistration
+	teacher = request.user.teacher
 	teacher.delete()
 	messages.success(request,"successfully deleted")
 	return redirect('/management/user-profile')
 
 @login_required(login_url='/management/login/')
 def take_attendance(request):
-	teacher = request.user.teachersubjectregistration
+	teacher = request.user.teacher
 	if request.method=='POST':
 		form = AttendanceForm(teacher,request.POST)
 		if form.is_valid():
@@ -355,7 +360,7 @@ def delete_attendance_record(request,id):
 @login_required(login_url='/management/login/')
 def update_attendance(request,id):
 	attendance = Attendance.objects.get(pk=id)
-	teacher = request.user.teachersubjectregistration
+	teacher = request.user.teacher
 	if request.method=="POST":
 		form = AttendanceForm(teacher,request.POST)
 		if form.is_valid():
@@ -383,7 +388,7 @@ def delete_attendance(request,id):
 
 @login_required(login_url='/management/login/')
 def result_add(request):
-	teacher = request.user.teachersubjectregistration
+	teacher = request.user.teacher
 	if request.method=='POST':
 		form = ResultForm(teacher,request.POST)
 		if form.is_valid():
@@ -409,7 +414,7 @@ def result_add(request):
 @login_required(login_url='/management/login/')
 def update_result(request,id):
 	result = Result.objects.get(pk=id)
-	teacher = request.user.teachersubjectregistration
+	teacher = request.user.teacher
 	if request.method=="POST":
 		form = ResultForm(teacher,request.POST)
 		if form.is_valid():

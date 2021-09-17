@@ -30,7 +30,7 @@
 						</div>
 						<div class="col-md-6 g-1">
 							<h5 class="text-center">Related Subject Teacher </h5><hr>
-							{% if teachers %}
+							{% if teacherstudent %}
 								<table class="table" style="color: white;font-weight: bold">
 									<thead>
 										<tr>
@@ -38,14 +38,14 @@
 											<th scope="col">Teacher</th>
 										</tr>
 									</thead>
-									{% for teacher in teachers.all %}
+									{% for teacherstudent in teacherstudent %}
 									{% for subject in course_detail.subjects.all %}
-									{% for subject1 in teacher.subjects.all %}
+									{% for subject1 in teacherstudent.teacher.subjects.all %}
 									{% ifequal subject subject1 %}
 										<tbody>
 											<tr>
 												<td><b>{{subject}}</b></td>
-												<td><b>{{teacher}}</b></td>
+												<td><b>{{teacherstudent.teacher}}</b></td>
 											</tr>
 										</tbody>
 									{% endifequal%}

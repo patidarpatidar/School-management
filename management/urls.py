@@ -14,7 +14,7 @@ urlpatterns = [
     path('user-update',update_user_detail,name='user-update'),
     path('delete-user',user_profile_delete,name='delete-user'),
 
-    
+
     path('course-registration',student_course_registration,name='course-registration'),
     path('course-detail',student_course_detail,name='course-detail'),
     path('update-course-registration',update_student_course_registration,name='update-course-registration'),

@@ -1,11 +1,11 @@
 from django.contrib import admin
-from .models import Course , Subject , UserProfile , StudentCourseRegistration ,Result, TeacherSubjectRegistration , Attendance , Leave , Feedback
+from .models import Course , Subject ,TeacherStudent, UserProfile , Student ,Result, Teacher , Attendance , Leave , Feedback
 # Register your models here.
 class CourseAdmin(admin.ModelAdmin):
 	list_display = ['name','description','fees','duration']
 	list_filter = ['name']
 admin.site.register(Course,CourseAdmin)
-
+admin.site.register(TeacherStudent)
 admin.site.register(Subject)
 class UserProfileAdmin(admin.ModelAdmin):
 	list_display = ['user','role','gender','phone','street','city','state','pin_code']
@@ -13,15 +13,15 @@ class UserProfileAdmin(admin.ModelAdmin):
 	search_fields = ('role',)
 admin.site.register(UserProfile,UserProfileAdmin)
 
-class CourseRegistrationAdmin(admin.ModelAdmin):
+class StudentAdmin(admin.ModelAdmin):
 	list_display = ['user','course']
 	list_filter = ['course']
-admin.site.register(StudentCourseRegistration,CourseRegistrationAdmin)
+admin.site.register(Student,StudentAdmin)
 
-class SubjectRegistrationAdmin(admin.ModelAdmin):
+class TeacherAdmin(admin.ModelAdmin):
 	list_display = ['user','course']
 	list_filter = ['course']
-admin.site.register(TeacherSubjectRegistration,SubjectRegistrationAdmin)
+admin.site.register(Teacher,TeacherAdmin)
 
 class AttendanceAdmin(admin.ModelAdmin):
 	list_display = ['teacher','student','date','course','subject','status']

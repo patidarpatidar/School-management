@@ -16,6 +16,7 @@
 							<h5 style="text-align: center">Update User Detail</h5><hr>
 							{% csrf_token %}
 
+										
 							<div class="row form-group">
 								<div class="col-md-6">
 									<label for="id_first_name">First Name:</label>
@@ -39,20 +40,20 @@
 								</div>
 								<div class="col-md-6">
 									<label for="id_gender">Gender:</label>
-									<select name="gender" class="form-control" id="id_gender">
-									{% ifequal 'male' request.user.userprofile.gender %}
-									<option value="male" selected>Male</option>
-									<option value="female">Female</option>
-									{% else %}
-									<option value="male">Male</option>
-									<option value="female" selected>Female</option>
-									{% endifequal %}
+									<select name="gender" class="form-control" id="id_gender" >
+										{% ifequal 'male' form.initial.gender %}
+										<option value="male" selected>Male</option>
+										<option value="female">Female</option>
+										{% else %}
+										<option value="male">Male</option>
+										<option value="female" selected>Female</option>
+										{% endifequal %}
 									</select>
 								</div>
 								<div class="col-md-6">
 									<label for="id_role">Role:</label>
 									<select name="role" class="form-control" id="id_role">
-									{% ifequal 'student' request.user.userprofile.role %}
+									{% ifequal 'student' form.initial.role %}
 									<option value="student" selected>Student</option>
 									{% else %}
 									<option value="teacher" selected>Teacher</option>

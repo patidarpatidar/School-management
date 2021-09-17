@@ -1,8 +1,8 @@
 from django.forms import ModelForm
 from django.conf import settings
 from django import forms
-from .models import UserProfile ,Leave ,  Course ,Attendance,Subject,StudentCourseRegistration,TeacherSubjectRegistration
-
+from .models import UserProfile ,Leave ,  Course ,Attendance,Subject,Student,Teacher,TeacherStudent
+from django.forms import TextInput , EmailInput	
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils import timezone
@@ -15,6 +15,7 @@ from django.contrib.auth.hashers import check_password
 from django.forms.widgets import NumberInput
 
 class UserProfileForm(forms.Form):
+	
 	GENDER = (
 			('male','male'),
 			('female','female'),
@@ -51,8 +52,6 @@ class CourseRegistrationForm(forms.Form):
 	subjects = forms. ModelMultipleChoiceField(queryset=Subject.objects.all(),widget=forms.CheckboxSelectMultiple(attrs={'style':'width:15px'}))
 	
 
-from django.forms import TextInput , EmailInput	
-
 class SignUpForm(forms.Form):
 	first_name = forms.CharField(max_length=20 , widget=forms.TextInput(attrs={'class':'form-control'}))
 	last_name = forms.CharField(max_length=200 , widget=forms.TextInput(attrs={'class':'form-control'}))
@@ -60,8 +59,6 @@ class SignUpForm(forms.Form):
 	email = forms.EmailField(required=True , widget=forms.TextInput(attrs={'class':'form-control'}))
 	password = forms.CharField(widget = forms.PasswordInput(attrs={'class':'form-control'}))
 	confirm_password=forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control'}))
-
-	
 
 	def clean_first_name(self):
 		first_name = self.cleaned_data.get('first_name')
@@ -123,7 +120,7 @@ class AttendanceForm(forms.Form):
 	def __init__(self ,teacher, *args,**kwargs):
 		self.teacher = kwargs.pop('teacher',None)
 		super(AttendanceForm,self).__init__(*args,**kwargs)
-		self.fields['student'].queryset=StudentCourseRegistration.objects.filter(subject=teacher.subject,course=teacher.course)
+		self.fields['student'].queryset=teacher.students
 
 	STATUS_CHOICE = (
 			('persent','persent'),
@@ -159,7 +156,7 @@ class ResultForm(forms.Form):
 		self.teacher = kwargs.pop('teacher',None)
 		super(ResultForm,self).__init__(*args,**kwargs)
 		print(teacher.subject)
-		self.fields['student'].queryset=StudentCourseRegistration.objects.filter(subject=teacher.subject,course=teacher.course)
+		self.fields['student'].queryset=teacher.students
 	
 	student = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
 	marks = forms.FloatField(widget=forms.TextInput(attrs={'style':'width:250px;'}))

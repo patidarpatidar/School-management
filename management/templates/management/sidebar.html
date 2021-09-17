@@ -19,7 +19,7 @@
   <a href="/management/user-profile" class="list-group-item list-group-item-action" style="color:orange;background: blue"><b>Name: {{request.user.first_name|capfirst}} {{request.user.last_name|capfirst}}</b></a>
 
   
-    {% if request.user.studentcourseregistration%}
+    {% if request.user.student%}
       <a href="/management/course-detail" class="list-group-item list-group-item-action">Course Details</a>
       <a href="/management/attendance-view" class="list-group-item list-group-item-action">View Attendance</a>
       <a href="/management/view-result" class="list-group-item list-group-item-action">View Results</a>
@@ -33,7 +33,7 @@
     {% endif %}
   
   
-    {% if request.user.teachersubjectregistration%}
+    {% if request.user.teacher%}
   		<a href="/management/teacher-subject-detail" class="list-group-item list-group-item-action">Subject Detail</a>
       <a href="/management/take-attendance" class="list-group-item list-group-item-action">Take Attendance </a>
       <a href="/management/attendance-record" class="list-group-item list-group-item-action">Attendance Record </a>

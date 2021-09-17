@@ -3,6 +3,8 @@ from django.urls import reverse
 
 # Create your models here.
 from django.contrib.auth.models import User,  AbstractUser
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 class Course(models.Model):
 	name = models.CharField(max_length=200)
@@ -44,24 +46,45 @@ class UserProfile(models.Model):
 	def __str__(self):
 		return self.user.username
 
-class CourseRegistration(models.Model):
+	'''
+	@receiver(post_save,sender=User)
+	def create_user_profile(sender,instance,created,**kwargs):
+		if created:
+			UserProfile.objects.create(user=instance)
+
+	@receiver(post_save,sender=User)
+	def save_user_profile(sender,instance,**kwargs):
+		instance.userprofile.save()
+	'''
+class Registration(models.Model):
 	course = models.ForeignKey(Course,on_delete=models.CASCADE)
 	subjects = models.ManyToManyField(Subject)
 
-class StudentCourseRegistration(CourseRegistration,models.Model):
+	class Meta:
+		abstract = True
+
+class Student(Registration):
 	user = models.OneToOneField(User,on_delete=models.CASCADE)
 
 	def __str__(self):
-		return self.user.username
-	
-	
-class TeacherSubjectRegistration(CourseRegistration,models.Model):
-	students = models.ManyToManyField(StudentCourseRegistration,null=True)
+		return self.user.first_name
+
+class Teacher(Registration):
 	user = models.OneToOneField(User,on_delete=models.CASCADE)
+	students = models.ManyToManyField(Student,through='TeacherStudent')
+	
+	def __str__(self):
+		return self.user.first_name
+
+class TeacherStudent(models.Model):
+	student = models.ForeignKey(Student,on_delete=models.CASCADE)
+	teacher = models.ForeignKey(Teacher,on_delete=models.CASCADE)
 
 	def __str__(self):
-		return self.user.username
+		return '%s / %s'%(self.teacher,self.student)
 
+
+	
 
 class Attendance(models.Model):
 	STATUS_CHOICE = (
@@ -72,7 +95,7 @@ class Attendance(models.Model):
 	course = models.ForeignKey(Course,on_delete=models.CASCADE)
 	subject = models.ForeignKey(Subject,on_delete=models.CASCADE)
 	date = models.DateField()
-	student = models.ForeignKey(StudentCourseRegistration,on_delete=models.CASCADE)
+	student = models.ForeignKey(Student,on_delete=models.CASCADE)
 	status = models.CharField(max_length=10,choices=STATUS_CHOICE)
 
 	def __str__(self):
@@ -98,7 +121,7 @@ class Result(models.Model):
 	subject = models.CharField(max_length=200)
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now_add=True)
-	student = models.ForeignKey(StudentCourseRegistration,on_delete=models.CASCADE)
+	student = models.ForeignKey(Student,on_delete=models.CASCADE)
 	marks = models.FloatField(default=0)
 
 
