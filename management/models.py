@@ -74,7 +74,6 @@ class TeacherStudent(models.Model):
 		return '%s / %s'%(self.teacher,self.student)
 	
 
-
 class Attendance(models.Model):
 	STATUS_CHOICE = (
 			('persent','persent'),
@@ -97,6 +96,8 @@ class Result(models.Model):
 	updated_at = models.DateTimeField(auto_now_add=True)
 	students = models.ForeignKey(Student,on_delete=models.CASCADE)
 	marks = models.FloatField(default=0)
+
+
 class Leave(models.Model):
 	user = models.ForeignKey(User,on_delete=models.CASCADE)
 	role = models.CharField(max_length=10)
