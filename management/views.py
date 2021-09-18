@@ -129,7 +129,6 @@ def student_course_registration(request):
 			teachers = Teacher.objects.filter(course=course,subjects__in=subjects)
 			student = Student.objects.create(user=request.user,course=course)
 			student.subjects.set(subjects)
-
 			for teacher in teachers:
 				if not TeacherStudent.objects.filter(student=student,teacher=teacher):
 					TeacherStudent.objects.create(teacher=teacher,student=student)
@@ -165,7 +164,6 @@ def update_student_course_registration(request):
 			for teacher in teachers:
 				if not TeacherStudent.objects.filter(student=student,teacher=teacher):
 					TeacherStudent.objects.create(teacher=teacher,student=student)
-
 			student.save()
 			messages.success(request,"registration detail update successfully")
 			return HttpResponseRedirect(reverse('management:course-detail'))

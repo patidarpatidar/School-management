@@ -1,3 +1,0 @@
-*.pyc
-uploads/
-./manage.py makemigrations --merge

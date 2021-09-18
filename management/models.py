@@ -90,6 +90,13 @@ class Attendance(models.Model):
 	def __str__(self):
 		return self.teacher.username
 
+class Result(models.Model):
+	teacher = models.CharField(max_length=100)
+	subjects = models.ForeignKey(Subject,on_delete=models.CASCADE)
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now_add=True)
+	students = models.ForeignKey(Student,on_delete=models.CASCADE)
+	marks = models.FloatField(default=0)
 class Leave(models.Model):
 	user = models.ForeignKey(User,on_delete=models.CASCADE)
 	role = models.CharField(max_length=10)
@@ -105,13 +112,7 @@ class Feedback(models.Model):
 	updated_at = models.DateTimeField(auto_now_add=True)
 	feedback_reply=models.CharField(max_length=100)
 
-class Result(models.Model):
-	teacher = models.CharField(max_length=100)
-	subjects = models.ForeignKey(Subject,on_delete=models.CASCADE)
-	created_at = models.DateTimeField(auto_now_add=True)
-	updated_at = models.DateTimeField(auto_now_add=True)
-	students = models.ForeignKey(Student,on_delete=models.CASCADE)
-	marks = models.FloatField(default=0)
+
 
 
 
