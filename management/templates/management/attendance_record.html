@@ -17,14 +17,13 @@
 					<div class="card-body" style="color: white;">
 						<table class="table" style="color: white;font-weight: bold">
 							<h5 class="text-center">Student Attendance Record</h5>
-							<h5 class="text-center"><b style="color:orange;">course : {{request.user.teachersubjectregistration.course}} , Subject : {{request.user.teachersubjectregistration.subject}}</b></h5><hr>
+							<h5 class="text-center"><b style="color:orange;">course : {{request.user.teacher.course}}</b></h5><hr>
 							<h5>Teacher Name : {{request.user.first_name}}{{request.user.last_name}}</h5>
 							<thead>
 								<tr>
-									<th scope="col">#</th>
-									<th scope="col">Student</th>
+									<th scope="col">Students</th>
+									<th scope="col">Subjects</th>
 									<th scope="col">Date</th>
-									
 									<th scope="col">Status</th>
 									<th>Action</th>
 
@@ -33,8 +32,8 @@
 							<tbody>
 								{% for attendance in page_obj %}
 								<tr>
-									<th scope="row">{{attendance.id}}</th>
-									<td>{{attendance.student}}</td>
+									<td>{{attendance.students}}</td>
+									<td>{{attendance.subjects}}</td>
 									<td>{{attendance.date}}</td>
 									<td>{{attendance.status}}</td>
 									<td>

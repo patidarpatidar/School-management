@@ -23,7 +23,6 @@ class Subject(models.Model):
 	def __str__(self):
 		return self.name
 
-
 class UserProfile(models.Model):
 	GENDER = (
 			('male','male'),
@@ -46,16 +45,7 @@ class UserProfile(models.Model):
 	def __str__(self):
 		return self.user.username
 
-	'''
-	@receiver(post_save,sender=User)
-	def create_user_profile(sender,instance,created,**kwargs):
-		if created:
-			UserProfile.objects.create(user=instance)
-
-	@receiver(post_save,sender=User)
-	def save_user_profile(sender,instance,**kwargs):
-		instance.userprofile.save()
-	'''
+	
 class Registration(models.Model):
 	course = models.ForeignKey(Course,on_delete=models.CASCADE)
 	subjects = models.ManyToManyField(Subject)
@@ -80,11 +70,11 @@ class TeacherStudent(models.Model):
 	student = models.ForeignKey(Student,on_delete=models.CASCADE)
 	teacher = models.ForeignKey(Teacher,on_delete=models.CASCADE)
 
+	
 	def __str__(self):
 		return '%s / %s'%(self.teacher,self.student)
-
-
 	
+
 
 class Attendance(models.Model):
 	STATUS_CHOICE = (
@@ -93,9 +83,9 @@ class Attendance(models.Model):
 		)
 	teacher = models.ForeignKey(User,on_delete=models.CASCADE)
 	course = models.ForeignKey(Course,on_delete=models.CASCADE)
-	subject = models.ForeignKey(Subject,on_delete=models.CASCADE)
+	subjects = models.ForeignKey(Subject,on_delete=models.CASCADE)
 	date = models.DateField()
-	student = models.ForeignKey(Student,on_delete=models.CASCADE)
+	students = models.ForeignKey(Student,on_delete=models.CASCADE)
 	status = models.CharField(max_length=10,choices=STATUS_CHOICE)
 
 	def __str__(self):
@@ -118,10 +108,10 @@ class Feedback(models.Model):
 
 class Result(models.Model):
 	teacher = models.CharField(max_length=100)
-	subject = models.CharField(max_length=200)
+	subjects = models.ForeignKey(Subject,on_delete=models.CASCADE)
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now_add=True)
-	student = models.ForeignKey(Student,on_delete=models.CASCADE)
+	students = models.ForeignKey(Student,on_delete=models.CASCADE)
 	marks = models.FloatField(default=0)
 
 

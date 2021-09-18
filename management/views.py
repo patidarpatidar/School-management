@@ -171,6 +171,7 @@ def update_student_course_registration(request):
 			student.save()
 			messages.success(request,"registration detail update successfully")
 			return HttpResponseRedirect(reverse('management:course-detail'))
+
 	else:
 		course_data = {
 		'course':student.course,
@@ -190,8 +191,9 @@ def delete_student_course_registration(request):
 
 @login_required(login_url='/management/login/')
 def attendance_view(request):
-	student_obj = request.user
-	attendance = Attendance.objects.filter(student__user__id=student_obj.id)
+	student = request.user.student
+	subjects = student.subjects.all()
+	attendance = Attendance.objects.filter(students_id=student.id,subjects__in=subjects)
 	paginator = Paginator(attendance,5)
 	page_number = request.GET.get('page')
 	page_obj = paginator.get_page(page_number)
@@ -216,7 +218,8 @@ def attendance_view(request):
 @login_required(login_url='/management/login/')
 def result_view(request):
 	student = request.user.student
-	result = Result.objects.filter(student=student)
+	subjects = student.subjects.all()
+	result = Result.objects.filter(students_id=student.id,subjects__in=subjects)
 	return render(request,'management/view_result.html',{'results':result})
 
 #-----------------------------Teacher permission function-----------------------------------
@@ -293,13 +296,13 @@ def take_attendance(request):
 	if request.method=='POST':
 		form = AttendanceForm(teacher,request.POST)
 		if form.is_valid():
-			student = form.cleaned_data['student']
+			subject = form.cleaned_data['subjects']
+			student = form.cleaned_data['students']
 			date = form.cleaned_data['date']
 			status = form.cleaned_data['status']
-			Attendance.objects.create(teacher=request.user,date=date,student=student,course=teacher.course,subject=teacher.subject, status=status)
+			Attendance.objects.create(teacher=request.user,date=date,students=student,course=teacher.course,subjects=subject, status=status)
 			messages.success(request,"attendance add successfully!")
 			return HttpResponseRedirect(reverse('management:take-attendance'))
-	
 	else:
 		today = datetime.date.today()
 		attendance = Attendance.objects.filter(teacher=request.user,date=today)
@@ -315,9 +318,33 @@ def take_attendance(request):
 		return render(request,'management/take_attendance.html',context)
 
 @login_required(login_url='/management/login/')
+def update_attendance(request,id):
+	attendance = Attendance.objects.get(pk=id)
+	teacher = request.user.teacher
+	if request.method=="POST":
+		form = AttendanceForm(teacher,request.POST)
+		if form.is_valid():
+			attendance.subjects = form.cleaned_data['subjects']
+			attendance.date = form.cleaned_data['date']
+			attendance.students = form.cleaned_data['students']
+			attendance.status = form.cleaned_data['status']
+			attendance.save()
+			messages.success(request,"attendance update successfully!")
+			return HttpResponseRedirect(reverse('management:take-attendance'))
+	else:
+		attendance_data = {
+			'subjects':attendance.subjects,
+			'date':attendance.date,
+			'students':attendance.students,
+			'status':attendance.status,
+		}
+		form = AttendanceForm(teacher,initial=attendance_data )
+		return render(request,'management/attendance_update.html',{'form':form})
+
+@login_required(login_url='/management/login/')
 def attendance_record(request):
 	teacher_obj = request.user
-	attendance = Attendance.objects.filter(teacher_id=teacher_obj.id,subject=teacher_obj.teachersubjectregistration.subject)
+	attendance = Attendance.objects.filter(teacher_id=teacher_obj.id)
 	paginator = Paginator(attendance,4)
 	page_number = request.GET.get('page')
 	page_obj = paginator.get_page(page_number)
@@ -331,20 +358,22 @@ def attendance_record(request):
 @login_required(login_url='/management/login/')
 def update_attendance_record(request,id):
 	attendance = Attendance.objects.get(pk=id)
-	teacher = request.user.teachersubjectregistration
+	teacher = request.user.teacher
 	if request.method=="POST":
 		form = AttendanceForm(teacher,request.POST)
 		if form.is_valid():
+			attendance.subjects = form.cleaned_data['subjects']
 			attendance.date = form.cleaned_data['date']
-			attendance.student = form.cleaned_data['student']
+			attendance.students = form.cleaned_data['students']
 			attendance.status = form.cleaned_data['status']
 			attendance.save()
 			messages.success(request,"attendance update successfully!")
 			return HttpResponseRedirect(reverse('management:attendance-record'))
 	else:
 		attendance_data = {
+			'subjects':attendance.subjects,
 			'date':attendance.date,
-			'student':attendance.student,
+			'students':attendance.students,
 			'status':attendance.status,
 		}
 		form = AttendanceForm(teacher,initial=attendance_data )
@@ -357,27 +386,6 @@ def delete_attendance_record(request,id):
 	messages.success(request,"attendance delete successfully")
 	return redirect('/management/attendance-record')
 
-@login_required(login_url='/management/login/')
-def update_attendance(request,id):
-	attendance = Attendance.objects.get(pk=id)
-	teacher = request.user.teacher
-	if request.method=="POST":
-		form = AttendanceForm(teacher,request.POST)
-		if form.is_valid():
-			attendance.date = form.cleaned_data['date']
-			attendance.student = form.cleaned_data['student']
-			attendance.status = form.cleaned_data['status']
-			attendance.save()
-			messages.success(request,"attendance update successfully!")
-			return HttpResponseRedirect(reverse('management:take-attendance'))
-	else:
-		attendance_data = {
-			'date':attendance.date,
-			'student':attendance.student,
-			'status':attendance.status,
-		}
-		form = AttendanceForm(teacher,initial=attendance_data )
-		return render(request,'management/attendance_update.html',{'form':form})
 
 @login_required(login_url='/management/login/')
 def delete_attendance(request,id):
@@ -392,10 +400,10 @@ def result_add(request):
 	if request.method=='POST':
 		form = ResultForm(teacher,request.POST)
 		if form.is_valid():
-			student = form.cleaned_data['student']
+			subjects = form.cleaned_data['subjects']
+			students = form.cleaned_data['students']
 			marks = form.cleaned_data['marks']
-			subject = teacher.subject
-			Result.objects.create(teacher=teacher,student=student,marks=marks,subject=subject)
+			Result.objects.create(teacher=teacher,students=students,marks=marks,subjects=subjects)
 			messages.success(request,"result add successfully!")
 			return HttpResponseRedirect(reverse('management:add-result'))
 	
@@ -418,14 +426,16 @@ def update_result(request,id):
 	if request.method=="POST":
 		form = ResultForm(teacher,request.POST)
 		if form.is_valid():
-			result.student = form.cleaned_data['student']
+			result.subjects = form.cleaned_data['subjects']
+			result.students = form.cleaned_data['students']
 			result.marks = form.cleaned_data['marks']
 			result.save()
 			messages.success(request,"result update successfully!")
 			return HttpResponseRedirect(reverse('management:add-result'))
 	else:
 		result_data = {
-			'student':result.student,
+			'subjects':result.subjects,
+			'students':result.students,
 			'marks' : result.marks,
 		}
 		form = ResultForm(teacher,initial=result_data)

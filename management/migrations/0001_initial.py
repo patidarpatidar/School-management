@@ -101,18 +101,7 @@ class Migration(migrations.Migration):
             name='user',
             field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
         ),
-        migrations.CreateModel(
-            name='Result',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('teacher', models.CharField(max_length=100)),
-                ('subject', models.CharField(max_length=200)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now_add=True)),
-                ('marks', models.FloatField(default=0)),
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='management.student')),
-            ],
-        ),
+        
         migrations.CreateModel(
             name='Leave',
             fields=[

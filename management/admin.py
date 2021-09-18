@@ -24,7 +24,7 @@ class TeacherAdmin(admin.ModelAdmin):
 admin.site.register(Teacher,TeacherAdmin)
 
 class AttendanceAdmin(admin.ModelAdmin):
-	list_display = ['teacher','student','date','course','subject','status']
+	list_display = ['teacher','students','date','course','subjects','status']
 	list_filter = ['date']
 	search_fields = ("date",)
 
@@ -41,7 +41,7 @@ class FeedbackAdmin(admin.ModelAdmin):
 admin.site.register(Feedback,FeedbackAdmin)
 
 class ResultAdmin(admin.ModelAdmin):
-	list_display = ['student','subject','marks','teacher']
+	list_display = ['students','subjects','marks','teacher']
 admin.site.register(Result,ResultAdmin)
 
 admin.site.site_header = "Student Management"

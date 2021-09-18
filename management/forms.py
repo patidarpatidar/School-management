@@ -22,9 +22,7 @@ class UserProfileForm(forms.Form):
 		)
 	ROLE_CHOICE = (
 			('student','student'),
-			('teacher','teacher'),
-			
-			
+			('teacher','teacher'),	
 		)
 	role = forms.ChoiceField(choices=ROLE_CHOICE ,widget=forms.Select(attrs={'class':'form-control','style':'width:250px;'}))
 	gender = forms.ChoiceField(choices=GENDER, widget=forms.Select(attrs={'class':'form-control','style':'width:250px;'}))
@@ -120,26 +118,19 @@ class AttendanceForm(forms.Form):
 	def __init__(self ,teacher, *args,**kwargs):
 		self.teacher = kwargs.pop('teacher',None)
 		super(AttendanceForm,self).__init__(*args,**kwargs)
-		self.fields['student'].queryset=teacher.students
-
+		self.fields['students'].queryset=teacher.students
+		self.fields['subjects'].queryset=teacher.subjects
 	STATUS_CHOICE = (
 			('persent','persent'),
 			('absent','absent'),
 		)
-	date = forms.DateField(widget=NumberInput(attrs={'type': 'date'}))
-	student = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
+	subjects = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style':'width:250px'}))
+	date = forms.DateField(widget=NumberInput(attrs={'type': 'date','style':'width:250px;'}))
+	students = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
 	status = forms.ChoiceField(choices=STATUS_CHOICE,widget=forms.Select(attrs={'style': 'width:250px'}))
 	
-	'''
-	def clean_student(self):
-		student = self.cleaned_data.get('student')
-		if Attendance.objects.filter(student=student,date=datetime.date.today()).exists():
-			raise ValidationError("this student attendace already taken!")
-		return student		
-	'''
-	
 class LeaveForm(forms.Form):
-	leave_date = forms.DateField(widget=NumberInput(attrs={'type': 'date'}))
+	leave_date = forms.DateField(widget=NumberInput(attrs={'type': 'date','style':'width:200px;'}))
 	leave_message = forms.CharField(widget=forms.Textarea(attrs={'rows':5,'cols':25}))
 	
 	
@@ -155,10 +146,11 @@ class ResultForm(forms.Form):
 	def __init__(self ,teacher, *args,**kwargs):
 		self.teacher = kwargs.pop('teacher',None)
 		super(ResultForm,self).__init__(*args,**kwargs)
-		print(teacher.subject)
-		self.fields['student'].queryset=teacher.students
-	
-	student = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
+		self.fields['students'].queryset=teacher.students
+		self.fields['subjects'].queryset=teacher.subjects
+
+	subjects = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
+	students = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
 	marks = forms.FloatField(widget=forms.TextInput(attrs={'style':'width:250px;'}))
 
 
