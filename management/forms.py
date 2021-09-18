@@ -15,7 +15,6 @@ from django.contrib.auth.hashers import check_password
 from django.forms.widgets import NumberInput
 
 class UserProfileForm(forms.Form):
-	
 	GENDER = (
 			('male','male'),
 			('female','female'),

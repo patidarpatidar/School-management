@@ -45,7 +45,6 @@ class UserProfile(models.Model):
 	def __str__(self):
 		return self.user.username
 
-	
 class Registration(models.Model):
 	course = models.ForeignKey(Course,on_delete=models.CASCADE)
 	subjects = models.ManyToManyField(Subject)
