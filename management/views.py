@@ -133,8 +133,6 @@ def student_course_registration(request):
 			for teacher in teachers:
 				if not TeacherStudent.objects.filter(student=student,teacher=teacher):
 					TeacherStudent.objects.create(teacher=teacher,student=student)
-
-			
 			messages.success(request,"Your course registration is successfully!")
 			return HttpResponseRedirect(reverse('management:course-detail'))
 	else:
