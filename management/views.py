@@ -1,5 +1,5 @@
 from django.shortcuts import render,get_object_or_404 , HttpResponse , redirect , HttpResponseRedirect
-from .models import Course , UserProfile,TeacherStudent,Student, Teacher , Attendance , Leave , Feedback , Result
+from .models import Course,Subject , UserProfile,TeacherStudent,Student, Teacher , Attendance , Leave , Feedback , Result
 from .forms import  SignUpForm , LoginForm ,ChangePasswordform,UserUpdateForm ,UserProfileForm ,CourseRegistrationForm ,ResultForm , AttendanceForm , LeaveForm , FeedbackForm
 from django.contrib.auth import login,logout, authenticate
 # Create your views here.
@@ -18,6 +18,12 @@ from django.core.exceptions import ObjectDoesNotExist
 #-----------------------------User permission function (common)-----------------------------------
 #------------------------------------------------------------------------------------->
 
+def fetch_subject(request):
+	if request.method=="POST":
+		id = request.POST.get('id')
+		subjects = Subject.objects.filter(course_id=id)
+		return render(request,'management/fetch_subject.html',{'subjects':subjects})
+	
 def index_view(request):
 	course = Course.objects.all()
 	paginator = Paginator(course,5)
@@ -135,8 +141,13 @@ def student_course_registration(request):
 			messages.success(request,"Your course registration is successfully!")
 			return HttpResponseRedirect(reverse('management:course-detail'))
 	else:
+		courses = Course.objects.all()
 		form = CourseRegistrationForm()
-	return render(request,"management/course_registration.html",{'form':form})
+		context = {
+			'form' : form,
+			'courses' :courses,
+		}
+	return render(request,"management/course_registration.html",context)
 
 
 @login_required(login_url='/management/login/')
@@ -169,12 +180,20 @@ def update_student_course_registration(request):
 			return HttpResponseRedirect(reverse('management:course-detail'))
 
 	else:
+		courses = Course.objects.all()
+		subjects = Subject.objects.all()
 		course_data = {
 		'course':student.course,
 		'subjects':student.subjects.all,
 		}
 		form = CourseRegistrationForm(initial=course_data)
-	return render(request,'management/update_course_registration.html',{'form':form})
+		context = {
+			'form' : form,
+			'courses':courses,
+			'subjects':subjects
+
+		}
+	return render(request,'management/update_course_registration.html',context)
 
 
 @login_required(login_url='/management/login/')
@@ -222,7 +241,7 @@ def result_view(request):
 #------------------------------------------------------------------------------------->
 
 @login_required(login_url='/management/login/')
-def teacher_subject_registration(request):
+def teacher_course_registration(request):
 	if request.method=='POST':
 		form = CourseRegistrationForm(request.POST)
 		if form.is_valid():
@@ -242,7 +261,7 @@ def teacher_subject_registration(request):
 	return render(request,'management/course_registration.html',{'form':form})
 
 @login_required(login_url='/management/login/')
-def teacher_subject_detail(request):
+def teacher_course_detail(request):
 	teacher = request.user.teacher
 	total_student = teacher.students.count()	
 	context = {
@@ -252,9 +271,8 @@ def teacher_subject_detail(request):
 	return render(request,'management/teacher_subject_detail.html',context)
 
 @login_required(login_url='/management/login/')
-def update_subject_registration(request):
+def update_course_registration(request):
 	teacher = request.user.teacher
-	
 	if request.method=="POST":
 		form = CourseRegistrationForm(request.POST)
 		if form.is_valid():
@@ -266,8 +284,7 @@ def update_subject_registration(request):
 			teacher.subjects.set(subjects)
 			for student in students:
 				if not TeacherStudent.objects.filter(student=student,teacher=teacher):
-					TeacherStudent.objects.create(teacher=teacher,student=student)
-			
+					TeacherStudent.objects.create(teacher=teacher,student=student)	
 			teacher.save()
 			messages.success(request,"udate your subject registration!")
 			return HttpResponseRedirect(reverse('management:teacher-subject-detail'))
@@ -280,7 +297,7 @@ def update_subject_registration(request):
 	return render(request,'management/update_course_registration.html',{'form':form})
 
 @login_required(login_url='/management/login/')
-def delete_subject_registration(request):
+def delete_course_registration(request):
 	teacher = request.user.teacher
 	teacher.delete()
 	messages.success(request,"successfully deleted")
@@ -303,7 +320,7 @@ def take_attendance(request):
 		today = datetime.date.today()
 		attendance = Attendance.objects.filter(teacher=request.user,date=today)
 		form = AttendanceForm(teacher)
-		paginator = Paginator(attendance,4)
+		paginator = Paginator(attendance,5)
 		page_number = request.GET.get('page')
 		page_obj = paginator.get_page(page_number)
 		context = {
@@ -312,6 +329,7 @@ def take_attendance(request):
 			'form':form,
 			}
 		return render(request,'management/take_attendance.html',context)
+
 
 @login_required(login_url='/management/login/')
 def update_attendance(request,id):
@@ -336,6 +354,15 @@ def update_attendance(request,id):
 		}
 		form = AttendanceForm(teacher,initial=attendance_data )
 		return render(request,'management/attendance_update.html',{'form':form})
+
+@login_required(login_url='/management/login/')
+def delete_attendance(request,id):
+	attendance = get_object_or_404(Attendance,pk=id)
+	attendance.delete()
+	messages.success(request,"attendance delete successfully")
+	return redirect('/management/take-attendance')
+
+
 
 @login_required(login_url='/management/login/')
 def attendance_record(request):
@@ -383,12 +410,6 @@ def delete_attendance_record(request,id):
 	return redirect('/management/attendance-record')
 
 
-@login_required(login_url='/management/login/')
-def delete_attendance(request,id):
-	attendance = get_object_or_404(Attendance,pk=id)
-	attendance.delete()
-	messages.success(request,"attendance delete successfully")
-	return redirect('/management/take-attendance')
 
 @login_required(login_url='/management/login/')
 def result_add(request):

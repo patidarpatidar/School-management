@@ -20,11 +20,10 @@ urlpatterns = [
     path('update-course-registration',update_student_course_registration,name='update-course-registration'),
     path('delete-course-registration/',delete_student_course_registration,name='delete-course-registration'),
 
-    path('teacher-subject-registration',teacher_subject_registration,name='teacher-subject-registration'),
-    path('teacher-subject-detail',teacher_subject_detail,name='teacher-subject-detail'),
-    path('update-subject-registration',update_subject_registration,name='update-subject-registration'),
-    path('delete-subject-registration',delete_subject_registration,name='delete-subject-registration'),
-
+    path('teacher-subject-registration',teacher_course_registration,name='teacher-subject-registration'),
+    path('teacher-subject-detail',teacher_course_detail,name='teacher-subject-detail'),
+    path('update-subject-registration',update_course_registration,name='update-subject-registration'),
+    path('delete-subject-registration',delete_course_registration,name='delete-subject-registration'),
     
     path('take-attendance',take_attendance,name='take-attendance'),
     path('attendance-record',attendance_record,name='attendance-record'),
@@ -38,7 +37,7 @@ urlpatterns = [
     path('update-leave/<int:id>',update_leave,name='update-leave'),
     path('delete-leave/<int:id>',delete_leave,name='delete-leave'),
     
-    path('feedback-information',feedback_send_view,name='feedback-information'),
+    path('feedback-information/',feedback_send_view,name='feedback-information'),
     path('delete-feedback/<int:id>',delete_feedback,name='delete-feedback'),
     path('update-feedback/<int:id>',update_feedback,name='update-feedback'),
     
@@ -48,9 +47,8 @@ urlpatterns = [
     path('delete-result/<int:id>',delete_result,name='delete-result'),
     path('change-password',change_password,name='change-password'),
 
-
-
-
+    path('fetch-subject',fetch_subject,name='fetch-subject'),
+    #path('fetch-subject/<int:id>',fetch_subject,name='fetch-subject'),
 
 
 ]

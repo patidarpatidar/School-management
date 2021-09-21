@@ -48,7 +48,68 @@ class CourseRegistrationForm(forms.Form):
 	course = forms.ModelChoiceField(queryset=Course.objects.all(),empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
 	subjects = forms. ModelMultipleChoiceField(queryset=Subject.objects.all(),widget=forms.CheckboxSelectMultiple(attrs={'style':'width:15px'}))
 	
+	
 
+class AttendanceForm(forms.Form):
+	def __init__(self ,teacher, *args,**kwargs):
+		self.teacher = kwargs.pop('teacher',None)
+		super(AttendanceForm,self).__init__(*args,**kwargs)
+		self.fields['students'].queryset=teacher.students
+		self.fields['subjects'].queryset=teacher.subjects
+	
+	STATUS_CHOICE = (
+			('persent','persent'),
+			('absent','absent'),
+		)
+	subjects = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style':'width:250px'}))
+	date = forms.DateField(widget=NumberInput(attrs={'type': 'date','style':'width:250px;'}))
+	students = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
+	status = forms.ChoiceField(choices=STATUS_CHOICE,widget=forms.Select(attrs={'style': 'width:250px'}))
+
+class ResultForm(forms.Form):
+	def __init__(self ,teacher, *args,**kwargs):
+		self.teacher = kwargs.pop('teacher',None)
+		super(ResultForm,self).__init__(*args,**kwargs)
+		self.fields['students'].queryset=teacher.students
+		self.fields['subjects'].queryset=teacher.subjects
+	
+	subjects = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
+	students = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
+	marks = forms.FloatField(widget=forms.TextInput(attrs={'style':'width:250px;'}))
+
+class LeaveForm(forms.Form):
+	leave_date = forms.DateField(widget=NumberInput(attrs={'type': 'date','style':'width:200px;'}))
+	leave_message = forms.CharField(widget=forms.Textarea(attrs={'rows':5,'cols':25}))
+	
+	
+class FeedbackForm(forms.Form):
+	feedback_message = forms.CharField(widget=forms.Textarea(attrs={'rows':6,'cols':35}))
+
+	widgets = {
+		 
+		 'feedback_message' : forms.TextInput(attrs={'class':'form-control'}), 
+		 }
+
+
+class UserUpdateForm(UserProfileForm,forms.Form):
+	first_name = forms.CharField(max_length=200)
+	last_name = forms.CharField(max_length=200)
+	username = forms.CharField(max_length=200)
+	email = forms.EmailField(required=True)
+
+class ChangePasswordform(forms.Form):
+	old_password = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control'}))
+	new_password = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control'}))
+	confirm_new_password = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control'}))
+	
+	def clean_confirm_new_password(self):
+		new_password = self.cleaned_data.get('new_password')
+		confirm_new_password = self.cleaned_data.get('confirm_new_password')
+		
+		if(new_password!=confirm_new_password):
+			raise ValidationError("new password and confirm_new_password does not match")
+		return confirm_new_password
+		
 class SignUpForm(forms.Form):
 	first_name = forms.CharField(max_length=20 , widget=forms.TextInput(attrs={'class':'form-control'}))
 	last_name = forms.CharField(max_length=200 , widget=forms.TextInput(attrs={'class':'form-control'}))
@@ -110,62 +171,3 @@ class LoginForm(forms.Form):
 				return password	
 			raise ValidationError("Your password is wrong!")
 			
-class AttendanceForm(forms.Form):
-	def __init__(self ,teacher, *args,**kwargs):
-		self.teacher = kwargs.pop('teacher',None)
-		super(AttendanceForm,self).__init__(*args,**kwargs)
-		self.fields['students'].queryset=teacher.students
-		self.fields['subjects'].queryset=teacher.subjects
-	STATUS_CHOICE = (
-			('persent','persent'),
-			('absent','absent'),
-		)
-	subjects = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style':'width:250px'}))
-	date = forms.DateField(widget=NumberInput(attrs={'type': 'date','style':'width:250px;'}))
-	students = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
-	status = forms.ChoiceField(choices=STATUS_CHOICE,widget=forms.Select(attrs={'style': 'width:250px'}))
-
-class ResultForm(forms.Form):
-	def __init__(self ,teacher, *args,**kwargs):
-		self.teacher = kwargs.pop('teacher',None)
-		super(ResultForm,self).__init__(*args,**kwargs)
-		self.fields['students'].queryset=teacher.students
-		self.fields['subjects'].queryset=teacher.subjects
-
-	subjects = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
-	students = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
-	marks = forms.FloatField(widget=forms.TextInput(attrs={'style':'width:250px;'}))
-
-class LeaveForm(forms.Form):
-	leave_date = forms.DateField(widget=NumberInput(attrs={'type': 'date','style':'width:200px;'}))
-	leave_message = forms.CharField(widget=forms.Textarea(attrs={'rows':5,'cols':25}))
-	
-	
-class FeedbackForm(forms.Form):
-	feedback_message = forms.CharField(widget=forms.Textarea(attrs={'rows':6,'cols':35}))
-
-	widgets = {
-		 
-		 'feedback_message' : forms.TextInput(attrs={'class':'form-control'}), 
-		 }
-
-
-class UserUpdateForm(UserProfileForm,forms.Form):
-	first_name = forms.CharField(max_length=200)
-	last_name = forms.CharField(max_length=200)
-	username = forms.CharField(max_length=200)
-	email = forms.EmailField(required=True)
-
-class ChangePasswordform(forms.Form):
-	old_password = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control'}))
-	new_password = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control'}))
-	confirm_new_password = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control'}))
-	
-	def clean_confirm_new_password(self):
-		new_password = self.cleaned_data.get('new_password')
-		confirm_new_password = self.cleaned_data.get('confirm_new_password')
-		
-		if(new_password!=confirm_new_password):
-			raise ValidationError("new password and confirm_new_password does not match")
-		return confirm_new_password
-		

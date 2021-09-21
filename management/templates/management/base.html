@@ -107,7 +107,8 @@ footer {
 <script type="text/javascript" src="{% static 'js/popper.js'%}"></script>
 <script type="text/javascript" src="{% static 'js/bootstrap.min.js'%}"></script>
 <script type="text/javascript" src="{% static 'js/all.min.js'%}"></script>
-
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="jquery-3.5.1.min.js"></script>
 
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <!-- Popper JS -->
@@ -119,6 +120,8 @@ footer {
 	{% endfor %}
 	{% endif %}
 </script>
+{% block javascript %}
+{% endblock javascript %}
 
 	</body>
 </html>

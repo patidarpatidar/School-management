@@ -8,6 +8,7 @@
 		list-style:  none;
 	}
 </style>
+
 {% block content %}
 
 	<div class="container-fluid" style="">
@@ -25,34 +26,63 @@
 								<form action="" method="post" class="" style="width: 400px;font-weight: bold">
 									<h5 style="text-align: center">Update Course Registration</h5><hr>
 									{% csrf_token %}
-									<div class="main">
-									{{form.as_p}}
+									<div class="form-group">
+										Course:
+										<select onchange="fetch_course(this.value)" id="course" class="form-control" name="course">
+											{% for course in courses %}
+											{% ifequal course.id form.course.value %}
+												<option value="{{course.id}}" selected>{{course}}</option>
+											{% else %}
+												<option value="{{course.id}}">{{course}}</option>
+											{% endifequal%}
+											{% endfor %}
+										</select>
+										<br>
+										Subjects:
+										<div id="subject">
+											<ul id="id_subjects" style="list-style: none;">
+											{% for subject in subjects %}
+												{% ifequal subject.course_id form.course.value %}
+												
+													<li><label for="id_subjects_"+ {{subject.id}}>
+														<input type="checkbox" name="subjects" value="{{subject.id}}" id="id_subjects_" + {{subject.id}}> {{subject}}</label></li>
+												
+												
+												{% endifequal%}
+											{% endfor %}
+											</ul>
+										</div>
 									</div>
 									<div class="form-group text-center">
 										<input type="submit" name="update" class="btn btn-primary text-center" value="update" >
 									</div>
 								</form>
-								
 							</div>
 							<div class="col-md-6 text-center">
 								<img src="{% static 'images/update.jpg' %}" alt="register" width="380" height="250" style="margin-top: 35px;">
-								
-							</div>
-							
+							</div>			
 						</div>
-						
 					</div>	
-					
 			</div>
 		</div>
-			
-		
-	
-	
-		
-		
-	
-		
 	</div>
 
 {% endblock %}
+{% block javascript %}
+<script>
+	function fetch_course(id){
+		var id;
+		$.ajax({
+			url:'/management/fetch-subject',
+			type:'POST',
+			data :{
+				'csrfmiddlewaretoken' : '{{csrf_token}}',
+				'id':id,
+			},
+			success:function(data){
+				$('#subject').html(data)
+			}
+		})
+	}
+</script>
+{% endblock javascript %}

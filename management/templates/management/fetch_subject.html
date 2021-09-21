@@ -1,0 +1,6 @@
+
+	<ul id="id_subjects" style="list-style: none;">
+		{% for subject in subjects %}
+			<li><label for="id_subjects_"+ {{subject.id}}><input type="checkbox" name="subjects" value="{{subject.id}}" id="id_subjects_" + {{subject.id}}> {{subject}}</label></li>
+		{% endfor %}
+	</ul>

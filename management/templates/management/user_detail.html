@@ -8,24 +8,4 @@
 
 
 
-	<div class="container-fluid">
-		<div class="row">
-			<div class="col-md-4">
-				{% include 'management/sidebar.html'%}
-			</div>
-
-			<div class="col-md-8">
-				<div class="card bg-dark">
-					<div class="card-body text-center" style="color: white">
-						{% if user.userprofile.image %}
-							<img src="{{user.userprofile.image.url}}" class="img-fluid rounded-circle mx-auto d-block" alt="..." style="height: 150px; width: 150px;">
-						{% endif %}
-						<h5 class="card-title">Name : {{user.first_name|capfirst}}  {{user.last_name|capfirst}}</h5>
-						<h5 class="card-title">Email : {{user.email}}</h5>
-						<h5 class="card-title">Username : {{user.username}}</h5>
-					</div>			
-				</div>
-			</div>	
-		</div>	
-	</div>
 {% endblock %}
