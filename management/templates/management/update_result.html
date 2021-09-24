@@ -1,6 +1,7 @@
 {% extends "management/base.html" %}
 
 {% block title %} update result {% endblock %}
+{% load static %}
 {%load crispy_forms_tags %}
 {% block content %}
 
@@ -18,21 +19,33 @@
 									<h4>Update Result</h4><hr>
 									{% csrf_token %} 
 									{{form|crispy}}
-								
 									<input type="submit" name="Update" class="btn btn-warning " value="Update" >
   							</form>
 							</div>
-							<div class="col-md-8">
-								
+							<div class="col-md-8 mt-4 text-center">
+								<img src="{% static 'images/result.jpg' %}" width="400px;" height="300px;">
 							</div>
 						</div>
-						
 					</div>
 				</div>
 			</div>
 		</div>
-		
-
 	</div>
 
 {% endblock %}
+{% block javascript %}
+	<script>
+		$(document).ready(function(){
+			$("#id_subjects").on('change',function(){
+		var id=$(this).val()
+		$.ajax({
+			url:'/management/fetch-student/'+id,
+			type:'GET',
+			success:function(data){
+				$('#id_students').html(data)
+				}
+			});
+		});
+		})
+	</script>
+{% endblock javascript %}

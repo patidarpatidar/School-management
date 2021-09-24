@@ -22,7 +22,7 @@ urlpatterns = [
 
     path('teacher-subject-registration',teacher_course_registration,name='teacher-subject-registration'),
     path('teacher-subject-detail',teacher_course_detail,name='teacher-subject-detail'),
-    path('update-subject-registration',update_course_registration,name='update-subject-registration'),
+    path('update-subject-registration',update_teacher_course_registration,name='update-subject-registration'),
     path('delete-subject-registration',delete_course_registration,name='delete-subject-registration'),
     
     path('take-attendance',take_attendance,name='take-attendance'),
@@ -37,7 +37,7 @@ urlpatterns = [
     path('update-leave/<int:id>',update_leave,name='update-leave'),
     path('delete-leave/<int:id>',delete_leave,name='delete-leave'),
     
-    path('feedback-information/',feedback_send_view,name='feedback-information'),
+    path('feedback-information',feedback_send_view,name='feedback-information'),
     path('delete-feedback/<int:id>',delete_feedback,name='delete-feedback'),
     path('update-feedback/<int:id>',update_feedback,name='update-feedback'),
     
@@ -47,11 +47,17 @@ urlpatterns = [
     path('delete-result/<int:id>',delete_result,name='delete-result'),
     path('change-password',change_password,name='change-password'),
 
-    path('fetch-subject',fetch_subject,name='fetch-subject'),
-    #path('fetch-subject/<int:id>',fetch_subject,name='fetch-subject'),
+    path('fetch-subject/<int:id>',fetch_subject,name='fetch-subject'),
+    path('fetch-subject-update/<int:id>',fetch_subject_update,name='fetch-subject-update'),
+    path('fetch-student/<int:id>',fetch_student,name='fetch-student'),
+    path('fetch-student-attendance/<int:id>',fetch_student_attendance,name='fetch-student-attendance'),
+
+    path('fetch-student-result/<int:id>',fetch_student_result,name='fetch-student-result'),
+    path('result-information',result_information,name='result-information'),
+    path('update-result-information/<int:id>',update_result_information,name='update-result-information'),
+    path('delete-result-information/<int:id>',delete_result_information,name='delete-result-information'),
 
 
 ]
 if settings.DEBUG:
-        urlpatterns + static(settings.MEDIA_URL,
-                              document_root=settings.MEDIA_ROOT)
+        urlpatterns + static(settings.STATIC_URL,document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

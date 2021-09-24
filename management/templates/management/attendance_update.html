@@ -19,11 +19,43 @@
 								<form action="" method="post" class="" style="font-weight: bold">
 									<h5 style="text-align: center;">Update Attendance</h5><hr>
 									{% csrf_token %}
-							
-									{{form.as_p}}
-									{% for error in field.errors %}
-										<p style="color: red">{{error}}</p>
-									{% endfor %}
+									<div class="form-group">
+										Subjects:
+										<select id="subject" class="form-control" name="subjects">
+											{% for subject in teacher.subjects.all %}
+												{% ifequal subject.id form.subjects.value %}
+												<option value="{{subject.id}}" selected>{{subject}}</option>
+												{% else %}
+													<option value="{{subject.id}}">{{subject}}</option>
+												{%endifequal %}
+											{% endfor %}
+										</select>
+										Date:
+										{{form.date}}
+										Students:
+										<div id="student">
+											<select  class="form-control" name="students">
+												{% for student in teacher.students.all %}
+													{% ifequal student.id form.student.value %}
+														<option value="{{student.id}}" selected>{{student}}</option>
+													{% else %}
+														<option value="{{student.id}}">{{student}}</option>
+													{%endifequal %}
+												{% endfor %}
+											</select>
+										</div>
+										
+										Status:
+										<select id="status"  class="form-control" name="status">
+											{% ifequal 'persent' form.initial.status%}
+												<option value="persent" selected>Persent</option>
+												<option value="absent">Absent</option>
+											{% else %}
+												<option value="persent">Persent</option>
+												<option value="absent" selected>Absent</option>
+											{% endifequal %}
+										</select>
+									</div>
 									<div class="form-group text-center">
 										<input type="submit" name="Update" class="btn btn-primary text-center" value="Update" >
 									</div>
@@ -34,14 +66,9 @@
 								<div class="text-center">
 									<h5>Online Attendance Management System</h5><hr>
 									<img src="{% static 'images/upattendance.jpg'%}" style="height: 270px; width: 420px;">
-									
 								</div>
 							</div>
 						</div>
-								
-							
-						
-						
 					</div>
 				</div>
 			</div>
@@ -49,3 +76,18 @@
 	</div>
 
 {% endblock %}
+
+{% block javascript %}
+	<script>
+		$(document).on('change','#subject',function(){
+			var id=$(this).val()
+		$.ajax({
+			url:'/management/fetch-student/'+id,
+			type:'GET',
+			success:function(data){
+				$('#student').html(data)
+				}
+			});
+		});
+	</script>
+{% endblock javascript %}

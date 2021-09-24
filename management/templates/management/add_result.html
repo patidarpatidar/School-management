@@ -1,8 +1,5 @@
 {% extends "management/base.html" %}
-
-
 {% block title %} add result {% endblock %}
-
 {%load crispy_forms_tags %}
 {% load static %}
 {% block content %}
@@ -20,100 +17,61 @@
 								<h5>Course : {{request.user.teacher.course}}</h5><hr>
 								<form action="" method="POST" enctype="multipart/form-data">
 									<h5 align="center">Add Result</h5>
-									
 									{% csrf_token %}
-									{% for field in form %}
-									<div class="field">
-										<label for="{{field.id_for_label}}" class="label">
-										<b>{{field.html_name}} :</b></label>
-										{{field}}
-										{% for error in field.errors %}
-											<p style="color: red">{{error}}</p>
+									Subjects:
+									<select id="subject" class="form-control" name="subjects">
+										<option>select any one</option>
+										{% for subject in teacher.subjects.all %}
+											<option value="{{subject.id}}">{{subject}}</option>	
 										{% endfor %}
+									</select>
+									Students:
+									<div id="student">
+										<p></p>
 									</div>
-									{% endfor %}
+									Marks:
+									<input type="text" name="marks" class="form-control">
 									<br>
 									<div class="form-group text-center">
             	    	<button type="submit" class="btn btn-primary ">Add</button>
             	   	</div>
 								</form>
 							</div>
-
-							<div class="col-md-8  mt-4">
-								{% if page_obj %}
-								<h5 align="center">Results Information</h5><hr>
-		            	<table class="table" style="color: white;font-weight: bold">
-		               	<thead>
-		               	 	<tr>			
-		               			<th scope="col">Students</th>
-		               			<th scope="col">Subjects</th>
-		               			<th scope="col">Marks</th>
-		               			<th>Action</th>
-		               	  </tr>
-		               	</thead>
-		               	<tbody>
-		               		{% for result in page_obj %}
-		               	 		<tr>
-		               	 			<th scope="row">{{result.students}}</th>
-		               	 			<td scope="row">{{result.subjects}}</td>
-		               	 			<td>{{result.marks}}</td>
-		               	 			<td>
-		               	 				<a href="/management/update-result/{{result.id}}"><button type="submit" class="btn btn-warning ">Update</button></a>
-                              <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal">Delete</button>
-                            </td>
-		               	 		</tr>
-		               	 	<div class="modal" id="myModal">
-												<div class="modal-dialog">
-					  							<div class="modal-content">
-					    							<div class="modal-header">
-					        						<h4 class="modal-title" style="color:black;">Are you sure you delete this student result? 
-					        							student : {{result.students}}</h4>
-					        						<button type="button" class="close" data-dismiss="modal">&times;</button>
-					      						</div>
-					      						<div class="modal-footer">
-        											<a href="/management/delete-result/{{result.id}}"><button type="button" class="btn btn-success" value="True">Confirm</button></a>
-        											<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-      											</div>
-													</div>
-  											</div>
-										</div>
-		               	{% endfor %}
-		               </tbody> 				
-		          		</table>
-		          		<div class="pagination">
-    								<span class="step-links" style="font-weight: bold;">
-       								{% if page_obj.has_previous %}
-            						<a href="?page=1">&laquo; first </a>
-            						<a href="?page={{ page_obj.previous_page_number }}"> previous </a>
-        							{% endif %}
-
-        							<span class="current">
-            						Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-        							</span>
-
-        							{% if page_obj.has_next %}
-            						<a href="?page={{ page_obj.next_page_number }}"> next </a>
-            						<a href="?page={{ page_obj.paginator.num_pages }}"> last &raquo;</a>
-        							{% endif %}
-    								</span>
-									</div>
-		          		{% else %}
-		          			<div>
-		          				<img src="{% static 'images/result.jpg' %}" width="500px;" height="300px;">
-		          			</div>
-		          				
-		          		{% endif %}
-
+							<div class="col-md-8  mt-4" id="results">
+		          	<div>
+		          		<img src="{% static 'images/result.jpg' %}" width="500px;" height="300px;">
+		          	</div>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-
-		
-		
 	</div>
 
-
 {% endblock %}
+{% block javascript %}
+	<script>
+		$(document).on('change','#subject',function(){
+			var id=$(this).val()
+			$.ajax({
+				url:'/management/fetch-student/'+id,
+				type:'GET',
+				success:function(data){
+					$('#student').html(data)
+				}
+			});
+		});
+
+		$(document).on('change','#subject',function(){
+			var id=$(this).val()
+			$.ajax({
+				url:'/management/fetch-student-result/'+id,
+				type:'GET',
+				success:function(data){
+					$('#results').html(data)
+				}
+			});
+		});
+	</script>
+{% endblock javascript %}

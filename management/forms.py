@@ -61,10 +61,10 @@ class AttendanceForm(forms.Form):
 			('persent','persent'),
 			('absent','absent'),
 		)
-	subjects = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style':'width:250px'}))
-	date = forms.DateField(widget=NumberInput(attrs={'type': 'date','style':'width:250px;'}))
-	students = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
-	status = forms.ChoiceField(choices=STATUS_CHOICE,widget=forms.Select(attrs={'style': 'width:250px'}))
+	subjects = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style':'width:250px','class':'form-control'}))
+	date = forms.DateField(widget=NumberInput(attrs={'type': 'date','style':'width:250px;','class':'form-control'}))
+	students = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style': 'width:250px','class':'form-control'}))
+	status = forms.ChoiceField(choices=STATUS_CHOICE,widget=forms.Select(attrs={'style': 'width:250px','class':'form-control'}))
 
 class ResultForm(forms.Form):
 	def __init__(self ,teacher, *args,**kwargs):

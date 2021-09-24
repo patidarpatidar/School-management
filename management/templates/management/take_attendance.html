@@ -21,7 +21,26 @@
 
 									<hr>
 									{% csrf_token %}
-									{{form.as_p}}
+									<div class="form-group">
+										Subjects:
+										<select id="subject" class="form-control" name="subjects">
+											<option value="0">select any one</option>
+											{% for subject in teacher.subjects.all %}
+												<option value="{{subject.id}}">{{subject}}</option>	
+											{% endfor %}
+										</select>
+										Date:
+										<input type="date" name="date" class="form-control">
+										Students:
+										<div id="student">
+											<p></p>
+										</div>
+										Status:
+										<select id="status"  class="form-control" name="status">
+											<option value="persent">Persent</option>
+											<option value="absent">Absent</option>				
+										</select>
+									</div>
 									<br>
 									<div class="form-group text-center">
 										<input type="submit" name="Submit" class="btn btn-primary text-center" value="Submit" >
@@ -29,64 +48,9 @@
 								</form>
 							</div>
 							<div class="col-md-8 text-center">
-								{% if page_obj %}
-								<table class="table" style="color: white">
-									<thead>
-										<h5>Attendance Information:</h5>
-										<h5 style="color:orange"><b>Course: {{request.user.teacher.course}} </b> <b style="color: white">Date : {{today}}</b></h5>
-										<tr>
-											<th scope="col">Students</th>
-											<th scop="col">Subjects</th>
-											<th scope="col">Status</th>
-											<th scope="col">Action</th>
-										</tr>
-									</thead>
-									<tbody>
-										{% for attendance in page_obj %}
-											<tr>
-												<td><b>{{attendance.students}}</b></td>
-												<td><b>{{attendance.subjects}}</b></td>
-												<td><b>{{attendance.status}}</b></td>
-												<td>
-													<a href="/management/update-attendance/{{attendance.id}}"><button class="btn btn-warning">Update</button></a>
-													<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal">Delete</button>
-												</td>
-											</tr>
-										<div class="modal" id="myModal">
-											<div class="modal-dialog">
-					  						<div class="modal-content">
-					    						<div class="modal-header">
-					        					<h4 class="modal-title" style="color:black;">Are you sure you delete this attendance? <b>Student: {{attendance.student}}</b></h4>
-					        					<button type="button" class="close" data-dismiss="modal">&times;</button>
-					      					</div>
-					      					<div class="modal-footer">
-        										<a href="/management/delete-attendance/{{attendance.id}}"><button type="button" class="btn btn-success" value="True">Confirm</button></a>
-        										<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-      										</div>
-												</div>
-  										</div>
-										</div>
-										{% endfor %}
-									</tbody>
-								</table>
-								<div class="pagination">
-    							<span class="step-links" style="font-weight: bold;">
-       							{% if page_obj.has_previous %}
-            					<a href="?page=1">&laquo; first </a>
-            					<a href="?page={{ page_obj.previous_page_number }}"> previous </a>
-        						{% endif %}
-        						<span class="current">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.</span>
-        						{% if page_obj.has_next %}
-            					<a href="?page={{ 	page_obj.next_page_number }}"> next </a>
-            					<a href="?page={{ page_obj.paginator.num_pages }}"> last &raquo;</a>
-        						{% endif %}
-    							</span>
-								</div>
-								{% else %}
-								<div class="">
+								<div id="attendance">
 									<img src="{% static 'images/attendance.jpg'%}" style="height: 300px; width: 450px;">
 								</div>
-								{% endif %}
 							</div>
 						</div>
 					</div>
@@ -95,6 +59,31 @@
 		</div>	
 	</div>
 
-
-
 {% endblock %}
+{% block javascript %}
+	<script>
+		$(document).on('change','#subject',function(){
+			var id=$(this).val()
+			$.ajax({
+			url:'/management/fetch-student/'+id,
+			type:'GET',
+			success:function(data){
+				$('#student').html(data)
+				}
+			});
+		});
+	</script>
+	<script>
+		$(document).on('change','#subject',function(){
+			var id=$(this).val()
+			$.ajax({
+			url:'/management/fetch-student-attendance/'+id,
+			type:'GET',
+			success:function(data){
+				$('#attendance').html(data)
+				}
+			});
+		});
+	</script>
+
+{% endblock javascript %}

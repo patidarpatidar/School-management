@@ -18,12 +18,46 @@ from django.core.exceptions import ObjectDoesNotExist
 #-----------------------------User permission function (common)-----------------------------------
 #------------------------------------------------------------------------------------->
 
-def fetch_subject(request):
-	if request.method=="POST":
-		id = request.POST.get('id')
-		subjects = Subject.objects.filter(course_id=id)
-		return render(request,'management/fetch_subject.html',{'subjects':subjects})
-	
+def fetch_subject(request,id):
+	subjects = Subject.objects.filter(course_id=id)
+	return render(request,'management/fetch_subject.html',{'subjects':subjects})
+
+def fetch_subject_update(request,id):
+	subjects = Subject.objects.filter(course_id=id)
+	context = {
+		'subjects':subjects,
+		
+	}
+	return render(request,'management/fetch_subject_update.html',context)
+
+def fetch_student(request,id):
+	subject = Subject.objects.filter(id=id)
+	students = Student.objects.filter(subjects__in=subject)
+	return render(request,'management/fetch_student.html',{'students':students})
+
+def fetch_student_result(request,id):
+	teacher = request.user.teacher
+	results = Result.objects.filter(teacher=teacher,subjects_id=id)
+	paginator = Paginator(results,5)
+	page_number = request.GET.get('page')
+	page_obj = paginator.get_page(page_number)
+	context = {
+		'page_obj':page_obj,
+	}	
+	return render(request,'management/fetch_student_result.html',context)
+
+def fetch_student_attendance(request,id):
+	today = datetime.date.today()
+	attendance = Attendance.objects.filter(teacher=request.user,date=today,subjects_id=id)
+	paginator = Paginator(attendance,5)
+	page_number = request.GET.get('page')
+	page_obj = paginator.get_page(page_number)
+	context = {
+		'today':today,
+		'page_obj':page_obj,
+	}
+	return render(request,'management/fetch_student_attendance.html',context)
+
 def index_view(request):
 	course = Course.objects.all()
 	paginator = Paginator(course,5)
@@ -180,17 +214,17 @@ def update_student_course_registration(request):
 			return HttpResponseRedirect(reverse('management:course-detail'))
 
 	else:
-		courses = Course.objects.all()
-		subjects = Subject.objects.all()
 		course_data = {
 		'course':student.course,
-		'subjects':student.subjects.all,
+		'subjects':student.subjects.all
 		}
 		form = CourseRegistrationForm(initial=course_data)
+		courses = Course.objects.all()
+		subjects = Subject.objects.filter(course=student.course)
 		context = {
 			'form' : form,
 			'courses':courses,
-			'subjects':subjects
+			'subjects':subjects,
 
 		}
 	return render(request,'management/update_course_registration.html',context)
@@ -257,8 +291,13 @@ def teacher_course_registration(request):
 			messages.success(request,"Your have successfully register!")
 			return HttpResponseRedirect(reverse('management:teacher-subject-detail'))
 	else: 
+		courses = Course.objects.all()
 		form = CourseRegistrationForm()
-	return render(request,'management/course_registration.html',{'form':form})
+		context = {
+			'form' : form,
+			'courses' :courses,
+		}
+	return render(request,'management/course_registration.html',context)
 
 @login_required(login_url='/management/login/')
 def teacher_course_detail(request):
@@ -271,7 +310,7 @@ def teacher_course_detail(request):
 	return render(request,'management/teacher_subject_detail.html',context)
 
 @login_required(login_url='/management/login/')
-def update_course_registration(request):
+def update_teacher_course_registration(request):
 	teacher = request.user.teacher
 	if request.method=="POST":
 		form = CourseRegistrationForm(request.POST)
@@ -294,7 +333,15 @@ def update_course_registration(request):
 			'subjects':teacher.subjects.all,
 		}
 		form = CourseRegistrationForm(initial = subject_data)
-	return render(request,'management/update_course_registration.html',{'form':form})
+		courses = Course.objects.all()
+		subjects = Subject.objects.filter(course=teacher.course)
+		context = {
+			'form' : form,
+			'courses':courses,
+			'subjects':subjects,
+
+		}
+	return render(request,'management/update_course_registration.html',context)
 
 @login_required(login_url='/management/login/')
 def delete_course_registration(request):
@@ -317,16 +364,10 @@ def take_attendance(request):
 			messages.success(request,"attendance add successfully!")
 			return HttpResponseRedirect(reverse('management:take-attendance'))
 	else:
-		today = datetime.date.today()
-		attendance = Attendance.objects.filter(teacher=request.user,date=today)
 		form = AttendanceForm(teacher)
-		paginator = Paginator(attendance,5)
-		page_number = request.GET.get('page')
-		page_obj = paginator.get_page(page_number)
 		context = {
-			'today':today,
-			'page_obj':page_obj,
 			'form':form,
+			'teacher':teacher
 			}
 		return render(request,'management/take_attendance.html',context)
 
@@ -353,7 +394,12 @@ def update_attendance(request,id):
 			'status':attendance.status,
 		}
 		form = AttendanceForm(teacher,initial=attendance_data )
-		return render(request,'management/attendance_update.html',{'form':form})
+		context = {
+			'attendance':attendance,
+			'form':form,
+			'teacher':teacher,
+		}
+		return render(request,'management/attendance_update.html',context)
 
 @login_required(login_url='/management/login/')
 def delete_attendance(request,id):
@@ -426,13 +472,9 @@ def result_add(request):
 	
 	else:
 		form = ResultForm(teacher)
-		results = Result.objects.filter(teacher=teacher)
-		paginator = Paginator(results,5)
-		page_number = request.GET.get('page')
-		page_obj = paginator.get_page(page_number)
 		context = {
 			'form':form,
-			'page_obj':page_obj,
+			'teacher':teacher
 		}
 		return render(request,'management/add_result.html',context)
 
@@ -465,7 +507,44 @@ def delete_result(request,id):
 	messages.success(request,"deleted successfully1")
 	return redirect('/management/add-result')
 
+def result_information(request):
+	teacher = request.user.teacher
+	results = Result.objects.filter(teacher=teacher)
+	paginator = Paginator(results,5)
+	page_number = request.GET.get('page')
+	page_obj = paginator.get_page(page_number)
+	context = {
+		'page_obj':page_obj,
+	}	
+	return render(request,'management/result_information.html',context)
 
+@login_required(login_url='/management/login/')
+def delete_result_information(request,id):
+	result = Result.objects.get(pk=id)
+	result.delete()
+	messages.success(request,"deleted successfully!")
+	return redirect('/management/result-information')
+
+def update_result_information(request,id):
+	result = Result.objects.get(pk=id)
+	teacher = request.user.teacher
+	if request.method=="POST":
+		form = ResultForm(teacher,request.POST)
+		if form.is_valid():
+			result.subjects = form.cleaned_data['subjects']
+			result.students = form.cleaned_data['students']
+			result.marks = form.cleaned_data['marks']
+			result.save()
+			messages.success(request,"result update successfully!")
+			return HttpResponseRedirect(reverse('management:result-information'))
+	else:
+		result_data = {
+			'subjects':result.subjects,
+			'students':result.students,
+			'marks' : result.marks,
+		}
+		form = ResultForm(teacher,initial=result_data)
+		return render(request,'management/update_result.html',{'form':form})
 
 
 #------------------------------signup Login logout function----------------------------------
@@ -631,3 +710,4 @@ def delete_feedback(request,id):
 	feedback.delete()
 	messages.success(request,"feedback deleted successfully!")
 	return redirect('/management/feedback-information')
+

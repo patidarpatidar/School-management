@@ -1,8 +1,8 @@
 {% extends "management/base.html" %}
-
-{% block title %} course registeration {% endblock %}
 {% load static %}
+{% block title %} course registeration {% endblock %}
 {%load crispy_forms_tags %}
+
 {% block content %}
 
 	<div class="container-fluid" style="">
@@ -15,14 +15,12 @@
 					<div class="card-body" style="color: white;">
 						<div class="row">
 							<div class="col-md-6">
-								
 								<form action="" method="post" class="" style="width: 400px;">
 									<h5 style="text-align: center">Course Registration</h5><hr>
 									{% csrf_token %}
-									{{form.as_P}}
 									<div class="form-group">
 										Course:
-										<select onchange="fetch_course(this.value)" id="course" class="form-control" name="course">
+										<select id="course"  class="form-control" name="course">
 											<option value="0">select any one</option>
 											{% for course in courses %}
 												<option value="{{course.id}}">{{course}}</option>	
@@ -30,16 +28,13 @@
 										</select>
 										<br>
 										Subjects:
-										<p id="subject"></p>
-										
-									</div>
-																	
+										<p id="subject">first for select course!</p>
+									</div>							
 									<div class="form-group text-center">
 										<input type="submit" name="submit" class="btn btn-primary text-center" value="Register" >
 									</div>
 								</form>
 							</div>
-
 							<div class="col-md-6 text-center">
 								<img src="{% static 'images/register.jpg' %}" alt="register" width="350" height="300" style="margin-top: 35px;">
 							</div>
@@ -51,110 +46,17 @@
  </div>
 {% endblock %}
 {% block javascript %}
-<script>
-	/*
-	function myfun(){
-		var req = new XMLHttpRequest();
-		req.open("GET","/management/",true)
-		req.send();
-		req.onreadystatechange = function(){
-			if(req.readyState == 4 && req.status == 200 )
-			{
-				document.getElementById("loaddata").innerHTML = this.responceText();			
-			}
-		};
-	}
-	*/
-	/*
-	function myfun(id){
-		var id=id;
-		var req = new XMLHttpRequest();
-		req.open("GET","/management/fetch-subject/" + id,true)
-		req.send()
-		req.onreadystatechange = function(){
-			if(req.readyState==4 && req.status==200)
-			{
-				document.getElementById("subject").innerHTML = this.responseText
-			}
-		}
-	}
-	*/
-	function fetch_course(id){
-		var id;
-		$.ajax({
-			url:'/management/fetch-subject',
-			type:'POST',
-			data :{
-				'csrfmiddlewaretoken' : '{{csrf_token}}',
-				'id':id},
+	<script type="text/javascript">
+		$(document).on('change','#course',function(){
+			var id=$(this).val()
+			$.ajax({
+			url:'/management/fetch-subject/'+id,
+			type:'GET',
 			success:function(data){
-				$('#subject').html(data)
-			}
-		})
-	}
+			$('#subject').html(data)
+				},
+			});
+		});
+	</script>
 
-	/*
-		$(document).ready(function(){
-			$("#show").click(function(){
-				$("#data").show("slow");
-			});
-			$("#hide").click(function(){
-				$("#data").hide();
-			});
-
-			$(document).ready(function(){
-			$("#flip").click(function(){
-				$("#panel").slideDown("slow");
-			});
-			
-			$("#show").click(function(){
-				alert("Text:" + $("#loaddata").text());
-			});
-			$("#hide").click(function(){
-				alert("HTML" + $("#loaddata").html());
-			});
-			
-			$("#hide").click(function(){
-				$("#loaddata").attr("href");
-			});
-			
-			$("#hide").click(function(){
-				$("#loaddata").remove();
-			});
-			
-			$("#show").click(function(){
-				$("#loaddata").load('/management/');
-			});
-			$("#show").click(function(){
-				$.get("/management/",function(data,status){
-					$("#loaddata").html(data)
-				})
-			})
-
-			$("#show").click(function(){
-				$.post("/management/fetch-subject",{
-      		'csrfmiddlewaretoken': '{{ csrf_token }}',
-     			'id':1
-   			},
-				function(data,status){
-					$("#loaddata").html(data)
-				
-				});
-			});
-				
-			$('#course').change(function(){
-				var course_id = $(this).val();
-				$.post("/management/fetch-subject",{
-      	'csrfmiddlewaretoken': '{{ csrf_token }}',
-     		'id':course_id
-   			},
-			function(data,status){
-				$("#subject").html(data)
-				});
-				
-				});	
-	});
-	*/
-		
-</script>	
 {% endblock javascript %}

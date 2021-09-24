@@ -28,7 +28,7 @@
 									{% csrf_token %}
 									<div class="form-group">
 										Course:
-										<select onchange="fetch_course(this.value)" id="course" class="form-control" name="course">
+										<select id="course" class="form-control" name="course">
 											{% for course in courses %}
 											{% ifequal course.id form.course.value %}
 												<option value="{{course.id}}" selected>{{course}}</option>
@@ -41,18 +41,17 @@
 										Subjects:
 										<div id="subject">
 											<ul id="id_subjects" style="list-style: none;">
-											{% for subject in subjects %}
-												{% ifequal subject.course_id form.course.value %}
-												
-													<li><label for="id_subjects_"+ {{subject.id}}>
-														<input type="checkbox" name="subjects" value="{{subject.id}}" id="id_subjects_" + {{subject.id}}> {{subject}}</label></li>
-												
-												
-												{% endifequal%}
-											{% endfor %}
+												{% for subject in subjects %}
+												{% if subject.id in form.subjects.value %}
+													<li><input type="checkbox" name="subjects" value="{{subject.id}}" checked> {{subject}}</li>
+												{% else %}
+												<li><input type="checkbox" name="subjects" value="{{subject.id}}" > {{subject}}</li>
+												{% endif %}
+												{% endfor %}
 											</ul>
 										</div>
 									</div>
+									
 									<div class="form-group text-center">
 										<input type="submit" name="update" class="btn btn-primary text-center" value="update" >
 									</div>
@@ -66,23 +65,18 @@
 			</div>
 		</div>
 	</div>
-
 {% endblock %}
 {% block javascript %}
 <script>
-	function fetch_course(id){
-		var id;
+	$(document).on('change','#course',function(){
+		var id=$(this).val()
 		$.ajax({
-			url:'/management/fetch-subject',
-			type:'POST',
-			data :{
-				'csrfmiddlewaretoken' : '{{csrf_token}}',
-				'id':id,
+		url:'/management/fetch-subject-update/'+id,
+		type:'GET',
+		success:function(data){
+			$('#subject').html(data)
 			},
-			success:function(data){
-				$('#subject').html(data)
-			}
-		})
-	}
+		});
+	});
 </script>
 {% endblock javascript %}

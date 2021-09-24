@@ -1,0 +1,6 @@
+
+<select name="students" style="width:250px" id="id_students" class="form-control">
+	{% for student in students %}
+  		<option value="{{student.id}}">{{student}}</option>
+	{% endfor %}
+</select>

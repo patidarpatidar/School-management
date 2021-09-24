@@ -1,0 +1,58 @@
+
+{% if page_obj %}
+	<h5 align="center">Results Information</h5><hr>
+		<table class="table" style="color: white;font-weight: bold">
+		  <thead>
+		    <tr>			
+		    <th scope="col">Students</th>
+		    <th scope="col">Subjects</th>
+		    <th scope="col">Marks</th>
+		    <th>Action</th>
+		    </tr>
+		  </thead>
+		  <tbody>
+		    {% for result in page_obj %}
+		      <tr>
+		       <th scope="row">{{result.students}}</th>
+		       <td scope="row">{{result.subjects}}</td>
+		       <td>{{result.marks}}</td>
+		       <td>
+		          <a href="/management/update-result/{{result.id}}"><button type="submit" class="btn btn-warning ">Update</button></a>
+              <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal">Delete</button>
+            </td>
+		      </tr>
+		      <div class="modal" id="myModal">
+						<div class="modal-dialog">
+					  	<div class="modal-content">
+					    	<div class="modal-header">
+					        <h4 class="modal-title" style="color:black;">Are you sure you delete this student result? 
+					        							student : {{result.students}}</h4>
+					        <button type="button" class="close" data-dismiss="modal">&times;</button>
+					     	</div>
+					      <div class="modal-footer">
+        					<a href="/management/delete-result/{{result.id}}"><button type="button" class="btn btn-success" value="True">Confirm</button></a>
+        					<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      					</div>
+							</div>
+  					</div>
+					</div>
+		    {% endfor %}
+		  </tbody> 				
+		</table>
+	<div class="pagination">
+    <span class="step-links" style="font-weight: bold;">
+      {% if page_obj.has_previous %}
+        <a href="?page=1">&laquo; first </a>
+        <a href="?page={{ page_obj.previous_page_number }}"> previous </a>
+      {% endif %}
+
+      <span class="current">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.</span>
+
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}"> next </a>
+        <a href="?page={{ page_obj.paginator.num_pages }}"> last &raquo;</a>
+      {% endif %}
+    </span>
+	</div>
+{% endif %}
+
