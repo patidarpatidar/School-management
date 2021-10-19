@@ -15,7 +15,7 @@
 					<div class="card-body" style="color: white;">
 						<div class="row">
 							<div class="col-md-6">
-								<form action="" method="post" class="" style="width: 400px;">
+								<form action="" method="post" class="">
 									<h5 style="text-align: center">Course Registration</h5><hr>
 									{% csrf_token %}
 									<div class="form-group">
@@ -45,18 +45,4 @@
 		</div>
  </div>
 {% endblock %}
-{% block javascript %}
-	<script type="text/javascript">
-		$(document).on('change','#course',function(){
-			var id=$(this).val()
-			$.ajax({
-			url:'/management/fetch-subject/'+id,
-			type:'GET',
-			success:function(data){
-			$('#subject').html(data)
-				},
-			});
-		});
-	</script>
 
-{% endblock javascript %}

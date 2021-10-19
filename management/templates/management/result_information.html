@@ -9,10 +9,60 @@
 			<div class="col-md-8">
 				<div class="card bg-dark">
 					<div class="card-body" style="color: white;">
+						<h5 class="text-center">Student Result Information</h5>
+						<h5 class="text-center"><b style="color:orange;">course : {{teacher.course}}</b></h5><hr>
+						<h5>Teacher Name : {{teacher}}</h5><br>
+							<div>
+								<form action="" method="">
+									<div class="row">
+										<div class="col-md-3 form-group">
+											<select class="form-control" style="width:150px;" name="student">
+												<option disabled selected hidden>Select Student</option>
+												{% for student in students%}
+													{%ifequal student student_value%}
+														<option value="{{student.id}}" disabled hidden selected>{{student}}</option>
+														<option value="{{student.id}}">{{student}}</option>
+													{% else %}
+														<option value="{{student.id}}">{{student}}</option>
+													{% endifequal %}
+												{% endfor %}	
+											</select>
+										</div>
+										<br>
+										<div class="col-md-3">
+											<select class="form-control" style="width:150px" name="subject">
+												<option disabled selected hidden>Select Subject</option>
+												{% for subject in subjects %}
+													{% ifequal subject subject_value%}
+														<option value="{{subject.id}}"disabled hidden selected>{{subject}}</option>
+														<option value="{{subject.id}}">{{subject}}</option>	
+													{% else %}
+														<option value="{{subject.id}}">{{subject}}</option>	
+													{% endifequal %}
+												{% endfor %}
+											</select>
+										</div>
+										<br>
+										<div class="col-md-3">
+											{% if date %}
+												<input class="form-control  me-2" type="date" value="{{date}}" name="date" style="width:170px;"  disabled>
+											{% else %}
+												<input class="form-control  me-2" type="date"  name="date" style="width:150px;">
+											{% endif %}
+										</div>
+										<div class="col-md-3">
+											<select class="form-control" style="width:150px" name="short">
+												<option disabled selected hidden>Short</option>
+												<option value="date">Date</option>	
+											</select>
+										</div>
+									</div>
+									<button class="btn btn-outline-success" type="submit" style="height:40px;" value="search"> Search </button>
+								</form>
+							</div>
+						<br>
+						{% if page_obj %}
 						<table class="table" style="color: white;font-weight: bold">
-							<h5 class="text-center">Student Result Information</h5>
-							<h5 class="text-center"><b style="color:orange;">course : {{request.user.teacher.course}}</b></h5><hr>
-							<h5>Teacher Name : {{request.user.first_name}}{{request.user.last_name}}</h5>
 							<thead>
 								<tr>
 									<th scope="col">Students</th>
@@ -23,6 +73,7 @@
 								</tr>
 							</thead> 
 							<tbody>
+
 								{% for result in page_obj %}
 								<tr>
 									<td>{{result.students}}</td>
@@ -51,6 +102,9 @@
 								{% endfor %}
 							</tbody>
 						</table>
+						{% else %}
+							<h5>No any information for results!</h5>
+						{%endif%}
 						<div class="pagination">
     					<span class="step-links" style="font-weight: bold;">
        					{% if page_obj.has_previous %}

@@ -1,11 +1,12 @@
 from django.shortcuts import render,get_object_or_404 , HttpResponse , redirect , HttpResponseRedirect
-from .models import Course,Subject , UserProfile,TeacherStudent,Student, Teacher , Attendance , Leave , Feedback , Result
-from .forms import  SignUpForm , LoginForm ,ChangePasswordform,UserUpdateForm ,UserProfileForm ,CourseRegistrationForm ,ResultForm , AttendanceForm , LeaveForm , FeedbackForm
+from .models import Course,Subject ,UserProfile,TeacherStudent,Student, Teacher , Attendance , Leave , Feedback , Result
+from .forms import  SignUpForm ,SendEmailForm,ForgotPasswordForm,AttendanceFilter, LoginForm ,ChangePasswordform,UserUpdateForm ,UserProfileForm ,CourseRegistrationForm ,ResultForm , AttendanceForm , LeaveForm , FeedbackForm
 from django.contrib.auth import login,logout, authenticate
 # Create your views here.
-from django.views.generic.edit import UpdateView , DeleteView
-from django.contrib.auth.hashers import check_password ,make_password
 
+from django.contrib.auth.hashers import check_password ,make_password
+from django.db.models import Q
+from .decorator import teacher_required,student_required,role_required
 import datetime 
 from django.urls import reverse
 from django.contrib import messages 
@@ -14,67 +15,270 @@ from django.urls import reverse_lazy
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import send_mail 
+from django.conf import settings
+from django.template.loader import render_to_string
 
+from .signals import send_signup_email
+from django.db.models.signals import post_save
 #-----------------------------User permission function (common)-----------------------------------
 #------------------------------------------------------------------------------------->
+
+
+from .serializers import UserSerializer
+from django.http import JsonResponse,Http404
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.parsers import JSONParser,FormParser,MultiPartParser,FileUploadParser
+from rest_framework.decorators import api_view , permission_classes
+from rest_framework import permissions , status,viewsets
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.reverse import reverse
+from rest_framework import mixins , generics,filters
+#from .permissions import IsSuperUser
+
+
+
+class UserViewSet(viewsets.ModelViewSet):
+	
+	queryset = User.objects.all().order_by('-date_joined')
+	serializer_class = UserSerializer
+	#permission_classes = [permissions.IsAdminUser | IsSuperUser]
+	#filterset_fields = ['username','first_name']
+	
+	#filter_backends = [filters.OrderingFilter]
+	#ordering_fields = ['username', 'email']
+
+	#filter_backends = [filters.SearchFilter]
+	#search_fields = ['username']
+	#parser_classes = [JSONParser,FormParser]
+	
+'''
+class UserList(generics.ListCreateAPIView):
+	queryset = User.objects.all()
+	serializer_class = UserSerializer
+	permission_classes = [permissions.IsAdminUser]
+
+class UserDetail(generics.RetrieveUpdateDestroyAPIView):
+	queryset = User.objects.all()
+	serializer_class = UserSerializer
+	permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+'''
+
+'''
+class UserList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.GenericAPIView):
+	queryset = User.objects.all()
+	serializer_class = UserSerializer
+
+	def get(self,request,*args,**kwargs):
+		return self.list(request,*args,**kwargs)
+	
+	def post(self,request,*args,**kwargs):
+		return self.create(request,*args,**kwargs)
+
+class UserDetail(mixins.RetrieveModelMixin,mixins.UpdateModelMixin,mixins.DestroyModelMixin,generics.GenericAPIView):
+	queryset = User.objects.all()
+	serializer_class = UserSerializer
+	def get(self,request,*args,**kwargs):
+		return self.retrieve(request,*args,**kwargs)
+
+	def put(self,request,*args,**kwargs):
+		return self.update(request,*args,**kwargs)
+	
+	def patch(self,request,*args,**kwargs):
+		#kwargs['partial'] = True
+		return self.partial_update(request,*args,**kwargs)
+
+	def delete(self,request,*args,**kwargs):
+		return self.destroy(request,*args,**kwargs)
+
+'''
+'''
+@permission_classes((permissions.AllowAny,))
+class UserDetail(APIView):
+	def get_object(self,pk):
+		try:
+			return User.objects.get(pk=pk)
+		except User.DoesNotExist:
+			raise Http404
+
+	def get(self, request, pk, format=None):
+	 	user = self.get_object(pk)
+	 	serializer = UserSerializer(user)
+	 	return Response(serializer.data)
+
+	def put(self,request,pk,formate=None):
+		user = self.get_object(pk)
+		serializer = UserSerializer(user,data=request.data)
+		if serializer.is_valid():
+			serializer.save()
+			return Response({"msg":"you compelete update successfully!"},serializer.data)
+		return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+	def patch(self,request,pk,formate=None):
+		user = self.get_object(pk)
+		serializer = UserSerializer(user,data=request.data,partial=True)
+		if serializer.is_valid():
+			serializer.save()
+			return Response({"msg":"update data successfully!"},serializer.data)
+		return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+	
+	def delete(self,request,pk,formate=None):
+		user = self.get_object(pk)
+		user.delete()
+		return Response({"msg":"deleted successfully!"},status=status.HTTP_204_NO_CONTENT)
+'''
+
+'''
+@csrf_exempt
+@api_view(['GET','POST'])
+@permission_classes((permissions.AllowAny,))
+def user_list(request):
+	if request.method == 'GET':
+		users = User.objects.all()
+		serializer = UserSerializer(users,many=True)
+		return Response(serializer.data)
+	
+	elif request.method == 'POST':
+		serializer = UserSerializer(data=request.data)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data, status=status.HTTP_201_CREATED)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@csrf_exempt
+@api_view(['GET','PUT','PATCH','DELETE'])
+@permission_classes((permissions.AllowAny,))
+def user_detail(request,pk):
+	try:
+		user = User.objects.get(pk=pk)
+	except User.DoesNotExist:
+		return Response(status=status.HTTP_404_NOT_FOUND)
+
+	if request.method == 'GET':
+		serializer = UserSerializer(user)
+		return Response(serializer.data)
+
+	elif request.method == 'PUT':
+		serializer = UserSerializer(user,data=request.data)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data)
+		return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+	elif request.method == 'PATCH':
+		serializer = UserSerializer(user,data=request.data,partial=True)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data)
+		return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+	elif request.method == 'DELETE':
+		user.delete()
+		return Response(status=status.HTTP_204_NO_CONTENT)
+'''
+
+def delete_selected_attendance(request):
+	if request.method=="POST":
+		attendance_ids = request.POST.getlist('attendance')
+		for id in attendance_ids:
+			Attendance.objects.get(pk=id).delete()
+		msg = messages.success(request,"successfully")
+		return redirect('management:attendance-record')
+
 
 def fetch_subject(request,id):
 	subjects = Subject.objects.filter(course_id=id)
 	return render(request,'management/fetch_subject.html',{'subjects':subjects})
 
-def fetch_subject_update(request,id):
-	subjects = Subject.objects.filter(course_id=id)
-	context = {
-		'subjects':subjects,
-		
-	}
-	return render(request,'management/fetch_subject_update.html',context)
+
+def send_forgot_password_email(request):
+	if request.method=="POST":
+		form = SendEmailForm(request.POST)
+		if form.is_valid():
+			email = form.cleaned_data['email']
+			user = User.objects.filter(email=email)
+			if user.exists():
+				# Email sending for password reset .
+				user = user.first()
+				template_name = "management/password_reset_email.txt"
+				domain = settings.DOMAIN
+				subject = "Password reset instructions link."	
+				#import pdb; pdb.set_trace();			
+				message = domain + reverse('management:forgot-password')
+				email_from = settings.EMAIL_HOST_USER
+				send_mail(subject,message,email_from,[email],fail_silently=False)
+				messages.success(request,"Password reset instructions have been sent successfully via email.")
+				return HttpResponseRedirect(reverse('management:password-reset-email-done'))		
+	else:	
+		form = SendEmailForm()
+	return render(request,'management/send_forgot_password_email.html',{'form':form})
+
+def password_reset_email_done(request):
+	return render(request,"management/password_reset_email_done.html")
+
+def forgot_password(request):
+	if request.method=='POST':
+		form = ForgotPasswordForm(request.POST)
+		if form.is_valid():
+			username = form.cleaned_data['username']  
+			password = form.cleaned_data['new_password']
+			confirm_password = form.cleaned_data['confirm_new_password']
+			user = User.objects.get(username=username)
+			if user.exists():
+				user.set_password(password)
+				user.save()
+				messages.success(request,"your password reset successfully!")
+				return HttpResponseRedirect(reverse('management:password-reset-done'))	
+	else:	
+		form = ForgotPasswordForm()
+	return render(request,'management/forgot_password.html',{'form':form})
+
+def password_reset_done(request):
+	return render(request,"management/password_reset_done.html")
+
 
 def fetch_student(request,id):
 	subject = Subject.objects.filter(id=id)
 	students = Student.objects.filter(subjects__in=subject)
 	return render(request,'management/fetch_student.html',{'students':students})
 
+
 def fetch_student_result(request,id):
 	teacher = request.user.teacher
-	results = Result.objects.filter(teacher=teacher,subjects_id=id)
-	paginator = Paginator(results,5)
+	results = Result.objects.filter(subjects_id=id).order_by('-id')
+	paginator = Paginator(results,4)
 	page_number = request.GET.get('page')
 	page_obj = paginator.get_page(page_number)
-	context = {
-		'page_obj':page_obj,
-	}	
-	return render(request,'management/fetch_student_result.html',context)
+	return render(request,'management/fetch_student_result.html',{'page_obj':page_obj})
 
 def fetch_student_attendance(request,id):
+	teacher = request.user.teacher
 	today = datetime.date.today()
-	attendance = Attendance.objects.filter(teacher=request.user,date=today,subjects_id=id)
-	paginator = Paginator(attendance,5)
+	student =Student.objects.filter(subjects__id=id).order_by('-id')
+	subject = Subject.objects.get(pk=id)
+	attendance = Attendance.objects.filter(date=today,teacher=teacher.user,subjects=subject)
+	take_attendance = []
+	for i in attendance:
+		take_attendance.append(i.students)
+	paginator = Paginator(student,5)
 	page_number = request.GET.get('page')
 	page_obj = paginator.get_page(page_number)
-	context = {
-		'today':today,
-		'page_obj':page_obj,
-	}
-	return render(request,'management/fetch_student_attendance.html',context)
+	return render(request,'management/fetch_student_attendance.html',{'today':today,'page_obj':page_obj,'subject':subject,'take_attendance':take_attendance,'teacher':teacher})
+
 
 def index_view(request):
-	course = Course.objects.all()
+	course = Course.objects.all().order_by('-id')
 	paginator = Paginator(course,5)
 	page_number = request.GET.get('page')
 	page_obj = paginator.get_page(page_number)
-	context = {
-		'page_obj':page_obj,
-		'total':course.count()
-	} 
-	return render(request,'management/index.html',context)
+	return render(request,'management/index.html',{'page_obj':page_obj,'total':course.count()})
 
 @login_required(login_url='/management/login/')
 def user_profile_create(request):
 	user = request.user
 	if request.method == 'POST':
 		form = UserProfileForm(request.POST,request.FILES)
-		
 		if form.is_valid():
 			clean_data = form.cleaned_data
 			role = clean_data['role']
@@ -91,19 +295,18 @@ def user_profile_create(request):
 			return HttpResponseRedirect(reverse('management:user-profile'))
 	else:
 		form = UserProfileForm()
-		return render(request,'management/user_profile_create.html',{'form':form})
+	return render(request,'management/user_profile_create.html',{'form':form})
 
 @login_required(login_url='/management/login/')
 def user_profile_view(request):
 	if User.objects.filter(pk=request.user.id,userprofile=None):
 		return HttpResponseRedirect(reverse('management:user-profile-create'))	
 	else:
-		context = {
-			'user':request.user,
-		}
-		return render(request,'management/user_profile.html',context)
+		return render(request,'management/user_profile.html',{'user':request.user
+		,'userprofile':request.user.userprofile})
 
 @login_required(login_url='/management/login/')
+#@role_required
 def update_user_detail(request):
 	user = request.user
 	if request.method=="POST":
@@ -123,34 +326,19 @@ def update_user_detail(request):
 			user.userprofile.city = clean_data['city']
 			user.userprofile.state = clean_data['state']
 			user.userprofile.pin_code = clean_data['pincode']
-			
 			user.save()
 			user.userprofile.save()
 			messages.success(request,"profile update successfully")
 			return HttpResponseRedirect(reverse('management:user-profile'))
 
 	else:
-		user_data = {
-		'first_name':user.first_name,
-		'last_name':user.last_name,
-		'username':user.username,
-		'email':user.email,
-		'role':user.userprofile.role,
-		'gender':user.userprofile.gender,
-		'phone':user.userprofile.phone,
-		'street':user.userprofile.street,
-		'city':user.userprofile.city,
-		'state':user.userprofile.state,
-		'pincode':user.userprofile.pin_code,
-		'image':user.userprofile.image.url,
-		}
+		user_data = {'first_name':user.first_name,'last_name':user.last_name,'username':user.username,'email':user.email,'role':user.userprofile.role,'gender':user.userprofile.gender,'phone':user.userprofile.phone,'street':user.userprofile.street,'city':user.userprofile.city,'state':user.userprofile.state,'pincode':user.userprofile.pin_code}
 		form = UserUpdateForm(initial=user_data)
 	return render(request,'management/update_user_detail.html',{'form':form})
 
 @login_required(login_url='/management/login/')
 def user_profile_delete(request):
-	user_profile = request.user.userprofile
-	user_profile.delete()
+	request.user.userprofile.delete()
 	messages.success(request,"successfully deleted!")
 	return redirect('management:user-profile')
 
@@ -177,24 +365,18 @@ def student_course_registration(request):
 	else:
 		courses = Course.objects.all()
 		form = CourseRegistrationForm()
-		context = {
-			'form' : form,
-			'courses' :courses,
-		}
-	return render(request,"management/course_registration.html",context)
+	return render(request,"management/course_registration.html",{'form' : form,'courses' :courses})
+
 
 
 @login_required(login_url='/management/login/')
 def student_course_detail(request):
 	student = request.user.student
 	teacherstudent = TeacherStudent.objects.filter(student=student)
-	context = {
-		'course_detail':student,
-		'teacherstudent':teacherstudent, 
-	}
-	return render(request,'management/course_registration_detail.html',context)
+	return render(request,'management/course_registration_detail.html',{'student':student,'subjects':student.subjects.all,'teacherstudent':teacherstudent})
 
 @login_required(login_url='/management/login/')
+@student_required
 def update_student_course_registration(request):
 	student = request.user.student
 	if request.method=="POST":
@@ -212,28 +394,16 @@ def update_student_course_registration(request):
 			student.save()
 			messages.success(request,"registration detail update successfully")
 			return HttpResponseRedirect(reverse('management:course-detail'))
-
 	else:
-		course_data = {
-		'course':student.course,
-		'subjects':student.subjects.all
-		}
-		form = CourseRegistrationForm(initial=course_data)
+		form = CourseRegistrationForm(initial={'course':student.course,'subjects':student.subjects.all})
 		courses = Course.objects.all()
 		subjects = Subject.objects.filter(course=student.course)
-		context = {
-			'form' : form,
-			'courses':courses,
-			'subjects':subjects,
-
-		}
-	return render(request,'management/update_course_registration.html',context)
+	return render(request,'management/update_course_registration.html',{'form':form,'courses':courses,'subjects':subjects})
 
 
 @login_required(login_url='/management/login/')
 def delete_student_course_registration(request):
-	course = request.user.student
-	course.delete()
+	request.user.student.delete()
 	messages.success(request,"successfully deleted!")
 	return redirect('/management/user-profile')
 
@@ -254,12 +424,7 @@ def attendance_view(request):
 				persent+=1
 			else:
 				absent+=1
-		context = {
-			'page_obj':page_obj,
-			'persent':persent,
-			'absent':absent,
-		}
-		return render(request,'management/attendance_view.html',context)
+		return render(request,'management/attendance_view.html',{'page_obj':page_obj,'persent':persent,'absent':absent,'student':student})
 	else:
 		messages.info(request,"You have not attend any class so you have not  any attendance record!")
 		return redirect('/management/user-profile')
@@ -269,7 +434,7 @@ def result_view(request):
 	student = request.user.student
 	subjects = student.subjects.all()
 	result = Result.objects.filter(students_id=student.id,subjects__in=subjects)
-	return render(request,'management/view_result.html',{'results':result})
+	return render(request,'management/view_result.html',{'results':result,'student':student,'subjects':student.subjects.all})
 
 #-----------------------------Teacher permission function-----------------------------------
 #------------------------------------------------------------------------------------->
@@ -291,25 +456,18 @@ def teacher_course_registration(request):
 			messages.success(request,"Your have successfully register!")
 			return HttpResponseRedirect(reverse('management:teacher-subject-detail'))
 	else: 
-		courses = Course.objects.all()
-		form = CourseRegistrationForm()
-		context = {
-			'form' : form,
-			'courses' :courses,
-		}
-	return render(request,'management/course_registration.html',context)
+		return render(request,'management/course_registration.html',{'form' : CourseRegistrationForm(),'courses' :Course.objects.all(),
+		})
 
 @login_required(login_url='/management/login/')
 def teacher_course_detail(request):
 	teacher = request.user.teacher
 	total_student = teacher.students.count()	
-	context = {
-		'total_student':total_student,
-		'subject_detail':teacher
-	}
-	return render(request,'management/teacher_subject_detail.html',context)
+	return render(request,'management/teacher_subject_detail.html',{'total_student':total_student,'teacher':teacher,'subjects':teacher.subjects.all
+	})
 
 @login_required(login_url='/management/login/')
+@teacher_required
 def update_teacher_course_registration(request):
 	teacher = request.user.teacher
 	if request.method=="POST":
@@ -328,100 +486,83 @@ def update_teacher_course_registration(request):
 			messages.success(request,"udate your subject registration!")
 			return HttpResponseRedirect(reverse('management:teacher-subject-detail'))
 	else:
-		subject_data = {
-			'course':teacher.course,
-			'subjects':teacher.subjects.all,
-		}
-		form = CourseRegistrationForm(initial = subject_data)
-		courses = Course.objects.all()
-		subjects = Subject.objects.filter(course=teacher.course)
-		context = {
-			'form' : form,
-			'courses':courses,
-			'subjects':subjects,
-
-		}
-	return render(request,'management/update_course_registration.html',context)
+		form = CourseRegistrationForm(initial = {'course':teacher.course,'subjects':teacher.subjects.all,
+		})
+	return render(request,'management/update_course_registration.html',{'form' : form,'courses':Course.objects.all(),'subjects':Subject.objects.filter(course=teacher.course)})
 
 @login_required(login_url='/management/login/')
 def delete_course_registration(request):
-	teacher = request.user.teacher
-	teacher.delete()
+	request.user.teacher.delete()
 	messages.success(request,"successfully deleted")
 	return redirect('/management/user-profile')
 
 @login_required(login_url='/management/login/')
+@teacher_required
 def take_attendance(request):
 	teacher = request.user.teacher
-	if request.method=='POST':
-		form = AttendanceForm(teacher,request.POST)
-		if form.is_valid():
-			subject = form.cleaned_data['subjects']
-			student = form.cleaned_data['students']
-			date = form.cleaned_data['date']
-			status = form.cleaned_data['status']
-			Attendance.objects.create(teacher=request.user,date=date,students=student,course=teacher.course,subjects=subject, status=status)
-			messages.success(request,"attendance add successfully!")
-			return HttpResponseRedirect(reverse('management:take-attendance'))
-	else:
-		form = AttendanceForm(teacher)
-		context = {
-			'form':form,
-			'teacher':teacher
-			}
-		return render(request,'management/take_attendance.html',context)
+	form = AttendanceForm(teacher)
+	return render(request,'management/take_attendance.html',{'form':form,'teacher':teacher,'subjects':teacher.subjects.all})
 
 
 @login_required(login_url='/management/login/')
-def update_attendance(request,id):
-	attendance = Attendance.objects.get(pk=id)
+def attendance_persent(request,id,subject):
 	teacher = request.user.teacher
-	if request.method=="POST":
-		form = AttendanceForm(teacher,request.POST)
-		if form.is_valid():
-			attendance.subjects = form.cleaned_data['subjects']
-			attendance.date = form.cleaned_data['date']
-			attendance.students = form.cleaned_data['students']
-			attendance.status = form.cleaned_data['status']
-			attendance.save()
-			messages.success(request,"attendance update successfully!")
-			return HttpResponseRedirect(reverse('management:take-attendance'))
-	else:
-		attendance_data = {
-			'subjects':attendance.subjects,
-			'date':attendance.date,
-			'students':attendance.students,
-			'status':attendance.status,
-		}
-		form = AttendanceForm(teacher,initial=attendance_data )
-		context = {
-			'attendance':attendance,
-			'form':form,
-			'teacher':teacher,
-		}
-		return render(request,'management/attendance_update.html',context)
+	subject = Subject.objects.get(name=subject)
+	teacher = request.user.teacher
+	student = Student.objects.get(pk=id)
+	today = datetime.date.today()
+	Attendance.objects.create(teacher=teacher.user,students=student,date=today,status='persent',course=teacher.course,subjects=subject)
+
+	form = AttendanceForm(teacher)
+	messages.success(request,"attendance add successfully!")
+	return render(request,'management/take_attendance.html',{'form':form,'teacher':teacher,'subjects':teacher.subjects.all,'subject_value':subject})
+
 
 @login_required(login_url='/management/login/')
-def delete_attendance(request,id):
-	attendance = get_object_or_404(Attendance,pk=id)
-	attendance.delete()
-	messages.success(request,"attendance delete successfully")
-	return redirect('/management/take-attendance')
+def attendance_absent(request,id,subject):
+	subject = Subject.objects.get(name=subject)
+	teacher = request.user.teacher
+	student = Student.objects.get(pk=id)
+	today = datetime.date.today()
+	Attendance.objects.create(teacher=teacher.user,students=student,date=today,status='absent',course=teacher.course,subjects=subject)
+	messages.success(request,"attendance add successfully!")
+	return HttpResponseRedirect(reverse('management:take-attendance'))
 
+def filter_attendance(request,student_id,subject_id,date,short):
+	if date:
+		date = datetime.datetime.strptime(date,'%Y-%m-%d').date()
+	else:
+		date=None
+	if subject_id and student_id and date:
+		return Attendance.objects.filter(Q(students__id=student_id) & Q(subjects__id=subject_id) & Q(date=date) & Q(teacher=request.user)).order_by('-id')
+	elif subject_id and date :
+		return Attendance.objects.filter(Q(subjects__id=subject_id) & Q(date=date) & Q(teacher_id=request.user.id)).order_by('-id')
+	elif (student_id  and (subject_id or date)):
+		return Attendance.objects.filter(Q(students__id=student_id) & (Q(subjects__id=subject_id) | Q(date=date)) & Q(teacher_id=request.user.id)).order_by('-id')
+	elif student_id or subject_id or date:
+		return Attendance.objects.filter((Q(subjects__id=subject_id) | Q(date=date) | Q(students__id=student_id)) & Q(teacher_id=request.user.id)).order_by('id')
+	elif short=='today':
+		return Attendance.objects.filter(teacher_id=request.user.id,date=datetime.date.today()).order_by('-id')
+	else:
+		return Attendance.objects.filter(teacher_id=request.user.id).order_by('-date')
 
 
 @login_required(login_url='/management/login/')
 def attendance_record(request):
-	teacher_obj = request.user
-	attendance = Attendance.objects.filter(teacher_id=teacher_obj.id)
-	paginator = Paginator(attendance,4)
+	teacher = request.user.teacher
+	date = request.GET.get('date')
+	subject_id = request.GET.get('subjects')
+	student_id = request.GET.get('students')
+	if student_id=='':student_id=None;
+	if subject_id=='':subject_id=None;
+	short = request.GET.get('short', None)
+	form = AttendanceFilter(teacher,initial={'students':student_id,'subjects':subject_id,'date':date,'short':short})
+	attendance = filter_attendance(request,student_id,subject_id,date,short)
+	paginator = Paginator(attendance,5)
 	page_number = request.GET.get('page')
 	page_obj = paginator.get_page(page_number)
-	if len(attendance) !=0:
-		return render(request,'management/attendance_record.html',{'page_obj':page_obj})
-	else:
-		messages.info(request,"you have no any attendance record!")
-	return redirect('management:take-attendance')
+	return render(request,'management/attendance_record.html',{'form':form,'page_obj':page_obj,'teacher':teacher,'subjects':teacher.subjects.all,'students':teacher.students.all,
+	})
 
 
 @login_required(login_url='/management/login/')
@@ -439,23 +580,29 @@ def update_attendance_record(request,id):
 			messages.success(request,"attendance update successfully!")
 			return HttpResponseRedirect(reverse('management:attendance-record'))
 	else:
-		attendance_data = {
-			'subjects':attendance.subjects,
-			'date':attendance.date,
-			'students':attendance.students,
-			'status':attendance.status,
-		}
-		form = AttendanceForm(teacher,initial=attendance_data )
-		return render(request,'management/attendance_update.html',{'form':form})
+		form = AttendanceForm(teacher,initial={
+			'subjects':attendance.subjects,'date':attendance.date,'students':attendance.students,'status':attendance.status,
+		} )
+		return render(request,'management/attendance_update.html',{'attendance':attendance,'form':form,'teacher':teacher,'subjects':teacher.subjects.all,'students':teacher.students.all
+		})
+
+
 
 @login_required(login_url='/management/login/')
 def delete_attendance_record(request,id):
-	attendance = get_object_or_404(Attendance,pk=id)
-	attendance.delete()
+	Attendance.objects.get(pk=id).delete()
+	
+	
+	custom_signal.send(sender=request.user,initial=id,kwargs={'name':'rajmal'})
+	notification.send(sender=request.user,request=request,user={'rajmal'})
+	
 	messages.success(request,"attendance delete successfully")
 	return redirect('/management/attendance-record')
 
-
+def delete_all_attendance(request):
+	Attendance.objects.filter(teacher_id=request.user.id).delete()
+	messages.success(request,"deleted successfully!")
+	return redirect('management:attendance-record')
 
 @login_required(login_url='/management/login/')
 def result_add(request):
@@ -469,14 +616,12 @@ def result_add(request):
 			Result.objects.create(teacher=teacher,students=students,marks=marks,subjects=subjects)
 			messages.success(request,"result add successfully!")
 			return HttpResponseRedirect(reverse('management:add-result'))
-	
+		else:
+			messages.info(request,"this student result already added!")
+			return HttpResponseRedirect(reverse('management:add-result'))
 	else:
-		form = ResultForm(teacher)
-		context = {
-			'form':form,
-			'teacher':teacher
-		}
-		return render(request,'management/add_result.html',context)
+		return render(request,'management/add_result.html',{'form':ResultForm(teacher),'teacher':teacher,'students':teacher.students.all,'subjects':teacher.subjects.all,
+		})
 
 @login_required(login_url='/management/login/')
 def update_result(request,id):
@@ -484,7 +629,7 @@ def update_result(request,id):
 	teacher = request.user.teacher
 	if request.method=="POST":
 		form = ResultForm(teacher,request.POST)
-		if form.is_valid():
+		if not form.is_valid():
 			result.subjects = form.cleaned_data['subjects']
 			result.students = form.cleaned_data['students']
 			result.marks = form.cleaned_data['marks']
@@ -492,36 +637,48 @@ def update_result(request,id):
 			messages.success(request,"result update successfully!")
 			return HttpResponseRedirect(reverse('management:add-result'))
 	else:
-		result_data = {
-			'subjects':result.subjects,
-			'students':result.students,
-			'marks' : result.marks,
-		}
-		form = ResultForm(teacher,initial=result_data)
+		form = ResultForm(teacher,initial={'subjects':result.subjects,'students':result.students,'marks' : result.marks})
 		return render(request,'management/update_result.html',{'form':form})
 
 @login_required(login_url='/management/login/')
 def delete_result(request,id):
-	result = Result.objects.get(pk=id)
-	result.delete()
+	Result.objects.get(pk=id).delete()
 	messages.success(request,"deleted successfully1")
 	return redirect('/management/add-result')
 
+def filter_result_information(request,student_id,subject_id,date,short):
+	if date:
+		date = datetime.datetime.strptime(date,'%Y-%m-%d').date()
+	else:
+		date=None
+	if subject_id and student_id and date:
+		return Result.objects.filter(Q(students__id=student_id) & Q(subjects__id=subject_id) & Q(created_at__date=date) & Q(teacher=request.user.first_name)).order_by('-id')
+	elif subject_id and date :
+		return Result.objects.filter(Q(subjects__id=subject_id) & Q(created_at__date=date) & Q(teacher=request.user.first_name)).order_by('-id')
+	elif (student_id  and (subject_id or date)):
+		return Result.objects.filter(Q(students__id=student_id) & (Q(subjects__id=subject_id) | Q(created_at__date=date)) & Q(teacher=request.user.first_name)).order_by('-id')
+	elif student_id or subject_id or date:
+		return Result.objects.filter((Q(subjects__id=subject_id) | Q(created_at__date=date) | Q(students__id=student_id)) & Q(teacher=request.user.first_name)).order_by('id')
+	else:
+		return Result.objects.filter(teacher=request.user.first_name).order_by('-created_at')
+
 def result_information(request):
 	teacher = request.user.teacher
-	results = Result.objects.filter(teacher=teacher)
+	date = request.GET.get('date')
+	subject_id = request.GET.get('subject',None)
+	subject = Subject.objects.filter(id=subject_id)
+	student_id = request.GET.get('student',None)
+	student = Student.objects.filter(id=student_id)
+	short = request.GET.get('short',None)
+	results = filter_result_information(request,student_id,subject_id,date,short)
 	paginator = Paginator(results,5)
 	page_number = request.GET.get('page')
 	page_obj = paginator.get_page(page_number)
-	context = {
-		'page_obj':page_obj,
-	}	
-	return render(request,'management/result_information.html',context)
+	return render(request,'management/result_information.html',{'page_obj':page_obj,'teacher':teacher,'students':teacher.students.all,'subjects':teacher.subjects.all,'subject_value':subject.first(),'student_value':student.first(),'date':date})
 
 @login_required(login_url='/management/login/')
 def delete_result_information(request,id):
-	result = Result.objects.get(pk=id)
-	result.delete()
+	Result.objects.get(pk=id).delete()
 	messages.success(request,"deleted successfully!")
 	return redirect('/management/result-information')
 
@@ -538,17 +695,14 @@ def update_result_information(request,id):
 			messages.success(request,"result update successfully!")
 			return HttpResponseRedirect(reverse('management:result-information'))
 	else:
-		result_data = {
-			'subjects':result.subjects,
-			'students':result.students,
-			'marks' : result.marks,
-		}
-		form = ResultForm(teacher,initial=result_data)
-		return render(request,'management/update_result.html',{'form':form})
+		form = ResultForm(teacher,initial={'subjects':result.subjects,'students':result.students,'marks' : result.marks})
+	return render(request,'management/update_result.html',{'form':form})
 
 
-#------------------------------signup Login logout function----------------------------------
+#------------------------------signup Login logout function---------------------- 
 #---------------------------------------------------------------------------------------->
+
+
 def signup_view(request):
 	if request.method=='POST':
 		form = SignUpForm(request.POST)
@@ -558,15 +712,16 @@ def signup_view(request):
 			last_name = clean_data['last_name']
 			username = clean_data['username']
 			email = clean_data['email']
-			password = clean_data['password']	
-			user = User.objects.create_user(username=username,password=password,email=email,first_name=first_name,last_name=last_name) 
-			messages.success(request,"You have successfully signup , you can login using username and password")
+			password = clean_data['password']
+			user = User.objects.create_user(username=username,password=password,email=email,first_name=first_name,last_name=last_name)
+			post_save.connect(send_signup_email)
+			messages.success(request,"Thanks for registeration. Please check your email.")
 			return HttpResponseRedirect(reverse('management:login'))
 	else:
 		form = SignUpForm()
 	return render(request,'management/signup.html',{'form':form})
 
-
+   
 def login_view(request):
 	if request.method=="POST":
 		form = LoginForm(request.POST)
@@ -582,6 +737,8 @@ def login_view(request):
 					return redirect('management:user-profile')
 				else:
 					return redirect(nxt)
+				request.session['user']=user
+
 	else:
 		form = LoginForm()
 	return render(request,'management/login.html',{'form':form})
@@ -629,11 +786,7 @@ def apply_leave_view(request):
 		paginator = Paginator(leave_detail,2)
 		page_number = request.GET.get('page')
 		page_obj = paginator.get_page(page_number)
-		context = {
-			'page_obj':page_obj,
-			'form':form
-		}
-	return render(request,'management/leave_information.html',context)
+	return render(request,'management/leave_information.html',{'page_obj':page_obj,'form':form})
 
 @login_required(login_url='/management/login/')
 def update_leave(request,id):
@@ -648,18 +801,13 @@ def update_leave(request,id):
 			messages.success(request,"leave information update successfully!")
 			return redirect('/management/leave-information')
 	else:
-		leave_data = {
-		'leave_date':leave.leave_date,
-		'leave_message':leave.leave_message,
-		}
-		form = LeaveForm(initial=leave_data)
+		form = LeaveForm(initial={'leave_date':leave.leave_date,'leave_message':leave.leave_message})
 	return render(request,'management/update_leave.html',{'form':form})
 
 
 @login_required(login_url='/management/login/')
 def delete_leave(request,id):
-	leave = Leave.objects.get(pk=id)
-	leave.delete()
+	Leave.objects.get(pk=id).delete()
 	messages.success(request,"leave deleted successfully!")
 	return 	redirect('/management/leave-information')
 
@@ -679,17 +827,11 @@ def feedback_send_view(request):
 		paginator = Paginator(feedback_list,3)
 		page_number = request.GET.get('page')
 		page_obj = paginator.get_page(page_number)
-		context = {
-			'form' : form,
-			'feedback_list' : feedback_list,
-			'page_obj':page_obj,
-		}
-	return render(request,'management/user_feedback.html',context)
+	return render(request,'management/user_feedback.html',{'form':form,'feedback_list':feedback_list,'page_obj':page_obj})
 
 @login_required(login_url='/management/login/')
 def update_feedback(request,id):
 	feedback = get_object_or_404(Feedback,pk=id)
-	
 	if request.method=="POST":
 		form = FeedbackForm(request.POST)
 		if form.is_valid():
@@ -698,16 +840,12 @@ def update_feedback(request,id):
 			messages.success(request,"feedback messages update successfully!")
 			return redirect('/management/feedback-information')
 	else:
-		feedback_data = {
-		'feedback_message':feedback.feedback_message
-		}
-		form = FeedbackForm(initial=feedback_data)
+		form = FeedbackForm(initial={'feedback_message':feedback.feedback_message})
 	return render(request,'management/update_feedback.html',{'form':form})
 
 @login_required(login_url='/management/login/')
 def delete_feedback(request,id):
-	feedback = Feedback.objects.get(pk=id)
-	feedback.delete()
+	Feedback.objects.get(pk=id).delete()
 	messages.success(request,"feedback deleted successfully!")
 	return redirect('/management/feedback-information')
 

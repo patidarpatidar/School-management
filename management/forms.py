@@ -1,7 +1,7 @@
 from django.forms import ModelForm
 from django.conf import settings
 from django import forms
-from .models import UserProfile ,Leave ,  Course ,Attendance,Subject,Student,Teacher,TeacherStudent
+from .models import UserProfile ,Leave ,Result,  Course ,Attendance,Subject,Student,Teacher,TeacherStudent
 from django.forms import TextInput , EmailInput	
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -48,8 +48,6 @@ class CourseRegistrationForm(forms.Form):
 	course = forms.ModelChoiceField(queryset=Course.objects.all(),empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
 	subjects = forms. ModelMultipleChoiceField(queryset=Subject.objects.all(),widget=forms.CheckboxSelectMultiple(attrs={'style':'width:15px'}))
 	
-	
-
 class AttendanceForm(forms.Form):
 	def __init__(self ,teacher, *args,**kwargs):
 		self.teacher = kwargs.pop('teacher',None)
@@ -61,9 +59,9 @@ class AttendanceForm(forms.Form):
 			('persent','persent'),
 			('absent','absent'),
 		)
-	subjects = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style':'width:250px','class':'form-control'}))
-	date = forms.DateField(widget=NumberInput(attrs={'type': 'date','style':'width:250px;','class':'form-control'}))
-	students = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style': 'width:250px','class':'form-control'}))
+	subjects = forms.ModelChoiceField(empty_label='Select Any One',queryset=None,widget=forms.Select(attrs={'style':'width:250px','class':'form-control'}))
+	date = forms.DateField(required=False,widget=NumberInput(attrs={'type': 'date','style':'width:250px;','class':'form-control'}))
+	students = forms.ModelChoiceField(empty_label=None,queryset=None,widget=forms.Select(attrs={'style': 'width:250px','class':'form-control'}))
 	status = forms.ChoiceField(choices=STATUS_CHOICE,widget=forms.Select(attrs={'style': 'width:250px','class':'form-control'}))
 
 class ResultForm(forms.Form):
@@ -73,29 +71,35 @@ class ResultForm(forms.Form):
 		self.fields['students'].queryset=teacher.students
 		self.fields['subjects'].queryset=teacher.subjects
 	
-	subjects = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
-	students = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style': 'width:250px'}))
+	subjects = forms.ModelChoiceField(queryset=None,empty_label=None,required=False,widget=forms.Select(attrs={'style': 'width:250px;'}))
+	students = forms.ModelChoiceField(queryset=None,empty_label=None,widget=forms.Select(attrs={'style': 'width:250px;'}))
 	marks = forms.FloatField(widget=forms.TextInput(attrs={'style':'width:250px;'}))
 
+	def clean(self):
+		cleaned_data = super().clean()
+		subject = cleaned_data.get('subjects')
+		student = cleaned_data.get('students')
+		
+		if Result.objects.filter(students=student,subjects=subject).exists():
+			raise ValidationError("result will be added")
+
 class LeaveForm(forms.Form):
-	leave_date = forms.DateField(widget=NumberInput(attrs={'type': 'date','style':'width:200px;'}))
-	leave_message = forms.CharField(widget=forms.Textarea(attrs={'rows':5,'cols':25}))
+	leave_date = forms.DateField(widget=NumberInput(attrs={'type': 'date','class':'form-control'}))
+	leave_message = forms.CharField(widget=forms.Textarea(attrs={'rows':5,'cols':25,'class':'form-control'}))
 	
 	
 class FeedbackForm(forms.Form):
-	feedback_message = forms.CharField(widget=forms.Textarea(attrs={'rows':6,'cols':35}))
-
+	feedback_message = forms.CharField(widget=forms.Textarea(attrs={'rows':6,'cols':35,'class':'form-control'}))
 	widgets = {
-		 
 		 'feedback_message' : forms.TextInput(attrs={'class':'form-control'}), 
 		 }
 
 
 class UserUpdateForm(UserProfileForm,forms.Form):
-	first_name = forms.CharField(max_length=200)
-	last_name = forms.CharField(max_length=200)
-	username = forms.CharField(max_length=200)
-	email = forms.EmailField(required=True)
+	first_name = forms.CharField(max_length=200,widget=forms.TextInput(attrs={'class':'form-control'}))
+	last_name = forms.CharField(max_length=200,widget=forms.TextInput(attrs={'class':'form-control'}))
+	username = forms.CharField(max_length=200,widget=forms.TextInput(attrs={'class':'form-control'}))
+	email = forms.EmailField(required=True,widget=forms.TextInput(attrs={'class':'form-control'}))
 
 class ChangePasswordform(forms.Form):
 	old_password = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control'}))
@@ -146,7 +150,7 @@ class SignUpForm(forms.Form):
 		clean_data = self.cleaned_data
 		password = clean_data.get('password')
 		confirm_password = clean_data.get('confirm_password')
-		
+
 		if(password!=confirm_password):
 			raise ValidationError("password does not match")
 		return confirm_password
@@ -170,4 +174,51 @@ class LoginForm(forms.Form):
 			if check_password(password,user.password):
 				return password	
 			raise ValidationError("Your password is wrong!")
-			
+
+class AttendanceFilter(forms.Form):
+	def __init__(self ,teacher, *args,**kwargs):
+		self.teacher = kwargs.pop('teacher',None)
+		super(AttendanceFilter,self).__init__(*args,**kwargs)
+		self.fields['students'].queryset=teacher.students
+		self.fields['subjects'].queryset=teacher.subjects
+	SHORT_CHOICE = (
+			('','Short'),
+			('bydate','ByDate'),
+			('today','Today'),
+		)
+	subjects = forms.ModelChoiceField(required=False,empty_label="Select Subject",queryset=None,widget=forms.Select(attrs={'style':'width:150px','class':'form-control'}))
+	date = forms.DateField(required=False,widget=NumberInput(attrs={'type': 'date','style':'width:150px;','class':'form-control'}))
+	students = forms.ModelChoiceField(required=False,empty_label="Select Student",queryset=None,widget=forms.Select(attrs={'style': 'width:150px','class':'form-control'}))
+	short = forms.ChoiceField(required=False,choices=SHORT_CHOICE,widget=forms.Select(attrs={'style': 'width:150px','class':'form-control'}))
+
+
+class SendEmailForm(forms.Form):
+	email = forms.EmailField(widget=forms.TextInput(attrs={'class':'form-control'}))
+	
+	def clean_email(self):
+		email = self.cleaned_data.get('email')
+		if User.objects.filter(email = email).exists():
+			return email
+		raise ValidationError("Please enter valid and registration email!")
+
+class ForgotPasswordForm(forms.Form):
+	username = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control'}),max_length=200)
+	new_password = forms.CharField(widget = forms.PasswordInput(attrs={'class':'form-control'}))
+	confirm_new_password=forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control'}))
+
+	def clean_username(self):
+		username = self.cleaned_data.get('username')
+		if User.objects.filter(username=username).exists():
+			return username
+		raise ValidationError("Your username is wrong!")
+
+	def clean_confirm_new_password(self):
+		clean_data = self.cleaned_data
+		new_password = clean_data.get('new_password')
+		confirm_new_password = clean_data.get('confirm_new_password')
+		if(new_password!=confirm_new_password):
+			raise ValidationError("New password and confirm_new_password does not match.")
+		return confirm_new_password
+
+
+

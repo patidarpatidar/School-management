@@ -2,9 +2,9 @@
 {% load static %}
 {% block title %} Login Form {% endblock %}
 {%load crispy_forms_tags %}
-{% block content %}
 
-	<div class="container" style="">
+{% block content %}
+	<div class="container" id="login">
 		<div class="" style="margin: 10px;">
 			<div class="card bg-dark col-md-10">
 				<div class="card-body" style="color: white;">
@@ -12,21 +12,25 @@
 						<div class="col-md-6 text-center">
 							<br>
 							<h5>Don't have an account? Get Started Now!</h5><hr>
-							<img src="{% static 'images/login.jpg' %}" alt="register" width="300" height="180" style="margin-top: -30px;"><br><br>
+							<img src="{% static 'images/login.jpg' %}" alt="register"><br><br>
 							<a href="/management/signup"><button class="btn btn-info" style="border-radius: 25px;"><b>Create An Account </b></button></a>
 						</div>
 
 						<div class="col-md-6">
 							<br>
-							<form action="" method="post" class="" style="width: 400px;">
+							<form action="" method="post" class="login-form">
 								<h5 style="text-align: center">Login</h5><hr>
 								{% csrf_token %}
 								{{form.as_p}}
-								<br>
+								<a href="/management/send-forgot-password-email"><b>Forgot Password?</b></a>
+								<a href="/management/" style="color:white" class="ml-auto"><i class="fa fa-arrow-left" aria-hidden="true" style="border:2px solid gray; border-radius:50px; background:gray"></i> Go Back</a>
+								
 								<div class="form-group text-center">
+									<br>
 									<input type="submit" name="Login" class="btn btn-primary text-center" value="Login" >
 								</div>
 							</form>	
+
 						</div>
 					</div>
 				</div>

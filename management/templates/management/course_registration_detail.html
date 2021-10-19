@@ -13,12 +13,12 @@
 					<div class="row g-0">
 						<div class="col-md-6 g-1">
 							<h5 class="text-center">Course Information</h5><hr>
-							<h5>Course: {{course_detail.course}}</h5>
-							<h5>Description: {{course_detail.course.description}}</h5>
-							<h5>Duration : {{course_detail.course.duration}}</h5>
-							<h5>Total Fees: {{course_detail.course.fees}}</h5>
+							<h5>Course: {{student.course}}</h5>
+							<h5>Description: {{student.course.description}}</h5>
+							<h5>Duration : {{student.course.duration}}</h5>
+							<h5>Total Fees: {{student.course.fees}}</h5>
 							<h5>All Subject :</h5>
-							{% for subject in course_detail.subjects.all%}
+							{% for subject in subjects%}
 								<ul>
 									<li><h5>{{subject}}</h5></li>
 								</ul>	
@@ -35,7 +35,7 @@
 										</tr>
 									</thead>
 									{% for teacherstudent in teacherstudent %}
-									{% for subject in course_detail.subjects.all %}
+									{% for subject in subjects%}
 									{% for subject1 in teacherstudent.teacher.subjects.all %}
 									{% ifequal subject subject1 %}
 										<tbody>

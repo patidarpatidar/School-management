@@ -15,44 +15,35 @@
 					<div class="card-body " style="color: white;">
 						<div class="main">
 						<h5 class="text-center">Subject Information</h5><hr>	
-						<h5>Course : {{subject_detail.course}}</h5>	
-						<h5>Course Description : {{subject_detail.course.description}}</h5>
-
+						<h5>Course : {{teacher.course}}</h5>	
+						<h5>Course Description : {{teacher.course.description}}</h5>
 						<h5>All Subject :</h5>
-							{% for subject in subject_detail.subjects.all%}
+							{% for subject in subjects%}
 								<ul>
 									<li><h5>{{subject}}</h5></li>
 								</ul>	
 							{% endfor %}
-					
 						<h5 style="color:black;background: white;width: 200px;"><b>Total Student : {{total_student}}</b></h5>
 						<a href="/management/update-subject-registration"><button class="btn btn-warning">Update</button></a>
 						<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal">Delete</button>
 					</div>
 					</div>
 				</div>
-					<div class="modal" id="myModal">
-						<div class="modal-dialog">
-					  		<div class="modal-content">
-					  	
-					    		<div class="modal-header">
-					        		<h5 class="modal-title">Are you sure you delete your subject registration?</h5>
-					        		<button type="button" class="close" data-dismiss="modal">&times;</button>
-					      		</div>
-					      		<div class="modal-footer">
-        							<a href="/management/delete-subject-registration"><button type="button" class="btn btn-success" value="True">Confirm</button></a>
-        							<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-      							</div>
-
-							</div>
-   
-  						</div>
-					</div>
+				<div class="modal" id="myModal">
+					<div class="modal-dialog">
+						<div class="modal-content">	  	
+					    	<div class="modal-header">
+					       		<h5 class="modal-title">Are you sure you delete your subject registration?</h5>
+					       		<button type="button" class="close" data-dismiss="modal">&times;</button>
+					  		</div>
+				    		<div class="modal-footer">
+        						<a href="/management/delete-subject-registration"><button type="button" class="btn btn-success" value="True">Confirm</button></a>
+        						<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      						</div>
+						</div>
+  					</div>
+				</div>
 			</div>	
 		</div>	
-	
 	</div>		
-		
-
-
 {% endblock %}

@@ -16,36 +16,19 @@
 					<div class="card-body" style="color: white;">
 						<div class="row">
 							<div class="col-md-4 ">
-								<form action="" method="post" class="" style="font-weight: bold">
-									<h5 style="text-align: center">Take Attendance</h5>
-
-									<hr>
-									{% csrf_token %}
-									<div class="form-group">
-										Subjects:
-										<select id="subject" class="form-control" name="subjects">
-											<option value="0">select any one</option>
-											{% for subject in teacher.subjects.all %}
-												<option value="{{subject.id}}">{{subject}}</option>	
-											{% endfor %}
-										</select>
-										Date:
-										<input type="date" name="date" class="form-control">
-										Students:
-										<div id="student">
-											<p></p>
-										</div>
-										Status:
-										<select id="status"  class="form-control" name="status">
-											<option value="persent">Persent</option>
-											<option value="absent">Absent</option>				
-										</select>
-									</div>
-									<br>
-									<div class="form-group text-center">
-										<input type="submit" name="Submit" class="btn btn-primary text-center" value="Submit" >
-									</div>
-								</form>
+								<h5 style="text-align: center">Take Attendance</h5>
+								<hr>
+								{% csrf_token %}
+								<div class="form-group">
+									Subjects:
+									<select id="subject" class="form-control" name="subjects">
+										<option value="0">select any one</option>
+										{% for subject in subjects %}
+											<option value="{{subject.id}}" {% ifequal subject  subject_value%} selected {% endifequal %}>{{subject}}</option>
+										{% endfor %}
+									</select>
+								</div>
+								<br>
 							</div>
 							<div class="col-md-8 text-center">
 								<div id="attendance">
@@ -60,30 +43,3 @@
 	</div>
 
 {% endblock %}
-{% block javascript %}
-	<script>
-		$(document).on('change','#subject',function(){
-			var id=$(this).val()
-			$.ajax({
-			url:'/management/fetch-student/'+id,
-			type:'GET',
-			success:function(data){
-				$('#student').html(data)
-				}
-			});
-		});
-	</script>
-	<script>
-		$(document).on('change','#subject',function(){
-			var id=$(this).val()
-			$.ajax({
-			url:'/management/fetch-student-attendance/'+id,
-			type:'GET',
-			success:function(data){
-				$('#attendance').html(data)
-				}
-			});
-		});
-	</script>
-
-{% endblock javascript %}

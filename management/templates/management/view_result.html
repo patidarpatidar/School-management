@@ -5,7 +5,7 @@
 
 {% block content %}
 
-	<div class="container-fluid">
+	<div class="container" id="view-result">
 		<div class="row">
 			<div class="col-md-4">
 				{% include 'management/sidebar.html'%}
@@ -15,12 +15,17 @@
 				<div class="card bg-dark">
 					<div class="card-body" style="color: white;">
 						<div class="row">
-							<div class="col-md-4 text-center" >
-								<h5>Name : {{request.user.first_name}} {{request.user.last_name}}</h5>
-								<h5>Course : {{request.user.student.course}}</h5><br>		
+							<div class="col-md-4" >
+								<h5>Name : {{student}} {{student.user.last_name}}</h5>
+								<h5>Course : {{student.course}}</h5><br>
+								<h5>Subjects:</h5>
+								{% for subject in subjects %}
+									<h5><li>{{subject}}</li></h5>
+								{% endfor %}
 							</div>
 							<div class="col-md-8">
-								<h5>Result Information:</h5><hr>
+								<br>
+								<h5 class="text-center">Result Information:</h5><hr>
 								{% if results %}
 								<table class="table" style="color: white;font-weight: bold">
 									<thead>

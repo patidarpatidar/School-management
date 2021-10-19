@@ -4,31 +4,26 @@
 {%load crispy_forms_tags %}
 {% block content %}
 
-	<div class="container-fluid" style="">
+	<div class="container" style="">
 		
 		<div class="row">
 			<div class="col-md-4">
 				{% include 'management/sidebar.html'%}
 			</div>
-			
 			<div class="col-md-8">
 				<div class="card bg-dark">
 					<div class="card-body" style="color: white;">
 						<h4 style="text-align: center">Update Subject Registration</h4><hr>
-						<form action="" method="post" class="" style="width: 600px;font-weight: bold">
+						<form action="" method="post" class="login-form" style="font-weight: bold">
 							{% csrf_token %}
 							{{form.as_p}}	
 							<div class="form-group">
-							
 								<input type="submit" name="submit" class="btn btn-warning" value="Update" >
 							</div>
 						</form>
 					</div>	
-					
 				</div>
 			</div>
 		</div>
-			
 	</div>
-
 {% endblock %}

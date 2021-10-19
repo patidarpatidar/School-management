@@ -13,25 +13,30 @@
 					<div class="card-body" style="color: white;">
 						<div class="row">	
 							<div class="col-md-4 mt-4">
-								<h5>Name : {{request.user.first_name}} {{request.user.last_name}}</h5>
-								<h5>Course : {{request.user.teacher.course}}</h5><hr>
+								<h5>Name : {{teacher}}</h5>
+								<h5>Course : {{teacher.course}}</h5><hr>
 								<form action="" method="POST" enctype="multipart/form-data">
 									<h5 align="center">Add Result</h5>
 									{% csrf_token %}
 									Subjects:
-									<select id="subject" class="form-control" name="subjects">
-										<option>select any one</option>
-										{% for subject in teacher.subjects.all %}
+									<select id="subject" class="form-control" name="subjects" required>
+										<option disabled selected hidden>select any one</option>
+										{% for subject in subjects%}
 											<option value="{{subject.id}}">{{subject}}</option>	
 										{% endfor %}
 									</select>
 									Students:
 									<div id="student">
-										<p></p>
+										<select class="form-control" name="students" style="width:250px;" required>
+										</select>
 									</div>
 									Marks:
-									<input type="text" name="marks" class="form-control">
+									<input type="text" name="marks" class="form-control" required="">
 									<br>
+									{% for i in form.errors %}
+										{{i}}
+									{% endfor %}
+									
 									<div class="form-group text-center">
             	    	<button type="submit" class="btn btn-primary ">Add</button>
             	   	</div>
@@ -50,28 +55,3 @@
 	</div>
 
 {% endblock %}
-{% block javascript %}
-	<script>
-		$(document).on('change','#subject',function(){
-			var id=$(this).val()
-			$.ajax({
-				url:'/management/fetch-student/'+id,
-				type:'GET',
-				success:function(data){
-					$('#student').html(data)
-				}
-			});
-		});
-
-		$(document).on('change','#subject',function(){
-			var id=$(this).val()
-			$.ajax({
-				url:'/management/fetch-student-result/'+id,
-				type:'GET',
-				success:function(data){
-					$('#results').html(data)
-				}
-			});
-		});
-	</script>
-{% endblock javascript %}

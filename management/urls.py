@@ -2,8 +2,22 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path , include
 from .views import *
+from rest_framework.urlpatterns import format_suffix_patterns
+
+
+
+
 app_name = 'management'
 urlpatterns = [
+    
+    
+    
+    #path('users/',UserList.as_view(),name='user-list'),
+    #path('users/<int:pk>',UserDetail.as_view(),name='user-detail'),
+
+    #path('users/',user_list,name='user-list'),
+    #path('users/<int:pk>',user_detail,name='user-detail'),
+    
     path('',index_view,name='index'),
     path('signup/',signup_view,name='signup'),
     path('login/',login_view,name='login'),
@@ -13,7 +27,6 @@ urlpatterns = [
     path('user-profile',user_profile_view,name='user-profile'),
     path('user-update',update_user_detail,name='user-update'),
     path('delete-user',user_profile_delete,name='delete-user'),
-
 
     path('course-registration',student_course_registration,name='course-registration'),
     path('course-detail',student_course_detail,name='course-detail'),
@@ -26,13 +39,15 @@ urlpatterns = [
     path('delete-subject-registration',delete_course_registration,name='delete-subject-registration'),
     
     path('take-attendance',take_attendance,name='take-attendance'),
+    path('attendance-persent/<int:id>/<subject>',attendance_persent,name='attendance-persent'),
+    path('attendance-absent/<int:id>/<subject>',attendance_absent,name='attendance-absent'),
+
     path('attendance-record',attendance_record,name='attendance-record'),
+
     path('attendance-view',attendance_view,name='attendance-view'),
     path('update-attendance-record/<int:id>',update_attendance_record,name='update-attendance-record'),
     path('delete-attendance-record/<int:id>',delete_attendance_record,name='delete-attendance-record'),
-    path('update-attendance/<int:id>',update_attendance,name='update-attendance'),
-    path('delete-attendance/<int:id>',delete_attendance,name='delete-attendance'),
-
+    path('delete-all-attendance',delete_all_attendance,name='delete-all-attendance'),
     path('leave-information',apply_leave_view,name='leave-information'),
     path('update-leave/<int:id>',update_leave,name='update-leave'),
     path('delete-leave/<int:id>',delete_leave,name='delete-leave'),
@@ -48,7 +63,6 @@ urlpatterns = [
     path('change-password',change_password,name='change-password'),
 
     path('fetch-subject/<int:id>',fetch_subject,name='fetch-subject'),
-    path('fetch-subject-update/<int:id>',fetch_subject_update,name='fetch-subject-update'),
     path('fetch-student/<int:id>',fetch_student,name='fetch-student'),
     path('fetch-student-attendance/<int:id>',fetch_student_attendance,name='fetch-student-attendance'),
 
@@ -56,8 +70,15 @@ urlpatterns = [
     path('result-information',result_information,name='result-information'),
     path('update-result-information/<int:id>',update_result_information,name='update-result-information'),
     path('delete-result-information/<int:id>',delete_result_information,name='delete-result-information'),
+    path('delete-selected-attendance',delete_selected_attendance,name='delete-selected-attendance'),
+    path('forgot-password/',forgot_password,name='forgot-password'),
+    path('send-forgot-password-email',send_forgot_password_email,name='send-forgot-password-email'),
+    path('password-reset-email-done',password_reset_email_done,name='password-reset-email-done'),
 
+    path('password-reset-done',password_reset_done,name='password-reset-done'),
 
 ]
 if settings.DEBUG:
         urlpatterns + static(settings.STATIC_URL,document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+#urlpatterns = format_suffix_patterns(urlpatterns,allowed=['json'])

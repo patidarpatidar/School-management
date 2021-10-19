@@ -3,7 +3,6 @@
 {% block title %} profile update {% endblock %}
 {%load crispy_forms_tags %}
 {% block content %}
-
 	<div class="container-fluid" style="">
 		<div class="row">
 			<div class="col-md-4">
@@ -14,77 +13,62 @@
 					<div class="card-body" style="color: white">
 						<form action="" class="" method="post"  enctype="multipart/form-data" style="font-weight: bold">
 							<h5 style="text-align: center">Update User Detail</h5><hr>
-							{% csrf_token %}
-
-										
+							{% csrf_token %}		
 							<div class="row form-group">
 								<div class="col-md-6">
-									<label for="id_first_name">First Name:</label>
-									<input type="text" class="form-control" id="id_first_name"  name="first_name" value="{{form.first_name.value}}">
+									First Name:
+									{{form.first_name}}
 								</div>
 								<div class="col-md-6">
-									<label for="id_last_name">Last Name:</label>
-									<input type="text" class="form-control" id="id_last_name"  name="last_name" value="{{form.last_name.value}}">
+									Last Name:
+									{{form.last_name}}
 								</div>	
 								<div class="col-md-6">
-									<label for="id_username">Username:</label>
-									<input type="text" class="form-control" id="id_username"  name="username" value="{{form.username.value}}">
+									Username:
+									{{form.username}}
 								</div>
 								<div class="col-md-6">
-									<label for="id_email">Email:</label>
-									<input type="email" class="form-control" id="id_email"  name="email" value="{{form.email.value}}">
+									Email:
+									{{form.email}}
 								</div>
 								<div class="col-md-6">
-									<label for="id_phone">Phone:</label>
-									<input type="text" class="form-control" id="id_phone"  name="phone" value="{{form.phone.value}}">
+									Phone:
+									{{form.phone}}
 								</div>
 								<div class="col-md-6">
-									<label for="id_gender">Gender:</label>
-									<select name="gender" class="form-control" id="id_gender" >
-										{% ifequal 'male' form.initial.gender %}
-										<option value="male" selected>Male</option>
-										<option value="female">Female</option>
-										{% else %}
-										<option value="male">Male</option>
-										<option value="female" selected>Female</option>
-										{% endifequal %}
-									</select>
+									Gender:
+									{{form.gender}}
 								</div>
 								<div class="col-md-6">
-									<label for="id_role">Role:</label>
+									Role:
 									<select name="role" class="form-control" id="id_role">
-									{% ifequal 'student' form.initial.role %}
-									<option value="student" selected>Student</option>
-									{% else %}
-									<option value="teacher" selected>Teacher</option>
-									{% endifequal %}
+									<option value="{{form.role.value}}" selected>{{form.role.value}}</option>
 									</select>
 								</div>
 								<div class="col-md-6">
-									<label for="id_street">Street:</label>
-									<input type="text" class="form-control" id="id_street"  name="street" value="{{form.street.value}}">
+									Street:
+									{{form.street}}
 								</div>
 								<div class="col-md-6">
-									<label for="id_city">City:</label>
-									<input type="text" class="form-control" id="id_city"  name="city" value="{{form.city.value}}">
+									City:
+									{{form.city}}
 								</div>
 								<div class="col-md-6">
-									<label for="id_state">State:</label>
-									<input type="text" class="form-control" id="id_state"  name="state" value="{{form.state.value}}">
+									State:
+									{{form.state}}
 								</div>
 								<div class="col-md-6">
-									<label for="id_pincode">Pincode:</label>
-									<input type="text" class="form-control" id="id_pincode"  name="pincode" value="{{form.pincode.value}}">
+									Pincode:
+									{{form.pincode}}
 								</div>
 								<div class="col-md-6"><br>
 									{% if user.userprofile.image %}
 										<img src="{{user.userprofile.image.url}}" alt="image here" height="50px;" width="50px;"><br>
 									{% endif %}	
-									<label for="id_image">Image:</label>
-									<input type="file" class="form-control" id="id_image"  name="image" value="{{form.pincode.value}}">
-							</div>												
+									Image:
+									{{form.image}}
+							</div>											
 							</div>
-
 							<div class="form-group text-center">
 								<input type="submit" name="Update" class="btn btn-warning text-center" value="update" >
 							</div>
@@ -94,5 +78,4 @@
 			</div>
 		</div>
 	</div>
-
 {% endblock %}

@@ -31,21 +31,4 @@
 			</div>
 		</div>
 	</div>
-
 {% endblock %}
-{% block javascript %}
-	<script>
-		$(document).ready(function(){
-			$("#id_subjects").on('change',function(){
-		var id=$(this).val()
-		$.ajax({
-			url:'/management/fetch-student/'+id,
-			type:'GET',
-			success:function(data){
-				$('#id_students').html(data)
-				}
-			});
-		});
-		})
-	</script>
-{% endblock javascript %}

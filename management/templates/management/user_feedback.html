@@ -7,39 +7,29 @@
 {% load static %}
 {% block content %}
 
-	<div class="container-fluid">
+	<div class="container" id="feedback">
 		<div class="row">
 			<div class="col-md-4">
 				{% include 'management/sidebar.html'%}
 			</div>
-			
 			<div class="col-md-8">
 
 				<div class="card bg-dark">
 					<div class="card-body" style="color: white;">
 						<div class="row">
-							<div class="col-sm-4">
-								<h5 class="text-center">Send Feedback</h5><hr>
-								<form class="row g-2 mt-3 text-center" class="" action="" method="post"  style="font-weight: bold">
-									{% csrf_token %} 
-									{% for field in form %}
-									<div class="field">
-										<label for="{{field.id_for_label}}" class="label">
-										{{field.html_name}} :</label>
-										{{field}}
-										{% for error in field.errors %}
-											<p style="color: red">{{error}}</p>
-										{% endfor %}
-									</div>
-									{% endfor %}
-									<br>
-									<div class="form-group">
-										<input type="submit" name="Submit" class="btn btn-primary btn-center" value="Submit" >
-									</div>
+							<div class="col-md-4">	
+								<form action="" method="POST" class="feedback-form">
+									<h5 class="text-center">Send Feedback </h5><hr>
+									
+									{% csrf_token %}
+									{{ form.as_p}}
+									<div class="form-group text-center">
+            	    	<button type="submit" class="btn btn-primary ">Send</button>
+            	   	</div>
 								</form>
-								
 							</div>
 							<div class="col-md-8">
+								<br>
 								<h5 class="text-center">Feedback Information</h5><hr>
 								{% if page_obj %}
 								<table class="table" style="color: white;font-weight: bold">
@@ -65,13 +55,13 @@
 											<td>
 											<div class="row">
 												<div class="col-md-6">
-													<a href="/management/update-feedback/{{feedback.id}}"><button class="btn btn-warning">Update</button></a>
+													<a href="/management/update-feedback/{{feedback.id}}"><button class="btn btn-warning"><i class="fa fa-edit"></i></button></a>
 							
 												</div>
 
 												<div class="col-md-6">
 													
-													<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal">Delete</button>
+													<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal"><i class="fa fa-trash"></i></button>
 							
 												</div>
 											</div>

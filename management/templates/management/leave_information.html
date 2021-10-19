@@ -5,8 +5,7 @@
 
 {%load crispy_forms_tags %}
 {% block content %}
-
-	<div class="container-fluid">
+	<div class="container" id="leave">
 		<div class="row">
 			<div class="col-md-4">
 				{% include 'management/sidebar.html'%}
@@ -16,7 +15,7 @@
 					<div class="card-body" style="color: white;">
 						<div class="row">
 							<div class="col-md-4">	
-								<form action="" method="POST">
+								<form action="" method="POST" class="leave-form">
 									<h5 class="text-center">Apply Leave </h5><hr>
 									
 									{% csrf_token %}
@@ -51,10 +50,10 @@
 											<td>
 											<div class="row">
 												<div class="col-md-6">
-													<a href="/management/update-leave/{{leave.id}}"><button class="btn btn-warning">Update</button></a>
+													<a href="/management/update-leave/{{leave.id}}"><button class="btn btn-warning"><i class="fa fa-edit"></i></button></a>
 												</div>
 												<div class="col-md-6">
-													<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal">Delete</button>
+													<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal"><i class="fa fa-trash"></i></button>
 												</div>
 											</div>
 											</td>

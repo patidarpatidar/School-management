@@ -1,6 +1,20 @@
 
 <ul id="id_subjects" style="list-style: none;">
 	{% for subject in subjects %}
-		<li><input type="checkbox" name="subjects" value="{{subject.id}}"> {{subject}}</li>
+		{% if request.user.teacher %}
+			{% if subject in reqest.user.teacher.subjects%}
+				<li><input type="checkbox" name="subjects" value="{{subject.id}}" checked> {{subject}}</li>
+			{% else%}
+				<li><input type="checkbox" name="subjects" value="{{subject.id}}"> {{subject}}</li>
+			{% endif %}
+		{% elif request.user.student %}
+			{% if subject in request.user.student.subjects%}
+				<li><input type="checkbox" name="subjects" value="{{subject.id}}" checked> {{subject}}</li>
+			{% else%}
+				<li><input type="checkbox" name="subjects" value="{{subject.id}}"> {{subject}}</li>
+			{% endif %}
+		{% else %}
+			<li><input type="checkbox" name="subjects" value="{{subject.id}}"> {{subject}}</li>
+		{% endif %}
 	{% endfor %}
 </ul>

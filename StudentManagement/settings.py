@@ -31,7 +31,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'management',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,6 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bootstrap_datepicker_plus',
     'crispy_forms',
+    'management',
+    'rest_framework',
+    'django_filters',
+    
 ]
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
@@ -52,6 +55,24 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+REST_FRAMEWORK = {
+    
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',  
+    ],
+    
+    #'DEFAULT_AUTHENTICATION_CLASSES': [       
+    #    'management.authentication.UserAuthentication', 
+    #],
+    
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 8
+    
+    
+}   
+
 
 ROOT_URLCONF = 'StudentManagement.urls'
 
@@ -83,11 +104,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-STATICFILES_FINDERS = ( 
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
-)
 
 
 # Password validation
@@ -108,7 +124,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
+DATE_INPUT_FORMATS = ("%d/%m/%Y","%y/%m/%d","%m/%d/%y") 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
@@ -122,19 +138,36 @@ USE_L10N = True
 
 USE_TZ = True
 
-
+ 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR,"static"),
-)
-STATIC_ROOT = os.path.join(BASE_DIR,'staticfiles')
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+    '/var/www/static/',
+]
+#STATICFILES_DIRS = (
+#   os.path.join(BASE_DIR,"static"),
+#)
+#STATIC_ROOT = os.path.join(BASE_DIR,'staticfiles')
 
 TEMPLATE_DIRS = (
     os.path.join(BASE_DIR, 'templates'),
 )
 
+DOMAIN = 'http://127.0.0.1:8000'
+#FORGOT_PASSWORD_LINK = DOMAIN +'management/forgot-password/'
+
+
 MEDIA_URL = ''
 MEDIA_ROOT = BASE_DIR 
+DEFAULT_FROM_EMAIL = 'rajmalpatidar2248@gmail.com'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'raj.patidar429@gmail.com'
+EMAIL_HOST_PASSWORD = 'dprv7231'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True

@@ -1,78 +1,116 @@
 {% extends "management/base.html" %}
-
-
+{% load static %}
 {% block title %} Attendance Record {% endblock %}
-
-
 {% block content %}
-
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col-md-4">
 				{% include 'management/sidebar.html'%}
 			</div>
-			
 			<div class="col-md-8">
 				<div class="card bg-dark">
 					<div class="card-body" style="color: white;">
-						<table class="table" style="color: white;font-weight: bold">
-							<h5 class="text-center">Student Attendance Record</h5>
-							<h5 class="text-center"><b style="color:orange;">course : {{request.user.teacher.course}}</b></h5><hr>
-							<h5>Teacher Name : {{request.user.first_name}}{{request.user.last_name}}</h5>
-							<thead>
-								<tr>
-									<th scope="col">Students</th>
-									<th scope="col">Subjects</th>
-									<th scope="col">Date</th>
-									<th scope="col">Status</th>
-									<th>Action</th>
-
-								</tr>
-							</thead> 
-							<tbody>
-								{% for attendance in page_obj %}
-								<tr>
-									<td>{{attendance.students}}</td>
-									<td>{{attendance.subjects}}</td>
-									<td>{{attendance.date}}</td>
-									<td>{{attendance.status}}</td>
-									<td>
-										<a href="/management/update-attendance-record/{{attendance.id}}"><button class="btn btn-warning">Update</button></a>
-										<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal">Delete</button></a>
-									</td>
-								</tr>
-								<div class="modal" id="myModal">
-									<div class="modal-dialog">
-					  					<div class="modal-content">
-					  	
-					    					<div class="modal-header">
-					        					<h4 class="modal-title" style="color:black;">Are you sure you delete this attendance? <b>Student: {{attendance.student}}</b></h4>
+						<h5 class="text-center">Student Attendance Record</h5>
+						<h5 class="text-center"><b style="color:orange;">course : {{teacher.course}}</b></h5><hr>
+						<h5>Teacher Name : {{teacher}}</h5>
+						<form action="" method="">
+							<div class="row">
+								<div class="col-md-3 form-group">
+									{{form.students}}
+								</div>
+								<br>
+								<div class="col-md-3">
+									{{form.subjects}}
+								</div>
+								<br>
+								<div class="col-md-3 form-group">
+									{{form.date}}
+								</div>
+								<div class="col-md-3">
+									{{form.short}}
+								</div>
+							</div>
+							<button class="btn btn-outline-success" type="submit" style="height:40px;" value="search"> Search </button>
+						</form>
+						<div id="attendance">
+							{% if page_obj %}
+							<table class="table" style="color: white;font-weight: bold">
+							<br>
+								<thead>
+									<tr style="color:orange;">
+										<th>
+											<input id="select_all" type="checkbox" name="selected">
+										</th>
+										<th scope="col">Students</th>
+										<th scope="col">Subjects</th>
+										<th scope="col">Date</th>
+										<th scope="col">Status</th>
+										<th>Action</th>
+									</tr>
+								</thead> 
+								<tbody>
+									{% for attendance in page_obj %}
+										<tr id="{{attendance.id}}">
+											<td><input class="attendance_select" type="checkbox" name="selected_action" value="{{attendance.id}}"></td>
+											<td>{{attendance.students}}</td>
+											<td>{{attendance.subjects}}</td>
+											<td>{{attendance.date}}</td>
+											<td>{{attendance.status}}</td>
+								
+											<td>
+												<a href="/management/update-attendance-record/{{attendance.id}}"><button class="btn btn-info"><i class="fa fa-edit"></i></button></a>
+												<button type="button" class="btn btn-danger " data-toggle="modal" data-target="#myModal"><i class="fa fa-trash"></i></button></a>
+											</td>		
+										</tr>
+										<div class="modal" id="myModal">
+											<div class="modal-dialog">
+					  						<div class="modal-content">
+					    						<div class="modal-header">
+					        					<h4 class="modal-title" style="color:red;">Are you sure you want delete this attendance? <b>Student: {{attendance.students}}</b></h4>
 					        					<button type="button" class="close" data-dismiss="modal">&times;</button>
 					      					</div>
-					      					<div class="modal-footer">
+					   							<div class="modal-footer">
         										<a href="/management/delete-attendance-record/{{attendance.id}}"><button type="button" class="btn btn-success" value="True">Confirm</button></a>
-        										<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-      										</div>
-
+     												<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+   												</div>
+												</div>
+  										</div>
 										</div>
-   
-  									</div>
-								</div>
-
-								{% endfor %}
-							</tbody>
-						</table>
+									{% endfor %}
+								</tbody>
+							</table>
+						<form method="post">
+							{% csrf_token %}
+							<button type="button" id="delete_attendance" class="btn btn-danger">Delete Selected item</button>
+							<button type="button" class="btn btn-danger " data-toggle="modal" data-target="#delete_all"><i class="fa fa-trash"></i> Delete All</button></a>
+							<div class="modal" id="delete_all">
+								<div class="modal-dialog">
+					  			<div class="modal-content">
+					    			<div class="modal-header">
+					        		<h4 class="modal-title" style="color:red;"><b>Are you sure you want delete all attendance records ?</b></h4>
+					        		<button type="button" class="close" data-dismiss="modal">&times;</button>
+					      		</div>
+					     			<div class="modal-footer">
+        							<a href="/management/delete-all-attendance"><button type="button" class="btn btn-success" value="True">Confirm</button></a>
+        							<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+      							</div>
+									</div>
+  							</div>
+							</div>
+						</form>
+						{% else %}
+							<h5>No any attendance records!</h5>
+						{% endif %}
+						</div>
 						<div class="pagination">
     						<span class="step-links" style="font-weight: bold;">
        						{% if page_obj.has_previous %}
             					<a href="?page=1">&laquo; first </a>
             					<a href="?page={{ page_obj.previous_page_number }}"> previous </a>
         					{% endif %}
-
         					<span class="current">
             				Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
         					</span>
-
         					{% if page_obj.has_next %}
             					<a href="?page={{ page_obj.next_page_number }}"> next </a>
             					<a href="?page={{ page_obj.paginator.num_pages }}"> last &raquo;</a>
@@ -84,7 +122,6 @@
 			</div>
 		</div>
 	</div>		
-		
-
-
 {% endblock %}
+
+

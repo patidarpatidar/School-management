@@ -1,5 +1,4 @@
 
-
 <style type="text/css">
 .sidebar a{
   color: white;
@@ -12,43 +11,31 @@
   color:white;
   background: black;
 }
-
 </style>
-
-<div class=" sidebar">
+<div class="sidebar">
   <a href="/management/user-profile" class="list-group-item list-group-item-action" style="color:orange;background: blue"><b>Name: {{request.user.first_name|capfirst}} {{request.user.last_name|capfirst}}</b></a>
-
-  
     {% if request.user.student%}
       <a href="/management/course-detail" class="list-group-item list-group-item-action">Course Details</a>
       <a href="/management/attendance-view" class="list-group-item list-group-item-action">View Attendance</a>
       <a href="/management/view-result" class="list-group-item list-group-item-action">View Results</a>
-      <a href="/management/leave-information" class="list-group-item list-group-item-action">Leave Information</a>
-      
+      <a href="/management/leave-information" class="list-group-item list-group-item-action">Leave Information</a>   
     {% else%}
       {% if request.user.userprofile.role == "student" %}
         <a href="/management/course-registration" class="list-group-item list-group-item-action">Course Registration</a>
-       
       {% endif %}
     {% endif %}
-  
-  
     {% if request.user.teacher%}
   		<a href="/management/teacher-subject-detail" class="list-group-item list-group-item-action">Subject Detail</a>
       <a href="/management/take-attendance" class="list-group-item list-group-item-action">Take Attendance </a>
       <a href="/management/attendance-record" class="list-group-item list-group-item-action">Attendance Record </a>
       <a href="/management/leave-information" class="list-group-item list-group-item-action">Leave Information</a>
       <a href="/management/add-result" class="list-group-item list-group-item-action">Add Results</a>
-      <a href="/management/result-information" class="list-group-item list-group-item-action">Result Information</a>
-
-      
+      <a href="/management/result-information" class="list-group-item list-group-item-action">Result Information</a>  
     {% else %}
       {% if request.user.userprofile.role == "teacher" %}
-        <a href="/management/teacher-subject-registration" class="list-group-item list-group-item-action">Subject Registration</a>
-        
+        <a href="/management/teacher-subject-registration" class="list-group-item list-group-item-action">Subject Registration</a>       
       {% endif %}		
     {% endif %}
     <a href="/management/feedback-information" class="list-group-item list-group-item-action">Feedback Information</a>
-    	
 </div>
 <br>

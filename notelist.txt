@@ -1,0 +1,58 @@
+Student (login_required)
+ 1.student_course_registration /create/update/delete/view
+ 2.Attendance View
+ 3. Results_view
+
+Teacher (login_required)
+ 1.teacher_course_registration /create/update/delete/view
+ 2.Attendance : add/update/delete/view_information
+ 3. Results : add/update/delete/view_information
+
+Student and Teacher :(login_required)
+
+ 1.UserRegistration using signup
+ 2.UserProfile create/update/delete/view_details
+ 3.Send feedback messages /update/delete 
+ 4.Apply for leave /update leave msg / delete
+ 5.User can change password 
+
+1.Used Django Form:
+  1.Django form and model form used 
+  2.Intial data & object passsed in form.
+  3.__init__ method used in form.
+  4.Choice_field / File_field / Model and multiple model choice fields used in form 
+  5.Validation apply using clean method.
+  6.Widget attrs and bootstrap class used in form fields .
+  7.Django auth user form used for user create.
+  8.Form class inherit used.
+
+2.Used Model:
+  1.Create Model.
+  2.Meta option used (verbose_name)
+  3.__str__ string method used.
+  4.Formate_html used in model.
+  5.Model Abstract methodused.  
+  6.ManytoMany/ManyToOne & OneToMany /OneToOne relationship .
+  7.Model Instance method used.
+  8.Making Query.
+
+3.Used views:
+  1.Django Http request and response used.
+  2.Django Contrib.auth.hashers to used make_password and check_password
+  3.Django.contrib.auth to used authenticated , login , logout .
+  4.Genric class based view and generic form view.
+  5.Paginator used in view.
+  6.Email sending (send_mail).
+  7.used cleand_data method.
+  8.Django messages and errors.
+
+4. Static & Media file used (images/css/js)
+5. Ajax and jquery used.
+6. Html Template Inheriting (extends & include)
+7. Search and filter used in records.
+8. Inside Django Admin (Register model/List display/List_filter/Search_fields/List_editable) used.
+9. Used Django testing and write testcase.
+10. Used django decorators and custom decorators
+11. used django signals and custom signals.
+
+

@@ -3,16 +3,17 @@
 
 {% block title %} Home {% endblock %}
 {% load static %}
-<style>
-  /* Make the image fully responsive */
-  .carousel-inner img {
-    width: 100%;
-    height: 100%;
-  }
-</style>
 
+<style type="text/css">
+	@media screen and (max-width:992px){
+	.index {
+		background-color: lightblue;
+	}
+}
+</style>
 {% block content %}
-	<div class="container-fluid">
+
+	<div class="container-fluid" id="index">
 		<div class="row">
 		<div class="col-md-6">
 		<div id="demo" class="carousel slide" data-ride="carousel">
@@ -22,24 +23,24 @@
     			<li data-target="#demo" data-slide-to="2"></li>
   			</ul>
   			<div class="carousel-inner">
-    		<div class="carousel-item active">
+    		<div class="carousel-item active text-center">
       			<img src="{% static 'images/image1.jpg' %}" alt="Los Angeles" width="650" height="500">
       			<div class="carousel-caption">
-        			<h3>Los Angeles</h3>
+        			<h5>Los Angeles</h5>
         			<p>We had such a great time in LA!</p>
       			</div>   
     		</div>
     		<div class="carousel-item">
       			<img src="{% static 'images/image2.jpg' %}" alt="Chicago" width="650" height="500">
       			<div class="carousel-caption">
-        			<h3>Chicago</h3>
+        			<h5>Chicago</h5>
         			<p>Thank you, Chicago!</p>
      			 </div>   
     			</div>
     		<div class="carousel-item">
       			<img src="{% static 'images/image3.jpg' %}" alt="New York" width="650" height="500">
       			<div class="carousel-caption">
-       				 <h3>New York</h3>
+       				 <h5>New York</h5>
        				 <p>We love the Big Apple!</p>
       			</div>   
     		</div>
@@ -53,10 +54,11 @@
 		</div>
 				
 		</div>
-		
+	
 		<div class="col-md-6">
+			<br>
 			<div class="card bg-dark">
-				<div class="card-body text-center" style="color: white;">
+				<div class="card-body text-center" style="color: white;" >
 					<h5>Courses Information:</h5>
 					<h5><b style="color:orange">Total course : {{total}}</b></h5><hr>
 					<table class="table" style="color: white;font-weight: bold">

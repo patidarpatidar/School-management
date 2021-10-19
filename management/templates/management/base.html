@@ -6,74 +6,56 @@
   	<!-- Required meta tags -->
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width	initial-scale=1">
-		<script type="text/javascript" src="{% static 'js/ajax.js'%}"></script>
   	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
-  	<link rel="stylesheet" type="text/css" href="{% static 'css/all.min.css' %}">
+  	<link rel="stylesheet" type="text/css"   href="{% static 'css/all.min.css' %}">
   		<!-- link style.css -->
-		<link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
-
 		
-
-
-
+		<link rel="stylesheet" type="text/css" href="{% static 'css/all.style.css'%}">
+		
 		<title>{% block title %} {% endblock %}</title>
 	</head>
-	<style type="text/css">
-		.errorlist{
-			color: red;
-		}
-		.navbar {
-  		top: 0;
-  		width: 100%;
-  		background-color: black;
-  		color: white;
-  		text-align: center;
-  		font-family: sans-serif;
-  	}	
-  	.dropdown-menu a{
-  		color: white;
-  	}
-	</style>
-
-	<body style="background-color: lightgray">
-		<nav class="navbar navbar-expand-lg navbar-dark bg-dark " style="position: fixed;z-index: 1;top: 0;right: 0">
-  			<a style="font-family: sans-serif;" class="navbar-brand" href="/management/"><b style="color: orange">Student</b> Management</a>
-  			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-    			<span class="navbar-toggler-icon"></span>
-  			</button>
+	
+	<body class="body">
+		<nav class="navbar navbar-expand-lg navbar-dark bg-dark ">
+			<img  src="{% static 'images/logo.png'%}" class="img-fluid rounded-circle mx-auto d-block" alt="..." style="height: 40px; width: 40px"></li>
+  		<a style="font-family: sans-serif;" class="navbar-brand" href="/management/"><b style="color: orange"> Student</b> Management</a>
+  		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    		<span class="navbar-toggler-icon"></span>
+  		</button>
 				
-				<div class="collapse navbar-collapse" id="navbarSupportedContent">
-					<ul class="navbar-nav mr-auto">
-						<li class="nav-item">
-						<a class="nav-link active" aria-current="page" href="/management/"><i class="fas fa-home"></i> Home</a>
-						</li>
-						{% if user.is_authenticated %}
-							<li class="nav-item"><a class="nav-link" href="/management/user-profile"><i class="fas fa-users"></i> Profile</a></li>
+			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+				<ul class="navbar-nav mr-auto">
+					<li class="nav-item">
+						<a class="nav-link active" aria-current="page" href="/	management/"><i class="fas fa-home"></i> Home</a>
+					</li>
+					{% if user.is_authenticated %}
+						<li class="nav-item"><a class="nav-link" href="/management/user-profile"><i class="fas fa-users"></i> Profile</a></li>
+					{% endif %}
+				</ul>
+				<ul class="navbar-nav ml-auto mb-2 mb-lg-0">
+					{% if user.is_authenticated %}
+						<br>
+						
+						<li class="nav-link">
+						{% if request.user.userprofile.image %}
+							<img  src="{{user.userprofile.image.url}}" class="img-fluid rounded-circle mx-auto d-block" alt="..." style="height: 40px; width: 40px"></li>	
 						{% endif %}
-					</ul>
-					<ul class="navbar-nav ml-auto mb-2 mb-lg-0">
-						{% if user.is_authenticated %}
-							<br>
-							<li class="nav-link">
-								{% if request.user.userprofile.image %}
-									<img  src="{{user.userprofile.image.url}}" class="img-fluid rounded-circle mx-auto d-block" alt="..." style="height: 40px; width: 40px"></li>	
-								{% endif %}
-							<div class="dropdown">
-  							<button type="button" class="btn btn-info dropdown-toggle bg-dark" style="margin-top: 8px;" data-toggle="dropdown">
+						<div class="dropdown">
+  						<button type="button" class="btn btn-info dropdown-toggle bg-dark" style="margin-top: 8px;" data-toggle="dropdown">
   							Welcome : {{user.first_name}}
    							 
-  							</button>
-  							<div class="dropdown-menu bg-dark">	
-    							<a class="dropdown-item" href="/management/change-password"><i class="far fa-edit"></i> Change Password</a>
-    							<a class="dropdown-item" href="/management/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
-  							</div>
-							</div>
-						{% else %}
+  						</button>
+  						<div class="dropdown-menu bg-dark">	
+    						<a class="dropdown-item" href="/management/change-password"><i class="far fa-edit"></i> Change Password</a>
+    						<a class="dropdown-item" href="/management/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+  						</div>
+						</div>
+					{% else %}
 						<li><a class="nav-link" href="/management/signup"><i class="fas fa-user-plus"></i> SignUp</a></li>
 						<li><a class="nav-link" href="/management/login"><i class="fas fa-sign-in-alt"></i> Login</a></li>
-						{%endif%}
-					</ul>
-				</div>
+					{%endif%}
+				</ul>
+			</div>
 		</nav>
 		<div class="contact">
 			
@@ -84,19 +66,8 @@
 		{% endblock %}
 <br><br>
 <!-- Footer -->
-<style>
-footer {
-  position: fixed;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  
-  color: white;
-  text-align: center;
-}
-</style>
 
-<footer class=" text-center text-white bg-dark">
+<footer class="footer text-center text-white bg-dark">
   
   <!-- Copyright -->
   <div class="text-center p-3">
@@ -114,6 +85,9 @@ footer {
 
 
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+<script type="text/javascript" src="{{STATIC_URL}} /static/js/ajax.js"></script>
+
 <!-- Popper JS -->
 <script type="text/javascript">
 	{% if messages %}			
@@ -122,9 +96,6 @@ footer {
 	{% endfor %}
 	{% endif %}
 </script>
-{% block javascript %}
-{% endblock javascript %}
+</body>
 
-
-	</body>
 </html>
