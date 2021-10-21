@@ -25,33 +25,39 @@ from django.db.models.signals import post_save
 #------------------------------------------------------------------------------------->
 
 
-from .serializers import UserSerializer
+from .serializers import UserSerializer,ChangePasswordSerializer 
 from django.http import JsonResponse,Http404
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser,FormParser,MultiPartParser,FileUploadParser
-from rest_framework.decorators import api_view , permission_classes
+from rest_framework.decorators import api_view , permission_classes,action
 from rest_framework import permissions , status,viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.reverse import reverse
 from rest_framework import mixins , generics,filters
-#from .permissions import IsSuperUser
-
-
+from .permissions import IsSuperUser 
 
 class UserViewSet(viewsets.ModelViewSet):
-	
 	queryset = User.objects.all().order_by('-date_joined')
 	serializer_class = UserSerializer
-	#permission_classes = [permissions.IsAdminUser | IsSuperUser]
-	#filterset_fields = ['username','first_name']
-	
-	#filter_backends = [filters.OrderingFilter]
-	#ordering_fields = ['username', 'email']
-
-	#filter_backends = [filters.SearchFilter]
-	#search_fields = ['username']
+	permission_classes = [permissions.IsAuthenticatedOrReadOnly | IsSuperUser]
+	filterset_fields = ['username','first_name']
 	#parser_classes = [JSONParser,FormParser]
+
+	
+	@action(methods=['put'],detail=True,url_path='change-password',url_name='change-password',serializer_class=ChangePasswordSerializer,permission_classes=[permissions.IsAuthenticated])
+	def change_password(self,request,pk=None):
+		user = User.objects.get(pk=pk)
+		if request.user.pk==user.pk :
+			serializer = ChangePasswordSerializer(data=request.data,context = {'user':user})
+			if serializer.is_valid():
+				new_password = serializer.validated_data['new_password']
+				user.set_password(new_password)
+				user.save()
+				return Response({'msg':'password change successfully!'},status=status.HTTP_200_OK)
+			return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+		return Response({'msg':'you can not change this password!'},status=status.HTTP_400_BAD_REQUEST)
+
 	
 '''
 class UserList(generics.ListCreateAPIView):

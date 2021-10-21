@@ -27,7 +27,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -41,7 +40,9 @@ INSTALLED_APPS = [
     'crispy_forms',
     'management',
     'rest_framework',
+    'django_rest_passwordreset',
     'django_filters',
+
     
 ]
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -69,9 +70,16 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 8
-    
-    
+
 }   
+
+DJANGO_REST_PASSWORDRESET_TOKEN_CONFIG = {
+    "CLASS": "django_rest_passwordreset.tokens.RandomStringTokenGenerator",
+    "OPTIONS": {
+        "min_length": 10,
+        "max_length": 20
+    }
+}
 
 
 ROOT_URLCONF = 'StudentManagement.urls'
