@@ -25,7 +25,7 @@ from django.db.models.signals import post_save
 #------------------------------------------------------------------------------------->
 
 
-from .serializers import UserSerializer,ChangePasswordSerializer 
+from .serializers import *
 from django.http import JsonResponse,Http404
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser,FormParser,MultiPartParser,FileUploadParser
@@ -35,15 +35,18 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.reverse import reverse
 from rest_framework import mixins , generics,filters
-from .permissions import IsSuperUser 
+from .permissions import IsSuperUser ,IsTeacher
+from  rest_framework import authentication
+#import django_filters.rest_framework
+
 
 class UserViewSet(viewsets.ModelViewSet):
 	queryset = User.objects.all().order_by('-date_joined')
 	serializer_class = UserSerializer
-	permission_classes = [permissions.IsAuthenticatedOrReadOnly | IsSuperUser]
+	authentication_classes = [authentication.TokenAuthentication]
+	permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 	filterset_fields = ['username','first_name']
 	#parser_classes = [JSONParser,FormParser]
-
 	
 	@action(methods=['put'],detail=True,url_path='change-password',url_name='change-password',serializer_class=ChangePasswordSerializer,permission_classes=[permissions.IsAuthenticated])
 	def change_password(self,request,pk=None):
@@ -58,131 +61,117 @@ class UserViewSet(viewsets.ModelViewSet):
 			return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 		return Response({'msg':'you can not change this password!'},status=status.HTTP_400_BAD_REQUEST)
 
-	
-'''
-class UserList(generics.ListCreateAPIView):
-	queryset = User.objects.all()
-	serializer_class = UserSerializer
+
+class UserProfileList(generics.ListCreateAPIView):
+	queryset = UserProfile.objects.all()
+	serializer_class = UserProfileSerializer
+
+class UserProfileDetail(generics.RetrieveUpdateDestroyAPIView):
+	queryset = UserProfile
+	serializer_class = UserProfileSerializer
+
+class CourseList(generics.ListCreateAPIView):
+	queryset = Course.objects.all()
+	serializer_class = CourseSerializer
 	permission_classes = [permissions.IsAdminUser]
 
-class UserDetail(generics.RetrieveUpdateDestroyAPIView):
-	queryset = User.objects.all()
-	serializer_class = UserSerializer
+class CourseDetail(generics.RetrieveUpdateDestroyAPIView):
+	queryset = Course
+	serializer_class = CourseSerializer
+	permission_classes = [permissions.IsAdminUser]
+
+class SubjectList(generics.ListCreateAPIView):
+	queryset =Subject.objects.all()
+	serializer_class = SubjectSerializer
+	permission_classes = [permissions.IsAdminUser]
+
+class SubjectDetail(generics.RetrieveUpdateDestroyAPIView):
+	queryset =Subject
+	serializer_class = SubjectSerializer
+	permission_classes = [permissions.IsAdminUser]
+
+class LeaveList(generics.ListCreateAPIView):
+	queryset = Leave.objects.all()
+	serializer_class = LeaveSerializer
 	permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-'''
 
-'''
-class UserList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.GenericAPIView):
-	queryset = User.objects.all()
-	serializer_class = UserSerializer
+class LeaveDetail(generics.RetrieveUpdateDestroyAPIView):
+	queryset = Leave
+	serializer_class = LeaveSerializer
+	permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-	def get(self,request,*args,**kwargs):
-		return self.list(request,*args,**kwargs)
+class FeedbackList(generics.ListCreateAPIView):
+	queryset = Feedback.objects.all().order_by('-id')
+	serializer_class = FeedbackSerializer
+	permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 	
-	def post(self,request,*args,**kwargs):
-		return self.create(request,*args,**kwargs)
-
-class UserDetail(mixins.RetrieveModelMixin,mixins.UpdateModelMixin,mixins.DestroyModelMixin,generics.GenericAPIView):
-	queryset = User.objects.all()
-	serializer_class = UserSerializer
-	def get(self,request,*args,**kwargs):
-		return self.retrieve(request,*args,**kwargs)
-
-	def put(self,request,*args,**kwargs):
-		return self.update(request,*args,**kwargs)
-	
-	def patch(self,request,*args,**kwargs):
-		#kwargs['partial'] = True
-		return self.partial_update(request,*args,**kwargs)
-
-	def delete(self,request,*args,**kwargs):
-		return self.destroy(request,*args,**kwargs)
-
-'''
-'''
-@permission_classes((permissions.AllowAny,))
-class UserDetail(APIView):
-	def get_object(self,pk):
-		try:
-			return User.objects.get(pk=pk)
-		except User.DoesNotExist:
-			raise Http404
-
-	def get(self, request, pk, format=None):
-	 	user = self.get_object(pk)
-	 	serializer = UserSerializer(user)
-	 	return Response(serializer.data)
-
-	def put(self,request,pk,formate=None):
-		user = self.get_object(pk)
-		serializer = UserSerializer(user,data=request.data)
+	def post(self,request):
+		serializer = FeedbackSerializer(data=request.data,context={'user':request.user})
 		if serializer.is_valid():
 			serializer.save()
-			return Response({"msg":"you compelete update successfully!"},serializer.data)
+			return Response({'msg':'feedback send'},status=status.HTTP_201_CREATED)
 		return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
-	def patch(self,request,pk,formate=None):
-		user = self.get_object(pk)
-		serializer = UserSerializer(user,data=request.data,partial=True)
-		if serializer.is_valid():
-			serializer.save()
-			return Response({"msg":"update data successfully!"},serializer.data)
-		return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+class FeedbackDetail(generics.RetrieveUpdateDestroyAPIView):
+	queryset = Feedback
+	serializer_class = FeedbackSerializer
+	permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+class AttendanceList(generics.ListAPIView):
+	queryset = Attendance.objects.all()
+	serializer_class = AttendanceSerializer
+	permission_classes = [permissions.IsAuthenticated]
+	filterset_fields = ['students','subjects','date']
+	#filter_backends = [filters.OrderingFilter]
+	#ordering_fields = ['students','subjects','date']
+
+class AttendanceDetail(generics.RetrieveDestroyAPIView):
+	queryset = Attendance
+	permission_classes = [IsTeacher]
+	serializer_class = AttendanceSerializer
+
+class ResultList(generics.ListCreateAPIView):
+	queryset = Result.objects.all()
+	serializer_class = ResultSerializer
+	permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 	
-	def delete(self,request,pk,formate=None):
-		user = self.get_object(pk)
-		user.delete()
-		return Response({"msg":"deleted successfully!"},status=status.HTTP_204_NO_CONTENT)
-'''
-
-'''
-@csrf_exempt
-@api_view(['GET','POST'])
-@permission_classes((permissions.AllowAny,))
-def user_list(request):
-	if request.method == 'GET':
-		users = User.objects.all()
-		serializer = UserSerializer(users,many=True)
-		return Response(serializer.data)
-	
-	elif request.method == 'POST':
-		serializer = UserSerializer(data=request.data)
+	def post(self,request):
+		serializer = ResultSerializer(data=request.data,context={'user':request.user})
+		
 		if serializer.is_valid():
 			serializer.save()
-			return Response(serializer.data, status=status.HTTP_201_CREATED)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-@csrf_exempt
-@api_view(['GET','PUT','PATCH','DELETE'])
-@permission_classes((permissions.AllowAny,))
-def user_detail(request,pk):
-	try:
-		user = User.objects.get(pk=pk)
-	except User.DoesNotExist:
-		return Response(status=status.HTTP_404_NOT_FOUND)
-
-	if request.method == 'GET':
-		serializer = UserSerializer(user)
-		return Response(serializer.data)
-
-	elif request.method == 'PUT':
-		serializer = UserSerializer(user,data=request.data)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data)
+			return Response({'msg':'Result add succsefully!'},status=status.HTTP_201_CREATED)
+		
 		return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
-	elif request.method == 'PATCH':
-		serializer = UserSerializer(user,data=request.data,partial=True)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data)
-		return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+class ResultDetail(generics.RetrieveUpdateDestroyAPIView):
+	queryset = Result
+	serializer_class = ResultSerializer
+	permission_classes = [IsTeacher]
 
-	elif request.method == 'DELETE':
-		user.delete()
-		return Response(status=status.HTTP_204_NO_CONTENT)
-'''
+class StudentList(generics.ListCreateAPIView):
+	queryset = Student.objects.all()
+	serializer_class = StudentSerializer
+
+class StudentDetail(generics.RetrieveUpdateDestroyAPIView):
+	queryset = Student
+	serializer_class = StudentSerializer
+
+class TeacherList(generics.ListCreateAPIView):
+	queryset = Teacher.objects.all()
+	serializer_class = TeacherSerializer
+
+class TeacherDetail(generics.RetrieveUpdateDestroyAPIView):
+	queryset = Teacher
+	serializer_class = TeacherSerializer
+
+
+
+
+
+
+
+
 
 def delete_selected_attendance(request):
 	if request.method=="POST":

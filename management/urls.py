@@ -4,22 +4,37 @@ from django.urls import path , include
 from .views import *
 from rest_framework.urlpatterns import format_suffix_patterns
 
-
 app_name = 'management'
 urlpatterns = [
     
     
-    
     #path('users/',UserList.as_view(),name='user-list'),
     #path('users/<int:pk>',UserDetail.as_view(),name='user-detail'),
+    path('userprofile/',UserProfileList.as_view(),name='user-profile'),
+    path('userprofile/<int:pk>/',UserProfileDetail.as_view(),name='user-profile-detail'),
+    path('course/',CourseList.as_view(),name='course-list'),
+    path('course/<int:pk>/',CourseDetail.as_view(),name='course-detail'),
+    path('subject/',SubjectList.as_view(),name='subject-list'),
+    path('subject/<int:pk>/',SubjectDetail.as_view(),name='subject-detail'),
+    path('leave/',LeaveList.as_view(),name='leave-list'),
+    path('leave/<int:pk>/',LeaveDetail.as_view(),name='leave-detail'),
+    path('feedback/',FeedbackList.as_view(),name='feedback-list'),
+    path('feedback/<int:pk>/',FeedbackDetail.as_view(),name='feedback-detail'),
+    path('attendance/',AttendanceList.as_view(),name='attendance-list'),
+    path('attendance/<int:pk>/',AttendanceDetail.as_view(),name='attendance-detail'),
+    path('result/',ResultList.as_view(),name='result-list'),
+    path('result/<int:pk>',ResultDetail.as_view(),name='result-detail'),
+    path('student/',StudentList.as_view(),name='student-list'),
+    path('student/<int:pk>',StudentDetail.as_view(),name='student-detail'),
+    path('teacher/',TeacherList.as_view(),name='teacher-list'),
+    path('teacher/<int:pk>',TeacherDetail.as_view(),name='teacher-detail'),
 
-    #path('users/',user_list,name='user-list'),
-    #path('users/<int:pk>',user_detail,name='user-detail'),
-    
+
+
     path('',index_view,name='index'),
-    path('signup/',signup_view,name='signup'),
-    path('login/',login_view,name='login'),
-    path('logout/',logout_view,name='logout'),
+    path('signup',signup_view,name='signup'),
+    path('login',login_view,name='login'),
+    path('logout',logout_view,name='logout'),
     
     path('user-profile-create',user_profile_create,name='user-profile-create'),
     path('user-profile',user_profile_view,name='user-profile'),

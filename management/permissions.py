@@ -7,4 +7,10 @@ class IsSuperUser(permissions.BasePermission):
 			return True
 		return False
 
-	
+class IsTeacher(permissions.BasePermission):
+
+	def has_permission(self,request,view):
+		if request.user.userprofile.role=='teacher':
+			return True
+		return False
+
