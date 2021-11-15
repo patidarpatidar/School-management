@@ -1,0 +1,94 @@
+{% extends "rest_framework/base.html" %}
+
+{% load rest_framework %}
+{% load static %}
+
+{% block title %}student course registration{% endblock %}
+
+{% block style %}
+  {% block bootstrap_theme %}
+ 		<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'rest_framework/css/bootstrap-tweaks.css' %}"/>
+  	<link rel="stylesheet" type="text/css"   href="{% static 'css/all.min.css' %}">
+
+  {% endblock %}
+ 	<link rel="stylesheet" type="text/css" href="{% static 'rest_framework/css/prettify.css' %}"/>
+
+{% endblock %}
+
+
+{% block content %}
+	<div class="container">
+		<div class="col-md-8">
+			<br>
+			<h5 class="text-center">Student Course Information</h5><hr>
+			<table class="table" style="color: black">
+				<thead>
+					<tr>
+						<th>Action</th>
+						<th scope="col">Student</th>
+						<th scope="col">Course</th>
+						<th scope="col">Subjects</th>
+					</tr>
+				</thead> 
+				<tbody>
+					{% for student in students %}
+					<tr>
+						<td>
+							<div class="row">
+								<div class="col-md-6">
+									<form class="button-form" action="{% url 'management:student-detail' pk=student.id %}" data-method="GET">
+                    <button class="btn btn-warning"><i class="fa fa-edit"></i></button>
+                  </form>
+								</div>
+							</div>
+						</td>
+						<td>{{student.user}}</td>
+						<td>{{student.course}}</td>
+						{% for subject in student.subjects.all %}
+							<td>{{subject}}</td>
+						{% endfor %}					
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+
+			<hr>
+			<h5 class="text-center">Student Course Registration</h5><hr>
+
+		
+			<form action="" method="post" class="" enctype="multipart/form-data">
+
+				{% csrf_token %}
+				User:
+				<select id="student"  class="form-control" name="user">
+					<option value="0">select any one</option>
+						{% for user in users %}
+							<option value="{{user.id}}">{{user}}</option>	
+						{% endfor %}
+				</select>
+
+				Course:
+				<select id="course"  class="form-control" name="course">
+					<option value="0">select any one</option>
+						{% for course in courses %}
+							<option value="{{course.id}}">{{course}}</option>	
+						{% endfor %}
+				</select>
+			
+				<p id="subject"></p>
+
+				<div class="form-actions text-center">
+        	<button class="btn btn-primary js-tooltip" >POST</button>
+      	</div>
+			</form>
+		</div>
+	</div>
+	{% block script %}
+		<script type="text/javascript" src="{% static 'js/bootstrap.min.js'%}"></script>
+		<script type="text/javascript" src="{% static 'js/all.min.js'%}"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		<script type="text/javascript" src="{{STATIC_URL}} /static/js/ajax.js"></script>
+	{% endblock %}
+
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends "rest_framework/base.html" %}
+
+{% load rest_framework %}
+{% load static %}
+
+{% block title %}student course detail{% endblock %}
+
+{% block style %}
+  {% block bootstrap_theme %}
+  	<link rel="stylesheet" type="text/css" href="{% static 'rest_framework/css/bootstrap.min.css' %}">
+
+    <link rel="stylesheet" type="text/css" href="{% static 'rest_framework/css/bootstrap-tweaks.css' %}"/>
+  	<link rel="stylesheet" type="text/css"   href="{% static 'css/all.min.css' %}">
+
+  {% endblock %}
+ 	<link rel="stylesheet" type="text/css" href="{% static 'rest_framework/css/prettify.css' %}"/>
+
+{% endblock %}
+
+{% block content %}
+	<div class="container">
+		<br>
+		<div class="col-md-8">
+			{% if student %}
+				<h5>Name :{{student.user.first_name}}</h5><hr>
+				<div class="card" style="z-index: -1;">
+					<div class="card-body">
+						<h5>Student : {{student.user}}</h5>
+						<h5>Course : {{student.course}}</h5>
+						<h5>Subject : </h5>
+
+						{% for subject in student.subjects.all %}
+							<h5>{{subject}}</h5>
+
+						{% endfor %}
+						<div class="col-md-6">
+							<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal">Delete</button>	
+						</div>
+					</div>
+					<div class="modal" id="myModal">
+						<div class="modal-dialog">
+							<div class="modal-content">
+					   		<div class="modal-header">
+					   			<h4 class="modal-title">Are you sure you delete your registration?</h4>
+					        <button type="button" class="close" data-dismiss="modal">&times;</button>
+					    	</div>
+					    	<div class="modal-footer">	
+        					<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+        					<form class="button-form" action="{% url 'management:student-detail' pk=student.id %}" method="delete">
+                    <button class="btn btn-danger" type="submit">Delete</button>
+                  </form>
+      					</div>
+							</div>
+  					</div>
+					</div>
+				</div>	
+				<br>
+				<h5 class="text-center">Update Course Registration </h5><hr>
+				
+			<form action="" method="put" class="" enctype="multipart/form-data">
+				{% csrf_token %}
+
+				User:
+				<select id="student"  class="form-control" name="user">
+					<option value="0">select any one</option>
+					{% for user in users %}
+						<option value="{{user.id}}" {% ifequal user.id serializer.user.value %} selected {% endifequal %}>{{user}} </option>	
+					{% endfor %}
+				</select>
+				Course:
+				<select id="course" class="form-control" name="course">
+					{% for course in courses %}
+						<option value="{{course.id}}" {% ifequal course.id serializer.course.value %} selected {% endifequal %}>{{course}}</option>
+					{% endfor %}
+				</select>
+				<br>
+				Subjects:
+				<div id="subject">
+					<ul id="subject" style="list-style: none;">
+						{% for subject in subjects %}
+							<li><input type="checkbox" name="subjects" value="{{subject.id}}" {% if subject.id in serializer.subjects.value %} checked {% endif %}> {{subject}}</li>
+						{% endfor %}
+					</ul>
+				</div>
+							
+				<div class="form-actions text-center">
+        	<button class="btn btn-primary " >PUT</button>
+      	</div>
+			</form>
+
+			<form action="" method="patch" class="" enctype="multipart/form-data">
+				{% csrf_token %}
+				Course:
+				<select id="course" class="form-control" name="course">
+					{% for course in courses %}
+						<option value="{{course.id}}" {% ifequal course.id serializer.course.value %} selected {% endifequal%}>{{course}}</option>
+					{% endfor %}
+				</select>
+				<br>
+				Subjects:
+				<div id="subject">
+					<ul id="" style="list-style: none;">
+						{% for subject in subjects %}
+							<li><input type="checkbox" name="subjects" value="{{subject.id}}" {% if subject.id in serializer.subjects.value %} checked {% endif %}> {{subject}}</li>
+						{% endfor %}
+					</ul>
+				</div>
+			
+				<div class="form-actions text-center">
+        	<button class="btn btn-primary js-tooltip" >PATCH</button>
+      	</div>
+			</form>
+		
+			{% else %}
+				<h5>Data not found!</h5>
+			{% endif %}
+		</div>
+	{% block script %}
+		<script type="text/javascript" src="{% static 'js/jquery.js'%}"></script>
+		<script type="text/javascript" src="{% static 'js/popper.js'%}"></script>
+		<script type="text/javascript" src="{% static 'js/bootstrap.min.js'%}"></script>
+		<script type="text/javascript" src="{% static 'js/all.min.js'%}"></script>
+		<script type="text/javascript" src="{{STATIC_URL}} /static/js/ajax.js"></script>
+
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+
+		<script src="/static/rest_framework/js/ajax-form.js"></script>
+
+		<script>
+	  		$(document).ready(function() {
+	    	$('form').ajaxForm();
+	  	});
+		</script>
+	{% endblock %}
+
+{% endblock %}
+
+

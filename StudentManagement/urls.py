@@ -7,16 +7,13 @@ from rest_framework.routers import DefaultRouter, SimpleRouter
 from management import views
 from rest_framework.routers import DefaultRouter
 #from django_rest_passwordreset.views import ResetPasswordRequestToken
+from rest_framework.authtoken.views import obtain_auth_token
+
+
 router = DefaultRouter(trailing_slash=True)
 router.register(r'users',views.UserViewSet)
 
-'''
-router.register(
-    r'validate_token',
-    ResetPasswordRequestToken,
-    basename='reset-password-request'
-)
-'''
+
 urlpatterns = [
     path('', include(router.urls)),
     path('admin/', admin.site.urls),
@@ -24,6 +21,7 @@ urlpatterns = [
 
     path('api-auth/',include('rest_framework.urls' ,namespace='rest_framework')),
     path('password_reset/',include('django_rest_passwordreset.urls',namespace='password_reset')),
+    path('api-token-auth/', obtain_auth_token, name='api-tokn-auth'),
     path('management/',include('management.urls')),
     
 

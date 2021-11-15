@@ -16,7 +16,7 @@ class UserProfileAdmin(admin.ModelAdmin):
 admin.site.register(UserProfile,UserProfileAdmin)
 
 class StudentAdmin(admin.ModelAdmin):
-	list_display = ['user','course','get_subjects']
+	list_display = ['id','user','course','get_subjects']
 	list_filter = ['course']
 admin.site.register(Student,StudentAdmin)
 

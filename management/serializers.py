@@ -5,7 +5,8 @@ from django.core.validators import URLValidator
 from django.contrib.auth.hashers import make_password , check_password
 from .models import UserProfile, Course, Subject, Leave, Feedback, Student ,Teacher, Attendance, Result
 from rest_framework.validators import UniqueValidator
-
+from django.core.mail import send_mail 
+from django.conf import settings
 
 class UserSerializer(serializers.ModelSerializer):
 	url = serializers.HyperlinkedIdentityField(view_name='user-detail',read_only=True)
@@ -136,7 +137,7 @@ class LeaveSerializer(serializers.ModelSerializer):
 		fields = ['url','user','role','leave_date','leave_message','leave_status']
 		read_only_fields = ['leave_status']
 
-
+    
 class FeedbackSerializer(serializers.Serializer):
 	'''
 	ROLE_CHOICE = (
@@ -154,7 +155,7 @@ class FeedbackSerializer(serializers.Serializer):
 	class Meta:
 		model = Feedback
 		fields = ['url','user','role','feedback_message','feedback_reply']
-		read_only_fields = ['feedback_reply']
+		read_only_fields = ['feedback_reply','role',user]
 	'''
 	def create(self,validated_data):
 		user = self.context.get('user')
@@ -197,25 +198,68 @@ class ResultSerializer(serializers.Serializer):
 		return instance
 		
 
-class StudentSerializer(serializers.ModelSerializer):
-	url = serializers.HyperlinkedIdentityField(view_name='management:student-detail')
+class StudentSerializer(serializers.Serializer):
+	#url = serializers.HyperlinkedIdentityField(view_name='management:student-detail')
 	user = serializers.PrimaryKeyRelatedField(queryset=User.objects.filter(userprofile__role='student'))
-	#course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all())
-	#subjects =serializers.PrimaryKeyRelatedField(many=True, queryset=Subject.objects.all())
+	course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all())
+	subjects =serializers.PrimaryKeyRelatedField(style={'base_template':'checkbox_multiple.html'},many=True, queryset=Subject.objects.all())
+	'''
 	class Meta:
 		model = Student
-		fields = ['url','user','course','subjects']
-
+		fields = ['user','course','subjects']
+	'''
 	def validate_user(self,user):
-		user = User.objects.filter(id=user.id).first()
-		if user:
-			raise serializers.ValidationError("Teacher is already reagistered!")
-		return username
+		student = Student.objects.filter(user=user).first()
+		if student:
+			raise serializers.ValidationError("Student is already reagistered!")
+		return user
 
+	def create(self,validated_data):
+		user = validated_data['user']
+		course = validated_data['course']
+		subjects = validated_data['subjects']
+		student = Student.objects.create(user=user,course=course)
+		student.subjects.set(subjects)
+		student.save()
+		return student
 
+	def update(self,instance,validated_data):
+		instance.user = validated_data.get('user',instance.user)
+		instance.course = validated_data.get('course',instance.course)
+		instance.subjects.set(validated_data.get('subjects',instance.subjects))
+		instance.save()
+		return instance
+		
 class TeacherSerializer(serializers.ModelSerializer):
 	url = serializers.HyperlinkedIdentityField(view_name='management:teacher-detail')
 	user = serializers.PrimaryKeyRelatedField(queryset=User.objects.filter(userprofile__role='teacher'),validators=[UniqueValidator(queryset=Teacher.objects.all(),message='Teacher is already reagistered')])
 	class Meta:
 		model = Teacher
 		fields = ['url','user','course','subjects']
+
+
+class ContactSerializer(serializers.Serializer):
+	name = serializers.CharField()
+	email = serializers.EmailField()
+	message = serializers.CharField()
+
+	def save(self):
+		name = self.validated_data['name']
+		email = self.validated_data['email']
+		message = self.validated_data['message']
+		email_from = settings.EMAIL_HOST_USER
+		subject = "contact"
+		send_mail(subject,message,email_from,[email])
+
+
+from django_filters import FilterSet, AllValuesFilter
+
+class AttendanceFilter(FilterSet):
+	students = AllValuesFilter(field_name='students__user__first_name')
+	subjects = AllValuesFilter(field_name='subjects__name')
+	class Meta:
+		model = Attendance
+		fields=(
+  		'students',
+  		'subjects'
+  		)

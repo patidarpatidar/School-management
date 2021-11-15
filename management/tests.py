@@ -17,7 +17,6 @@ class BaseTest(TestCase):
 
 		self.user_unmatching_password={'first_name':'rajmal','last_name':'patidar','username':'rajmal123789','email':'rajmalpatidar2248@gmail.com','password':'dprv7231','confirm_password':'dprv'}
 
-
 		return super().setUp()
 
 class SignUpFormTest(BaseTest):	

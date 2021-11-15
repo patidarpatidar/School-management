@@ -56,3 +56,128 @@ Student and Teacher :(login_required)
 11. used django signals and custom signals.
 
 
+  
+'''
+class UserList(generics.ListCreateAPIView):
+  queryset = User.objects.all()
+  serializer_class = UserSerializer
+  permission_classes = [permissions.IsAdminUser]
+
+class UserDetail(generics.RetrieveUpdateDestroyAPIView):
+  queryset = User.objects.all()
+  serializer_class = UserSerializer
+  permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+'''
+
+'''
+class UserList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.GenericAPIView):
+  queryset = User.objects.all()
+  serializer_class = UserSerializer
+
+  def get(self,request,*args,**kwargs):
+    return self.list(request,*args,**kwargs)
+  
+  def post(self,request,*args,**kwargs):
+    return self.create(request,*args,**kwargs)
+
+class UserDetail(mixins.RetrieveModelMixin,mixins.UpdateModelMixin,mixins.DestroyModelMixin,generics.GenericAPIView):
+  queryset = User.objects.all()
+  serializer_class = UserSerializer
+  def get(self,request,*args,**kwargs):
+    return self.retrieve(request,*args,**kwargs)
+
+  def put(self,request,*args,**kwargs):
+    return self.update(request,*args,**kwargs)
+  
+  def patch(self,request,*args,**kwargs):
+    #kwargs['partial'] = True
+    return self.partial_update(request,*args,**kwargs)
+
+  def delete(self,request,*args,**kwargs):
+    return self.destroy(request,*args,**kwargs)
+
+'''
+'''
+@permission_classes((permissions.AllowAny,))
+class UserDetail(APIView):
+  def get_object(self,pk):
+    try:
+      return User.objects.get(pk=pk)
+    except User.DoesNotExist:
+      raise Http404
+
+  def get(self, request, pk, format=None):
+    user = self.get_object(pk)
+    serializer = UserSerializer(user)
+    return Response(serializer.data)
+
+  def put(self,request,pk,formate=None):
+    user = self.get_object(pk)
+    serializer = UserSerializer(user,data=request.data)
+    if serializer.is_valid():
+      serializer.save()
+      return Response({"msg":"you compelete update successfully!"},serializer.data)
+    return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+  def patch(self,request,pk,formate=None):
+    user = self.get_object(pk)
+    serializer = UserSerializer(user,data=request.data,partial=True)
+    if serializer.is_valid():
+      serializer.save()
+      return Response({"msg":"update data successfully!"},serializer.data)
+    return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+  
+  def delete(self,request,pk,formate=None):
+    user = self.get_object(pk)
+    user.delete()
+    return Response({"msg":"deleted successfully!"},status=status.HTTP_204_NO_CONTENT)
+'''
+
+'''
+@csrf_exempt
+@api_view(['GET','POST'])
+@permission_classes((permissions.AllowAny,))
+def user_list(request):
+  if request.method == 'GET':
+    users = User.objects.all()
+    serializer = UserSerializer(users,many=True)
+    return Response(serializer.data)
+  
+  elif request.method == 'POST':
+    serializer = UserSerializer(data=request.data)
+    if serializer.is_valid():
+      serializer.save()
+      return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@csrf_exempt
+@api_view(['GET','PUT','PATCH','DELETE'])
+@permission_classes((permissions.AllowAny,))
+def user_detail(request,pk):
+  try:
+    user = User.objects.get(pk=pk)
+  except User.DoesNotExist:
+    return Response(status=status.HTTP_404_NOT_FOUND)
+
+  if request.method == 'GET':
+    serializer = UserSerializer(user)
+    return Response(serializer.data)
+
+  elif request.method == 'PUT':
+    serializer = UserSerializer(user,data=request.data)
+    if serializer.is_valid():
+      serializer.save()
+      return Response(serializer.data)
+    return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+  elif request.method == 'PATCH':
+    serializer = UserSerializer(user,data=request.data,partial=True)
+    if serializer.is_valid():
+      serializer.save()
+      return Response(serializer.data)
+    return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+  elif request.method == 'DELETE':
+    user.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+'''

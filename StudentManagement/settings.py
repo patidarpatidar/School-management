@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'management',
     'rest_framework',
     'django_rest_passwordreset',
+    'rest_framework.authtoken',
     'django_filters',
 
     
@@ -58,20 +59,47 @@ MIDDLEWARE = [
 ]
 
 REST_FRAMEWORK = {
-    
+        
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',  
     ],
-    
+    #'DEFAULT_AUTHENTICATION_CLASSES': [
+    #    'rest_framework.authentication.TokenAuthentication',
+    #],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+        
+     ],
     #'DEFAULT_AUTHENTICATION_CLASSES': [       
     #    'management.authentication.UserAuthentication', 
     #],
     
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_FILTER_BACKENDS': [
+    'rest_framework.filters.SearchFilter',
+    'django_filters.rest_framework.DjangoFilterBackend',
+    'rest_framework.filters.OrderingFilter',
+    
+    ],
+    #'DEFAULT_THROTTLE_CLASSES':[
+    #    'rest_framework.throttling.UserRateThrottle',
+    #    'rest_framework.throttling.AnonRateThrottle',
+    #    'rest_framework.throttling.ScopedRateThrottle',
+
+
+    #],
+    'DEFAULT_THROTTLE_RATES':{
+        'anon':'8/day',
+        'user':'5/min',
+        'contacts':'2/min'
+
+    },
+    
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 8
+    'PAGE_SIZE': 8,    
 
 }   
+
+
 
 DJANGO_REST_PASSWORDRESET_TOKEN_CONFIG = {
     "CLASS": "django_rest_passwordreset.tokens.RandomStringTokenGenerator",

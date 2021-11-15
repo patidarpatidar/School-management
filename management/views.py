@@ -8,7 +8,7 @@ from django.contrib.auth.hashers import check_password ,make_password
 from django.db.models import Q
 from .decorator import teacher_required,student_required,role_required
 import datetime 
-from django.urls import reverse
+#from django.urls import reverse
 from django.contrib import messages 
 from django.contrib.auth.models import User
 from django.urls import reverse_lazy
@@ -29,7 +29,7 @@ from .serializers import *
 from django.http import JsonResponse,Http404
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser,FormParser,MultiPartParser,FileUploadParser
-from rest_framework.decorators import api_view , permission_classes,action
+from rest_framework.decorators import api_view , throttle_classes,permission_classes,action
 from rest_framework import permissions , status,viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -37,7 +37,13 @@ from rest_framework.reverse import reverse
 from rest_framework import mixins , generics,filters
 from .permissions import IsSuperUser ,IsTeacher
 from  rest_framework import authentication
-#import django_filters.rest_framework
+import django_filters
+from rest_framework.throttling import ScopedRateThrottle
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_cookie, vary_on_headers
+from rest_framework.renderers import TemplateHTMLRenderer
+from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -117,14 +123,35 @@ class FeedbackDetail(generics.RetrieveUpdateDestroyAPIView):
 	serializer_class = FeedbackSerializer
 	permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
+
 class AttendanceList(generics.ListAPIView):
 	queryset = Attendance.objects.all()
 	serializer_class = AttendanceSerializer
 	permission_classes = [permissions.IsAuthenticated]
-	filterset_fields = ['students','subjects','date']
-	#filter_backends = [filters.OrderingFilter]
-	#ordering_fields = ['students','subjects','date']
+	#name = 'attendance-list'
+	filter_class = AttendanceFilter
+	#filterset_fields = ['students','subjects']
 
+
+	'''
+	template_name = 'management/attendance_list.html'
+
+	def get(self,request):
+		queryset = Attendance.objects.all()
+		serializer = AttendanceSerializer()
+		return Response({'attendance':queryset, 'serializer':serializer})
+	
+	def post(self,request):
+		#queryset = Attendance.objects.all()
+		serializer = AttendanceSerializer(request.data)
+		return Response({'serializer':serializer})
+	'''
+	#filter_backends = [filters.SearchFilter,django_filters.rest_framework.DjangoFilterBackend,filters.OrderingFilter]  
+	#search_fields = ['students__user__first_name','subjects__name']
+	#filterset_fields = ['students','subjects','date']
+	#ordering_fields = ['students','subjects']
+	
+	
 class AttendanceDetail(generics.RetrieveDestroyAPIView):
 	queryset = Attendance
 	permission_classes = [IsTeacher]
@@ -134,7 +161,8 @@ class ResultList(generics.ListCreateAPIView):
 	queryset = Result.objects.all()
 	serializer_class = ResultSerializer
 	permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-	
+	search_fields = ['students']
+
 	def post(self,request):
 		serializer = ResultSerializer(data=request.data,context={'user':request.user})
 		
@@ -149,21 +177,155 @@ class ResultDetail(generics.RetrieveUpdateDestroyAPIView):
 	serializer_class = ResultSerializer
 	permission_classes = [IsTeacher]
 
-class StudentList(generics.ListCreateAPIView):
-	queryset = Student.objects.all()
+class StudentList(APIView):
+	#queryset = Student.objects.all()
 	serializer_class = StudentSerializer
+	renderer_classes = [TemplateHTMLRenderer]
 
-class StudentDetail(generics.RetrieveUpdateDestroyAPIView):
-	queryset = Student
+	template_name = 'management/student_list.html'
+
+	def get(self,request):
+		queryset = Student.objects.all()
+		users = User.objects.filter(userprofile__role='student')
+		courses = Course.objects.all()
+		subjects = Subject.objects.all()
+		serializer = StudentSerializer()
+		return Response({'students':queryset,'serializer':serializer,'users':users,'courses':courses,'subjects':subjects})	
+	
+	@permission_classes((permissions.AllowAny,))
+	def post(self,request):
+		queryset = Student.objects.all()
+		serializer = StudentSerializer(data=request.data)
+		if serializer.is_valid():
+			serializer.save()
+			return Response({'students':queryset,'serializer':serializer},status=status.HTTP_201_CREATED)
+		return Response({'students':queryset,'serializer':serializer},status=status.HTTP_400_BAD_REQUEST)
+
+class StudentDetail(APIView):
 	serializer_class = StudentSerializer
+	renderer_classes = [TemplateHTMLRenderer]
+	permission_classes = [permissions.AllowAny]
 
-class TeacherList(generics.ListCreateAPIView):
-	queryset = Teacher.objects.all()
+	template_name = 'management/student_detail.html'
+	def get_object(self,pk):
+		try:
+			return Student.objects.get(pk=pk)
+		except Student.DoesNotExist:
+			raise Http404
+
+	def get(self, request, pk):
+		student = self.get_object(pk)
+		users = User.objects.filter(userprofile__role='student')
+		courses = Course.objects.all()		
+		subjects = Subject.objects.filter(course=student.course)
+		serializer = StudentSerializer(student)
+		return Response({'student':student,'serializer':serializer,'users':users,'courses':courses,'subjects':subjects})
+		
+	def put(self,request, pk):
+		student = self.get_object(pk)
+		serializer = StudentSerializer(student,data=request.data)
+		if serializer.is_valid():
+			serializer.save()
+		return Response({'student':student, 'serializer':serializer})
+
+	def patch(self,request,pk):
+		student = self.get_object(pk)
+		serializer = StudentSerializer(student,data=request.data,partial=True)
+		if serializer.is_valid():
+			serializer.save()
+			return Response({'student':student, 'serializer':serializer},status=status.HTTP_200_OK)
+		return Response({'student':student, 'serializer':serializer},status=status.HTTP_400_BAD_REQUEST)
+		
+	def delete(self,request,pk):
+		student = self.get_object(pk)
+		student.delete()
+		return Response({'url':'management:student-list'})
+
+  
+
+
+class TeacherList(APIView):
 	serializer_class = TeacherSerializer
+	renderer_classes = [TemplateHTMLRenderer]
+
+	template_name = 'management/teacher_list.html'
+
+	def get(self,request):
+		queryset = Teacher.objects.all()
+		users = User.objects.filter(userprofile__role='teacher')
+		courses = Course.objects.all()
+		subjects = Subject.objects.all()
+		serializer = TeacherSerializer()
+		return Response({'teachers':queryset,'serializer':serializer,'users':users,'courses':courses,'subjects':subjects})	
+	
+	def post(self,request):
+		queryset = Teacher.objects.all()
+		serializer = TeacherSerializer(data=request.data)
+		if serializer.is_valid():
+			serializer.save()
+			return Response({'teachers':queryset,'serializer':serializer})
+		serializer = TeacherSerializer()		
+		return Response({'teachers':queryset,'serializer':serializer})
+	
 
 class TeacherDetail(generics.RetrieveUpdateDestroyAPIView):
 	queryset = Teacher
 	serializer_class = TeacherSerializer
+
+
+
+class ContactView(APIView):
+	#throttle_classes =[ScopedRateThrottle]
+	#throttle_scope = 'contacts'
+
+	def post(self,request):
+		serializer = ContactSerializer(data=request.data)
+		if serializer.is_valid():
+			serializer.save()
+			return Response(status=status.HTTP_200_OK)
+		return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class UserView(APIView):
+	@method_decorator(cache_page(60*60*2))
+	@method_decorator(vary_on_headers("Authorization",))
+	def get(self, request):
+		content = {
+		'user_feed': request.user.username
+		}
+		return Response(content)
+
+
+import random
+from rest_framework import throttling 
+class RandomRateThrottle(throttling.BaseThrottle):
+    def allow_request(self, request, view):
+        return random.randint(1, 10) != 1
+
+
+class ThrottleView(APIView):
+	throttle_classes = [UserRateThrottle]
+	#throttle_classes = [AnonRateThrottle]
+	#throttle_classes =[ScopedRateThrottle]
+	#throttle_scope = 'contacts'
+	#throttle_classes = [RandomRateThrottle]
+	
+	
+	def get(self,request,formate=None):
+		content = {
+			'status':'request was permitted'
+		}
+
+		return Response(content)
+
+#@api_view(['GET'])
+#@throttle_classes([AnonRateThrottle])
+#@action(detail=True, methods=["get"], throttle_classes=[UserRateThrottle])
+
+
+
+
 
 
 

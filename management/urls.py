@@ -26,10 +26,13 @@ urlpatterns = [
     path('result/<int:pk>',ResultDetail.as_view(),name='result-detail'),
     path('student/',StudentList.as_view(),name='student-list'),
     path('student/<int:pk>',StudentDetail.as_view(),name='student-detail'),
+    #path('student/<int:pk>',StudentDetail.as_view(),name='student-delete'),
+
     path('teacher/',TeacherList.as_view(),name='teacher-list'),
     path('teacher/<int:pk>',TeacherDetail.as_view(),name='teacher-detail'),
-
-
+    path('contact/',ContactView.as_view(),name='contact-view'),
+    path('userview/',UserView.as_view(),name='user-view'),
+    path('throttle/',ThrottleView.as_view(),name='throttle-view'),
 
     path('',index_view,name='index'),
     path('signup',signup_view,name='signup'),
@@ -94,4 +97,4 @@ urlpatterns = [
 if settings.DEBUG:
         urlpatterns + static(settings.STATIC_URL,document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-#urlpatterns = format_suffix_patterns(urlpatterns,allowed=['json'])
+urlpatterns = format_suffix_patterns(urlpatterns,allowed=['json','html'])

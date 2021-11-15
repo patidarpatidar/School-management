@@ -1,0 +1,121 @@
+
+{% load rest_framework %}
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title></title>
+	<link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+	<link rel="stylesheet" type="text/css"   href="{% static 'css/all.min.css' %}">
+</head>
+<body style="background: gray;">
+	<div class="container">
+		<div class="col-md-8">
+		<br>
+		<h5 class="text-center">Teacher Information</h5><hr>
+	
+		<table class="table" style="color: black">
+			<thead>
+				<tr>
+					<th>Action</th>
+					<th scope="col">teacher</th>
+					<th scope="col">course</th>
+					<th scope="col">subjects</th>
+				</tr>
+			</thead> 
+			<tbody>
+				{% for teacher in teachers %}
+					<tr>
+						<td>
+							<div class="row">
+								<div class="col-md-6">
+									<form class="button-form" action="{% url 'management:teacher-detail' pk=teacher.id %}" data-method="GET">
+                    <button class="btn btn-warning"><i class="fa fa-edit"></i></button>
+                  </form>
+								</div>
+							</div>
+						</td>
+						<td>{{teacher.user}}</td>
+						<td>{{teacher.course}}</td>
+						{% for subject in teacher.subjects.all %}
+						<td>{{subject}}</td>
+						{% endfor %}
+											
+					</tr>
+				
+			</div>
+				{% endfor %}
+			</tbody>
+		</table>
+
+		<hr>
+		<h5 class="text-center">Teacher Registration</h5><hr>
+
+	
+		<form action="" method="post" class="" enctype="multipart/form-data">
+			{% csrf_token %}
+			User:
+			<select id="teacher"  class="form-control" name="user">
+				<option value="0">select any one</option>
+					{% for user in users %}
+						<option value="{{user.id}}">{{user}}</option>	
+					{% endfor %}
+			</select>
+
+			Course:
+			<select id="course"  class="form-control" name="course">
+				<option value="0">select any one</option>
+				{% for course in courses %}
+					<option value="{{course.id}}">{{course}}</option>	
+				{% endfor %}
+			</select>
+			Subjects:
+			<p id="subject">first for select course!</p>
+
+									
+			<div class="form-group text-center">
+				<input type="submit" name="submit" class="btn btn-primary text-center" value="POST" >
+			</div>
+		</form>
+
+	</div>
+	</div>
+	<script type="text/javascript" src="{% static 'js/jquery.js'%}"></script>
+	<script type="text/javascript" src="{% static 'js/popper.js'%}"></script>
+	<script type="text/javascript" src="{% static 'js/bootstrap.min.js'%}"></script>
+	<script type="text/javascript" src="{% static 'js/all.min.js'%}"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+
+	<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+	
+	<script type="text/javascript" src="{{STATIC_URL}} /static/js/ajax.js"></script>
+
+	<script>
+		window.drf = {
+			csrfHeaderName: "X-CSRFTOKEN",
+			csrfToken: "M9m5ChRS8j3EPW2Y1DIxWRaeXcuAjGv5sMFbUOqUkzPJRMDfcYqARMBHUyKJJ5QV"
+		};
+	</script>
+	<script src="/static/rest_framework/js/jquery-3.5.1.min.js"></script>
+	<script src="/static/rest_framework/js/ajax-form.js"></script>
+	<script src="/static/rest_framework/js/csrf.js"></script>
+	<script src="/static/rest_framework/js/bootstrap.min.js"></script>
+	<script src="/static/rest_framework/js/prettify-min.js"></script>
+	<script src="/static/rest_framework/js/default.js"></script>
+	<script>
+	  $(document).ready(function() {
+	    $('form').ajaxForm();
+	  });
+	</script>
+
+</body>
+
+
+</html>
+
+
+
+
